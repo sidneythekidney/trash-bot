@@ -51,17 +51,17 @@ int main() {
         for (int j = 0; j < 4; ++j) {
             for (int k = i;;) {
                 k = mailbox[mailbox64[k] + bishop_offset[j]];
-                cout << "k: " <<  k << "\n";
                 if (k == -1) {
                     break;
                 }
-                mask |= (1 << k);
+                mask |= (1ULL << k);
+                // hex_to_binary(mask);
             }
         }
-        hex_to_binary(mask);
-        // cout << "0x";
-        // cout << hex << mask;
-        // cout << ",\n";
+        // hex_to_binary(mask);
+        cout << "0x";
+        cout << hex << mask;
+        cout << ",\n";
     }
     cout << "};\n";
     // Rook moves
@@ -76,13 +76,13 @@ int main() {
                 if (k == -1) {
                     break;
                 }
-                mask |= (1 << k);
+                mask |= (1ULL << k);
             }
         }
-        hex_to_binary(mask);
-        // cout << "0x";
-        // cout << hex << mask;
-        // cout << ",\n "; 
+        // hex_to_binary(mask);
+        cout << "0x";
+        cout << hex << mask;
+        cout << ",\n "; 
     }
     cout << "};\n";
 }

@@ -1,5 +1,4 @@
-#ifndef DEFS_H
-#define DEFS_H
+#include <stdint.h>
 
 typedef unsigned long long U64;
 
@@ -16,5 +15,3 @@ enum pieces {
     KNIGHT,
     PAWN
 };
-
-#endif

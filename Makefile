@@ -5,6 +5,9 @@ CXXFLAGS ?= -Wall -Werror -pedantic -g --std=c++11
 find : find_br_moves.cpp
 	$(CXX) $(CXXFLAGS) find_br_moves.cpp -o find.exe
 
+test : test.cpp
+	$(CXX) $(CXXFLAGS) test.cpp -o test.exe
+
 # Remove automatically generated files
 clean :
 	rm -rvf *.exe *~ *.out *.dSYM *.stackdump
