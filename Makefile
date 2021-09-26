@@ -5,6 +5,9 @@ CXXFLAGS ?= -Wall -Werror -pedantic -g --std=c++11
 find : find_br_moves.cpp
 	$(CXX) $(CXXFLAGS) find_br_moves.cpp -o find.exe
 
+initialize : initialize.cpp
+	$(CXX) $(CXXFLAGS) initialize.cpp initialize.h -o initialize.exe
+
 test : test.cpp
 	$(CXX) $(CXXFLAGS) test.cpp -o test.exe
 

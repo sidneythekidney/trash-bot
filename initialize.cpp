@@ -1,5 +1,19 @@
-#include <initialize.h>
+#include "initialize.h"
 #include <cmath>
+#include <iostream>
+
+using namespace std;
+
+void print_binary(U64 num) {
+    for (int i = 0; i < 64; ++i) {
+        if (i % 8 == 0) {
+            cout << "\n";
+        }
+        cout << (num & 1) << ' ';
+        num >>= 1;
+    }
+    cout << "\n";
+}
 
 void pop_bit(U64 &bitboard, uint8_t sq) {
     if (bitboard & (1 << sq)) {
@@ -18,7 +32,7 @@ uint8_t get_ls1b(U64 bitboard) {
 
 U64 set_occupancy(int index, int bits_in_mask, U64 attack_mask) {
     U64 occ = 0ULL;
-    for (uint8_t i = 0; i < bits_in_mask; ++i) {
+    for (int i = 0; i < bits_in_mask; ++i) {
         uint8_t sq = get_ls1b(attack_mask);
         pop_bit(attack_mask, sq);
         // Is the square actually occupied in this variation?
@@ -32,7 +46,7 @@ U64 set_occupancy(int index, int bits_in_mask, U64 attack_mask) {
 // Only used for initialization
 U64 slow_bishop_attacks(uint8_t sq, U64 blockers) {
     U64 attacks = 0ULL;
-    uint8_t r, c, nr, nc;
+    int r, c, nr, nc;
     r = sq / 8;
     c = sq % 8;
     for (nr = r-1, nc = c-1; nr >= 0 && nc >= 0; --nr, --nc) {
@@ -64,7 +78,7 @@ U64 slow_bishop_attacks(uint8_t sq, U64 blockers) {
 
 U64 slow_rook_attacks(uint8_t sq, U64 blockers) {
     U64 attacks = 0ULL;
-    uint8_t r, c, nr, nc;
+    int r, c, nr, nc;
     r = sq / 8;
     c = sq % 8;
     for (nr = r+1, nc = c; nr <= 7; ++nr) {
@@ -94,8 +108,15 @@ U64 slow_rook_attacks(uint8_t sq, U64 blockers) {
     return attacks;
 }
 
-uint8_t countBits(U64 mask) {
-    return (uint8_t)log2(mask) + 1;
+int countBits(U64 mask) {
+    // Count the number of bits in the mask
+    int num_bits = 0;
+    for (int i = 0; i < 64; ++i) {
+        if ((1ULL << i) & mask) {
+            ++num_bits;
+        }
+    }
+    return num_bits;
 }
 
 // Initialize sliding piece masks
@@ -103,17 +124,21 @@ void init_slider_masks() {
     // Initialize bishop mask
     for (int i = 0; i < 64; ++i) {
         U64 mask = 0ULL;
-        uint8_t r, c, nr, nc;
-        for(nr = r+1,  nc = nc+1; nr <= 6 && nc <= 6; ++nr, ++nc) mask |= (1ULL << (nr * 8 + nc));
-        for(nr = r-1,  nc = nc+1; nr >= 1 && nc <= 6; --nr, ++nc) mask |= (1ULL << (nr * 8 + nc));
-        for(nr = r+1,  nc = nc-1; nr <= 6 && nc >= 1; --nr, ++nc) mask |= (1ULL << (nr * 8 + nc));
-        for(nr = r-1,  nc = nc-1; nr >= 1 && nc >= 1; --nr, --nc) mask |= (1ULL << (nr * 8 + nc));
+        int r, c, nr, nc;
+        r = i / 8;
+        c = i % 8;
+        for(nr = r+1,  nc = c+1; nr <= 6 && nc <= 6; ++nr, ++nc) mask |= (1ULL << (nr * 8 + nc));
+        for(nr = r-1,  nc = c+1; nr >= 1 && nc <= 6; --nr, ++nc) mask |= (1ULL << (nr * 8 + nc));
+        for(nr = r+1,  nc = c-1; nr <= 6 && nc >= 1; ++nr, --nc) mask |= (1ULL << (nr * 8 + nc));
+        for(nr = r-1,  nc = c-1; nr >= 1 && nc >= 1; --nr, --nc) mask |= (1ULL << (nr * 8 + nc));
         bishop_masks[i] = mask;
     }
     // Initialize rook masks:
     for (int i = 0; i < 64; ++i) {
         U64 mask = 0ULL;
-        uint8_t r, c, nr, nc;
+        int r, c, nr, nc;
+        r = i / 8;
+        c = i % 8;
         for(nr = r+1, nc = c; nr <= 6; ++nr) mask |= (1ULL << (nr * 8 + nc));
         for(nr = r-1, nc = c; nr >= 1; --nr) mask |= (1ULL << (nr * 8 + nc));
         for(nc = c+1, nr = r; nc <= 6; ++nc) mask |= (1ULL << (nr * 8 + nc));
@@ -128,10 +153,10 @@ void init_slider_attack_tables() {
         // Initialize bishop mask:
         U64 attack_mask = bishop_masks[i];
         // Initialize bit count
-        uint8_t rel_bits = countBits(attack_mask);
+        size_t rel_bits = countBits(attack_mask);
         // Initialize occupancy indices
-        int occ_ind = (1 << rel_bits);
-        for (int j = 0; j < occ_ind; ++j) {
+        U64 occ_ind = (1ULL << rel_bits);
+        for (size_t j = 0; j < occ_ind; ++j) {
             U64 occupancy = set_occupancy(j, rel_bits, attack_mask);
             U64 magic_ind = (occupancy * BishopMagic[i]) >> (64 - bishop_relevant_bits[i]);
             // Initalize bishop attacks:
@@ -142,10 +167,10 @@ void init_slider_attack_tables() {
         // Initialize rook mask:
         U64 attack_mask = rook_masks[i];
         // Initialize bit count
-        uint8_t rel_bits = countBits(attack_mask);
+        size_t rel_bits = countBits(attack_mask);
         // Initialize occupancy indices
-        int occ_ind = (1 << rel_bits);
-        for (int j = 0; j < occ_ind; ++j) {
+        U64 occ_ind = (1 << rel_bits);
+        for (size_t j = 0; j < occ_ind; ++j) {
             U64 occupancy = set_occupancy(j, rel_bits, attack_mask);
             U64 magic_ind = (occupancy * BishopMagic[i]) >> (64 - rook_relevant_bits[i]);
             // Initalize rook attacks:
@@ -225,9 +250,48 @@ void init_king_attack_table() {
     }
 }
 
-void init_all() {
-    init_slider_attack_tables();
-    init_knight_attack_table();
-    init_king_attack_table();
+void init_pawn_attacks() {
+    // 0 - white pawn attacks
+    // 1- black pawn attacks
+
+    // Calculate white sliding attacks
+    for (int i = 0; i < 64; ++i) {
+        // Check left:
+        U64 initial = 0ULL;
+        if (i % 8 != 0 && i / 8 != 7) {
+            initial |= (1 << (i+7)); 
+        }
+        if (i % 8 != 7 && i / 8 != 7) {
+            initial |= (1 << (i+9)); 
+        }
+        pawn_attacks[0][i] = initial;
+    }
+
+    // Calculate blak sliding attacks
+    for (int i = 0; i < 64; ++i) {
+        // Check left:
+        U64 initial = 0ULL;
+        if (i % 8 != 0 && i / 8 != 0) {
+            initial |= (1 << (i-7)); 
+        }
+        if (i % 8 != 7 && i / 8 != 0) {
+            initial |= (1 << (i-9)); 
+        }
+        pawn_attacks[1][i] = initial;
+    }
 }
-    
+
+void init_all() {
+    cout << "init slider attack tables\n";
+    init_slider_attack_tables();
+    cout << "init knight attack tables\n";
+    init_knight_attack_table();
+    cout << "init king attack tables\n";
+    init_king_attack_table();
+    cout << "init pawn attack tables\n";
+    init_pawn_attacks();
+}
+
+int main() {
+    init_all();
+}

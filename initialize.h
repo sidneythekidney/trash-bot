@@ -1,6 +1,6 @@
 #include "defs.h"
 
-uint8_t mailbox[120] = {
+int mailbox[120] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
     -1,  0,  1,  2,  3,  4,  5,  6,  7, -1,
@@ -44,7 +44,7 @@ uint8_t offsets[5] = {
     8, 8, 4, 8, 4
 }; // 5 bytes - Holds number of directions sliding pieces can move
 
-uint8_t offset[6][8] = {
+int offset[6][8] = {
     {-11, -10, -9, -1, 1, 9, 10, 11}, // King
     {-11, -10, -9, -1, 1, 9, 10, 11}, // Queen
     {-10, -1, 1, 10, 0, 0, 0, 0}, // Rook
