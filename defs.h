@@ -1,5 +1,8 @@
 #include <stdint.h>
 
+#ifndef DEFS_H
+#define DEFS_H
+
 typedef unsigned long long U64;
 
 enum color {
@@ -15,3 +18,5 @@ enum pieces {
     KNIGHT,
     PAWN
 };
+
+#endif

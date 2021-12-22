@@ -1,13 +1,28 @@
+#include "defs.h"
 #include "generate.h"
 
-U64 Generate::getBishopAttacks(U64 blockers, uint8_t sq) {
-    blockers &= bishop_masks[sq];
-    U64 ind = (blockers * BishopMagic[sq]) >> (64 - bishop_relevant_bits[sq]);
-    return bishop_attacks[sq][ind];
+// Function to get the bishop mask given blockers
+U64 Generate::getBishopMask(U64 blockers, uint8_t sq) {
+    blockers &= init.bishop_masks[sq];
+    U64 ind = (blockers * init.BishopMagic[sq]) >> (64 - init.bishop_relevant_bits[sq]);
+    return init.bishop_attacks[sq][ind];
 }
 
-U64 Generate::getRookAttacks(U64 blockers, uint8_t sq) {
-    blockers &= rook_masks[sq];
-    U64 ind = (blockers * RookMagic[sq]) >> (64 - rook_relevant_bits[sq]);
-    return rook_attacks[sq][ind];
+// Function to get the rook mask given blockers
+U64 Generate::getRookMask(U64 blockers, uint8_t sq) {
+    blockers &= init.rook_masks[sq];
+    U64 ind = (blockers * init.RookMagic[sq]) >> (64 - init.rook_relevant_bits[sq]);
+    return init.rook_attacks[sq][ind];
+}
+
+// Function to get the knight mask given blockers
+U64 Generate::getKnightMask(U64 blockers, uint8_t sq) {
+    blockers &= init.knight_attacks[sq];
+    return blockers ^ init.knight_attacks[sq];
+}
+
+// Function to get the king mask given blockers
+U64 Generate::getKingMask(U64 blockers, uint8_t sq) {
+    blockers &= init.king_attacks[sq];
+    return blockers ^ init.king_attacks[sq];
 }
