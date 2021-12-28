@@ -16,19 +16,35 @@ void print_binary(U64 bitboard) {
     cout << "\n";
 }
 
-void pop_bit(U64 bitboard, uint8_t sq) {
+U64 pop_bit(U64 bitboard, int sq) {
+    U64 bb = bitboard;
     // Pop the bit at the given square if it exists
-    if (bitboard & (1ULL << sq)) {
-        bitboard ^= (1ULL << sq);
+    if (bb & (1ULL << sq)) {
+        bb ^= (1ULL << sq);
     }
+    else {
+        bb = 0ULL;
+    }
+    return bb;
 }
 
-uint8_t get_ls1b(U64 bitboard) {
-    // Get the 
-    uint8_t pos = 0;
-    while(!bitboard & 1) {
-        bitboard >>= 1;
+int get_ls1b(U64 mask) {
+    int pos = 0;
+    while (mask) {
+        if (mask & 1) {
+            return pos;
+        }
+        mask >>= 1;
         ++pos;
     }
-    return pos;
+    return -1;
+}
+
+int count_bits(U64 mask) {
+    int count = 0;
+    while (mask) {
+        count += mask & 1;
+        mask >>= 1;
+    }
+    return count;
 }

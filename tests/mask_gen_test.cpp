@@ -15,7 +15,7 @@ class Test {
 
         void test_all() {
             // Knight tests:
-            test_knight_middle();
+            test_knight_center();
             test_knight_edge();
             test_knight_corner();
             // Pawn tests:
@@ -25,6 +25,12 @@ class Test {
             test_king_center();
             test_king_edge();
             test_king_corner();
+            // Bishop tests
+            test_bishop_corner();
+            test_bishop_center();
+            // Rook tests
+            test_rook_corner();
+            test_rook_center();
         }
 
         void do_nothing() { }
@@ -55,7 +61,7 @@ class Test {
             return ret;
         }
 
-        void test_knight_middle() {
+        void test_knight_center() {
             // Test the knight moves for middle of the board
             bool fail = false;
             // 1 -- test without blockers:
@@ -71,7 +77,7 @@ class Test {
                 {0,0,0,0,0,0,0,0},
             };
             // the square will be (4,4)
-            uint8_t sq = 4 * 8 + 4;
+            int sq = 4 * 8 + 4;
             U64 kn_mask_no_blockers = generate.getKnightMask(blockers1, sq);
             U64 correct_U64_no_blockers = board_to_U64(correct1);
             if (correct_U64_no_blockers != kn_mask_no_blockers) {
@@ -79,7 +85,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(kn_mask_no_blockers);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_U64_no_blockers);
                 cout << "\n\n";
                 fail = true;
@@ -115,7 +121,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(correct_U64_with_blockers);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_U64_with_blockers);
                 cout << "\n\n";
                 fail = true;
@@ -151,7 +157,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(kn_mask1);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_kn_mask1);
                 cout << "\n\n";
                 fail = true;
@@ -186,7 +192,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(kn_mask2);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_kn_mask2);
                 cout << "\n\n";
                 fail = true;
@@ -231,7 +237,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(kn_mask1);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_kn_mask1);
                 cout << "\n\n";
                 fail = true;
@@ -272,7 +278,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(k_mask1);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_k_mask1);
                 cout << "\n\n";
                 fail = true;
@@ -308,7 +314,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(k_mask2);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_k_mask2);
                 cout << "\n\n";
                 fail = true;
@@ -350,7 +356,7 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(k_mask1);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_k_mask1);
                 cout << "\n\n";
                 fail = true;
@@ -392,13 +398,289 @@ class Test {
                 cout << "The output was:\n";
                 print_binary(k_mask1);
                 cout << "\n\n";
-                cout << "When the ouput should have been:\n";
+                cout << "When the output should have been:\n";
                 print_binary(correct_k_mask1);
                 cout << "\n\n";
                 fail = true;
             }
             if (!fail) {
                 print_success("PASS: test_king_corner()");
+            }
+        }
+
+        void test_bishop_center() {
+            // 1 -- test without blockers
+            bool fail = false;
+            U64 blockers1 = 0ULL;
+            vector<vector<int>> correct1 = {
+                {1,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,1},
+                {0,0,1,0,0,0,1,0},
+                {0,0,0,1,0,1,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,0,1,0,0,0,1,0},
+                {0,1,0,0,0,0,0,1},                
+            };
+            // The square the knight occupies is (4,4)
+            int sq1 = 4 * 8 + 4;
+            U64 b_mask1 = generate.getBishopMask(blockers1, sq1);
+            U64 correct_b_mask1 = board_to_U64(correct1);
+            if (b_mask1 != correct_b_mask1) {
+                print_error("FAIL: test_bishop_center() - no blockers");
+                cout << "The output was:\n";
+                print_binary(b_mask1);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_b_mask1);
+                cout << "\n\n";
+                fail = true;
+            }
+            // 2 -- test with blockers:
+            vector<vector<int>> blockers2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,1,0,0,0,1,0,0},
+                {0,0,0,0,0,0,0,1},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            vector<vector<int>> correct2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,1,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,0,1,0,0,0,1,0},
+                {0,1,0,0,0,0,0,1},                
+            };
+            // The square the knight occupies is (4,4)
+            int sq2 = 4 * 8 + 4;
+            U64 b_mask2 = generate.getBishopMask(board_to_U64(blockers2), sq2);
+            U64 correct_b_mask2 = board_to_U64(correct2);
+            if (b_mask2 != correct_b_mask2) {
+                print_error("FAIL: test_bishop_center() - with blockers");
+                cout << "The output was:\n";
+                print_binary(b_mask2);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_b_mask2);
+                cout << "\n\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_bishop_center()");
+            }
+        }
+
+        void test_bishop_corner() {
+            // 1 -- test without blockers
+            bool fail = false;
+            U64 blockers1 = 0ULL;
+            vector<vector<int>> correct1 = {
+                {1,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,1,0,0,0,0,0},
+                {0,0,0,1,0,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,1,0,0},
+                {0,0,0,0,0,0,1,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            // The square the knight occupies is (7,7)
+            int sq1 = 7 * 8 + 7;
+            U64 b_mask1 = generate.getBishopMask(blockers1, sq1);
+            U64 correct_b_mask1 = board_to_U64(correct1);
+            if (b_mask1 != correct_b_mask1) {
+                print_error("FAIL: test_bishop_corner() - no blockers");
+                cout << "The output was:\n";
+                print_binary(b_mask1);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_b_mask1);
+                cout << "\n\n";
+                fail = true;
+            }
+            // 2 -- test with blockers:
+            vector<vector<int>> blockers2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,1,0,0,0,1,0,0},
+                {0,0,0,0,0,0,0,1},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            vector<vector<int>> correct2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,1,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,1,0,0,0,0},
+                {0,0,1,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            // The square the knight occupies is (7,0)
+            int sq2 = 7 * 8 + 0;
+            U64 b_mask2 = generate.getBishopMask(board_to_U64(blockers2), sq2);
+            U64 correct_b_mask2 = board_to_U64(correct2);
+            if (b_mask2 != correct_b_mask2) {
+                print_error("FAIL: test_bishop_corner() - with blockers");
+                cout << "The output was:\n";
+                print_binary(b_mask2);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_b_mask2);
+                cout << "\n\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_bishop_corner()");
+            }
+        }
+
+        void test_rook_center() {
+            // 1 -- test without blockers
+            bool fail = false;
+            U64 blockers1 = 0ULL;
+            vector<vector<int>> correct1 = {
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {1,1,1,1,0,1,1,1},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},                
+            };
+            // The square the knight occupies is (4,4)
+            int sq1 = 4 * 8 + 4;
+            U64 r_mask1 = generate.getRookMask(blockers1, sq1);
+            U64 correct_r_mask1 = board_to_U64(correct1);
+            if (r_mask1 != correct_r_mask1) {
+                print_error("FAIL: test_rook_center() - no blockers");
+                cout << "The output was:\n";
+                print_binary(r_mask1);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_r_mask1);
+                cout << "\n\n";
+                fail = true;
+            }
+            // 2 -- test with blockers:
+            vector<vector<int>> blockers2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,1,0,0,0,1,0,0},
+                {0,0,0,0,0,0,0,1},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            vector<vector<int>> correct2 = {
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {1,1,1,1,0,1,1,1},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            // The square the knight occupies is (4,4)
+            int sq2 = 4 * 8 + 4;
+            U64 r_mask2 = generate.getRookMask(board_to_U64(blockers2), sq2);
+            U64 correct_r_mask2 = board_to_U64(correct2);
+            if (r_mask2 != correct_r_mask2) {
+                print_error("FAIL: test_rook_center() - with blockers");
+                cout << "The output was:\n";
+                print_binary(r_mask2);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_r_mask2);
+                cout << "\n\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_rook_center()");
+            }
+        }
+
+        void test_rook_corner() {
+            // 1 -- test without blockers
+            bool fail = false;
+            U64 blockers1 = 0ULL;
+            vector<vector<int>> correct1 = {
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,1},
+                {1,1,1,1,1,1,1,0},                
+            };
+            // The square the knight occupies is (7,7)
+            int sq1 = 7 * 8 + 7;
+            U64 r_mask1 = generate.getRookMask(blockers1, sq1);
+            U64 correct_r_mask1 = board_to_U64(correct1);
+            if (r_mask1 != correct_r_mask1) {
+                print_error("FAIL: test_rook_corner() - no blockers");
+                cout << "The output was:\n";
+                print_binary(r_mask1);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_r_mask1);
+                cout << "\n\n";
+                fail = true;
+            }
+            // 2 -- test with blockers:
+            vector<vector<int>> blockers2 = {
+                {0,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},
+                {0,0,0,1,0,1,0,0},
+                {0,1,0,0,0,1,0,0},
+                {0,0,0,0,0,0,0,1},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,1,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            vector<vector<int>> correct2 = {
+                {0,1,1,1,1,1,1,1},
+                {1,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},                
+            };
+            // The square the knight occupies is (0,0)
+            int sq2 = 0 * 8 + 0;
+            U64 r_mask2 = generate.getRookMask(board_to_U64(blockers2), sq2);
+            U64 correct_r_mask2 = board_to_U64(correct2);
+            if (r_mask2 != correct_r_mask2) {
+                print_error("FAIL: test_rook_corner() - with blockers");
+                cout << "The output was:\n";
+                print_binary(r_mask2);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_r_mask2);
+                cout << "\n\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_rook_corner()");
             }
         }
 };

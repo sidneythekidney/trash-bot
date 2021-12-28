@@ -9,8 +9,10 @@ using namespace std;
 
 void print_binary(U64 bitboard);
 
-void pop_bit(U64 bitboard, uint8_t sq);
+U64 pop_bit(U64 bitboard, int sq);
 
-uint8_t get_ls1b(U64 bitboard);
+int get_ls1b(U64 mask);
+
+int count_bits(U64 mask);
 
 #endif

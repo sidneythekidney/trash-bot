@@ -8,10 +8,9 @@ using namespace std;
 U64 Initialize::set_occupancy(int index, int bits_in_mask, U64 attack_mask) {
     U64 occ = 0ULL;
     for (int i = 0; i < bits_in_mask; ++i) {
-        uint8_t sq = get_ls1b(attack_mask);
-        pop_bit(attack_mask, sq);
-        // Is the square actually occupied in this variation?
-        if (index & (1ULL << i)) {
+        int sq = get_ls1b(attack_mask);
+        attack_mask = pop_bit(attack_mask, sq);
+        if (index & (1 << i)) {
             occ |= (1ULL << sq);
         }
     }
@@ -19,7 +18,7 @@ U64 Initialize::set_occupancy(int index, int bits_in_mask, U64 attack_mask) {
 }
 
 // Only used for initialization
-U64 Initialize::slow_bishop_attacks(uint8_t sq, U64 blockers) {
+U64 Initialize::slow_bishop_attacks(int sq, U64 blockers) {
     U64 attacks = 0ULL;
     int r, c, nr, nc;
     r = sq / 8;
@@ -42,7 +41,7 @@ U64 Initialize::slow_bishop_attacks(uint8_t sq, U64 blockers) {
             break;
         }
     }
-    for (nr = r+1, nc = c+1; nr <= 0 && nc <= 7; ++nr, ++nc) {
+    for (nr = r+1, nc = c+1; nr <= 7 && nc <= 7; ++nr, ++nc) {
         attacks |= (1ULL << (nr * 8 + nc));
         if (blockers & (1ULL << (nr * 8 + nc))) {
             break;
@@ -51,7 +50,7 @@ U64 Initialize::slow_bishop_attacks(uint8_t sq, U64 blockers) {
     return attacks;
 }
 
-U64 Initialize::slow_rook_attacks(uint8_t sq, U64 blockers) {
+U64 Initialize::slow_rook_attacks(int sq, U64 blockers) {
     U64 attacks = 0ULL;
     int r, c, nr, nc;
     r = sq / 8;
@@ -83,26 +82,15 @@ U64 Initialize::slow_rook_attacks(uint8_t sq, U64 blockers) {
     return attacks;
 }
 
-int Initialize::countBits(U64 mask) {
-    // Count the number of bits in the mask
-    int num_bits = 0;
-    for (int i = 0; i < 64; ++i) {
-        if ((1ULL << i) & mask) {
-            ++num_bits;
-        }
-    }
-    return num_bits;
-}
-
 // Initialize sliding piece masks
 void Initialize::init_slider_masks() {
     // Initialize bishop mask
     for (int i = 0; i < 64; ++i) {
         U64 mask = 0ULL;
-        int r, c, nr, nc;
+        int nr, nc, r, c;
         r = i / 8;
         c = i % 8;
-        for(nr = r+1,  nc = c+1; nr <= 6 && nc <= 6; ++nr, ++nc){
+        for(nr = r+1, nc = c+1; nr <= 6 && nc <= 6; ++nr, ++nc){
             mask |= (1ULL << (nr * 8 + nc));
         }
         for(nr = r-1,  nc = c+1; nr >= 1 && nc <= 6; --nr, ++nc) {
@@ -132,34 +120,32 @@ void Initialize::init_slider_masks() {
 
 void Initialize::init_slider_attack_tables() {
     init_slider_masks();
+    // Initialize bishop attacks
     for (int i = 0; i < 64; ++i) {
         // Initialize bishop mask:
         U64 attack_mask = bishop_masks[i];
-        // Initialize bit count
-        size_t rel_bits = countBits(attack_mask);
         // Initialize occupancy indices
-        U64 occ_ind = (1ULL << rel_bits);
+        U64 occ_ind = (1ULL << bishop_relevant_bits[i]);
         for (size_t j = 0; j < occ_ind; ++j) {
             // Calculate the blocker mask
-            U64 occupancy = set_occupancy(j, rel_bits, attack_mask);
+            U64 occupancy = set_occupancy(j, bishop_relevant_bits[i], attack_mask);
             // Calculate the magic index based on this blocker mask
-            U64 magic_ind = (occupancy * BishopMagic[i]) >> (64 - bishop_relevant_bits[i]);
+            U64 magic_ind = occupancy * BishopMagic[i] >> (64 - bishop_relevant_bits[i]);
             // Initalize bishop attacks:
             bishop_attacks[i][magic_ind] = slow_bishop_attacks(i, occupancy);
         }
     }
+    // Initialize rook attacks
     for (int i = 0; i < 64; ++i) {
         // Initialize rook mask:
         U64 attack_mask = rook_masks[i];
-        // Initialize bit count
-        size_t rel_bits = countBits(attack_mask);
         // Initialize occupancy indices
-        U64 occ_ind = (1ULL << rel_bits);
+        U64 occ_ind = (1ULL << rook_relevant_bits[i]);
         for (size_t j = 0; j < occ_ind; ++j) {
             // Calculate the blocker mask
-            U64 occupancy = set_occupancy(j, rel_bits, attack_mask);
+            U64 occupancy = set_occupancy(j, rook_relevant_bits[i], attack_mask);
             // Calculate the magic index based on this blocker mask
-            U64 magic_ind = (occupancy * BishopMagic[i]) >> (64 - rook_relevant_bits[i]);
+            U64 magic_ind = occupancy * RookMagic[i] >> (64 - rook_relevant_bits[i]);
             // Initalize rook attacks:
             rook_attacks[i][magic_ind] = slow_rook_attacks(i, occupancy);
         }
@@ -167,8 +153,8 @@ void Initialize::init_slider_attack_tables() {
 }
 
 void Initialize::init_knight_attack_table() {
-    uint8_t r, c;
-    for (uint8_t i = 0; i < 64; ++i) {
+    int r, c;
+    for (int i = 0; i < 64; ++i) {
         U64 board = 0ULL;
         r = i / 8;
         c = i % 8;
@@ -203,7 +189,7 @@ void Initialize::init_knight_attack_table() {
 }
 
 void Initialize::init_king_attack_table() {
-    uint8_t r, c;
+    int r, c;
     for (int i = 0; i < 64; ++i) {
         U64 board = 0ULL;
         r = i / 8;

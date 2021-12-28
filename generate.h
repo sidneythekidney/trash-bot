@@ -20,10 +20,10 @@ class Generate {
     public:
         Generate(Initialize init) : init(init) { };
 
-        U64 getBishopMask(U64 blockers, uint8_t sq);
-        U64 getRookMask(U64 blockers, uint8_t sq);
-        U64 getKnightMask(U64 blockers, uint8_t sq);
-        U64 getKingMask(U64 blockers, uint8_t sq);
+        U64 getBishopMask(U64 blockers, int sq);
+        U64 getRookMask(U64 blockers, int sq);
+        U64 getKnightMask(U64 blockers, int sq);
+        U64 getKingMask(U64 blockers, int sq);
 };
 
 #endif
