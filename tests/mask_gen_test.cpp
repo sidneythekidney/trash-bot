@@ -9,9 +9,7 @@ using namespace std;
 
 class Test {
     public:
-        Test(const Initialize* init, const Generate* generate) : init(*init), generate(*generate) {
-            cout << "Initializing!\n";
-        };
+        Test(const Initialize* init, const Generate* generate) : init(*init), generate(*generate) { };
 
         void test_all() {
             // Knight tests:
@@ -31,6 +29,8 @@ class Test {
             // Rook tests
             test_rook_corner();
             test_rook_center();
+            // Position initialization test:
+            // test_pos_initialization();
         }
 
         void do_nothing() { }
@@ -45,20 +45,6 @@ class Test {
 
         void print_error(string error_msg) {
             cout << "\033[31;40m" + error_msg + "\033[0m\n";
-        }
-
-        U64 board_to_U64(vector<vector<int>> vis) {
-            // This function is used for testing
-            // Allows conversion from visual 2D vector to bitset:
-            U64 ret = 0ULL;
-            for (int r = 0; r < 8; ++r) {
-                for (int c = 0; c < 8; ++c) {
-                    if (vis[r][c]) {
-                        ret += 1ULL << (r * 8 + c);
-                    }
-                }
-            }
-            return ret;
         }
 
         void test_knight_center() {
@@ -78,7 +64,7 @@ class Test {
             };
             // the square will be (4,4)
             int sq = 4 * 8 + 4;
-            U64 kn_mask_no_blockers = generate.getKnightMask(blockers1, sq);
+            U64 kn_mask_no_blockers = generate.get_knight_mask(blockers1, sq);
             U64 correct_U64_no_blockers = board_to_U64(correct1);
             if (correct_U64_no_blockers != kn_mask_no_blockers) {
                 print_error("FAIL: test_knight_middle() - no blockers");
@@ -114,7 +100,7 @@ class Test {
                 {0,0,0,0,0,0,0,0},                
             };
             // the square will be (4,4)
-            U64 kn_mask_with_blockers = generate.getKnightMask(board_to_U64(blockers2), sq);
+            U64 kn_mask_with_blockers = generate.get_knight_mask(board_to_U64(blockers2), sq);
             U64 correct_U64_with_blockers = board_to_U64(correct2);
             if (correct_U64_with_blockers != kn_mask_with_blockers) {
                 print_error("FAIL: test_knight_middle() - with blockers");
@@ -150,7 +136,7 @@ class Test {
                 {0,0,0,0,0,0,0,0},                
             };
             int sq1 = 7 * 8 + 4;
-            U64 kn_mask1 = generate.getKnightMask(blockers1, sq1);
+            U64 kn_mask1 = generate.get_knight_mask(blockers1, sq1);
             U64 correct_kn_mask1 = board_to_U64(correct1);
             if (kn_mask1 != correct_kn_mask1) {
                 print_error("FAIL: test_knight_edge() - middle edge, no blockers");
@@ -185,7 +171,7 @@ class Test {
             };
             // The square the knight occupies is (7,6)
             int sq2 = 7 * 8 + 6;
-            U64 kn_mask2 = generate.getKnightMask(board_to_U64(blockers2), sq2);
+            U64 kn_mask2 = generate.get_knight_mask(board_to_U64(blockers2), sq2);
             U64 correct_kn_mask2 = board_to_U64(correct2);
             if (kn_mask2 != correct_kn_mask2) {
                 print_error("FAIL: test_knight_edge() - middle edge close to corner, with blockers");
@@ -230,7 +216,7 @@ class Test {
             };
             // The square the knight occupies is (7,7)
             int sq1 = 7 * 8 + 7;
-            U64 kn_mask1 = generate.getKnightMask(board_to_U64(blockers1), sq1);
+            U64 kn_mask1 = generate.get_knight_mask(board_to_U64(blockers1), sq1);
             U64 correct_kn_mask1 = board_to_U64(correct1);
             if (kn_mask1 != correct_kn_mask1) {
                 print_error("FAIL: test_knight_corner() - with blockers");
@@ -271,7 +257,7 @@ class Test {
             };
             // The square the knight occupies is (3,4)
             int sq1 = 3 * 8 + 4;
-            U64 k_mask1 = generate.getKingMask(blockers1, sq1);
+            U64 k_mask1 = generate.get_king_mask(blockers1, sq1);
             U64 correct_k_mask1 = board_to_U64(correct1);
             if (k_mask1 != correct_k_mask1) {
                 print_error("FAIL: test_king_center() - no blockers");
@@ -307,7 +293,7 @@ class Test {
             };
             // The square the knight occupies is (3,4)
             int sq2 = 3 * 8 + 4;
-            U64 k_mask2 = generate.getKingMask(board_to_U64(blockers2), sq2);
+            U64 k_mask2 = generate.get_king_mask(board_to_U64(blockers2), sq2);
             U64 correct_k_mask2 = board_to_U64(correct2);
             if (k_mask2 != correct_k_mask2) {
                 print_error("FAIL: test_king_center() - with blockers");
@@ -349,7 +335,7 @@ class Test {
             };
             // The square the knight occupies is (4,0)
             int sq1 = 4 * 8 + 0;
-            U64 k_mask1 = generate.getKingMask(board_to_U64(blockers1), sq1);
+            U64 k_mask1 = generate.get_king_mask(board_to_U64(blockers1), sq1);
             U64 correct_k_mask1 = board_to_U64(correct1);
             if (k_mask1 != correct_k_mask1) {
                 print_error("FAIL: test_king_edge() - with blockers");
@@ -391,7 +377,7 @@ class Test {
             };
             // The square the knight occupies is (0,0)
             int sq1 = 0 * 8 + 0;
-            U64 k_mask1 = generate.getKingMask(board_to_U64(blockers1), sq1);
+            U64 k_mask1 = generate.get_king_mask(board_to_U64(blockers1), sq1);
             U64 correct_k_mask1 = board_to_U64(correct1);
             if (k_mask1 != correct_k_mask1) {
                 print_error("FAIL: test_king_corner() - with blockers");
@@ -424,7 +410,7 @@ class Test {
             };
             // The square the knight occupies is (4,4)
             int sq1 = 4 * 8 + 4;
-            U64 b_mask1 = generate.getBishopMask(blockers1, sq1);
+            U64 b_mask1 = generate.get_bishop_mask(blockers1, sq1);
             U64 correct_b_mask1 = board_to_U64(correct1);
             if (b_mask1 != correct_b_mask1) {
                 print_error("FAIL: test_bishop_center() - no blockers");
@@ -459,7 +445,7 @@ class Test {
             };
             // The square the knight occupies is (4,4)
             int sq2 = 4 * 8 + 4;
-            U64 b_mask2 = generate.getBishopMask(board_to_U64(blockers2), sq2);
+            U64 b_mask2 = generate.get_bishop_mask(board_to_U64(blockers2), sq2);
             U64 correct_b_mask2 = board_to_U64(correct2);
             if (b_mask2 != correct_b_mask2) {
                 print_error("FAIL: test_bishop_center() - with blockers");
@@ -493,7 +479,7 @@ class Test {
             };
             // The square the knight occupies is (7,7)
             int sq1 = 7 * 8 + 7;
-            U64 b_mask1 = generate.getBishopMask(blockers1, sq1);
+            U64 b_mask1 = generate.get_bishop_mask(blockers1, sq1);
             U64 correct_b_mask1 = board_to_U64(correct1);
             if (b_mask1 != correct_b_mask1) {
                 print_error("FAIL: test_bishop_corner() - no blockers");
@@ -528,7 +514,7 @@ class Test {
             };
             // The square the knight occupies is (7,0)
             int sq2 = 7 * 8 + 0;
-            U64 b_mask2 = generate.getBishopMask(board_to_U64(blockers2), sq2);
+            U64 b_mask2 = generate.get_bishop_mask(board_to_U64(blockers2), sq2);
             U64 correct_b_mask2 = board_to_U64(correct2);
             if (b_mask2 != correct_b_mask2) {
                 print_error("FAIL: test_bishop_corner() - with blockers");
@@ -562,7 +548,7 @@ class Test {
             };
             // The square the knight occupies is (4,4)
             int sq1 = 4 * 8 + 4;
-            U64 r_mask1 = generate.getRookMask(blockers1, sq1);
+            U64 r_mask1 = generate.get_rook_mask(blockers1, sq1);
             U64 correct_r_mask1 = board_to_U64(correct1);
             if (r_mask1 != correct_r_mask1) {
                 print_error("FAIL: test_rook_center() - no blockers");
@@ -597,7 +583,7 @@ class Test {
             };
             // The square the knight occupies is (4,4)
             int sq2 = 4 * 8 + 4;
-            U64 r_mask2 = generate.getRookMask(board_to_U64(blockers2), sq2);
+            U64 r_mask2 = generate.get_rook_mask(board_to_U64(blockers2), sq2);
             U64 correct_r_mask2 = board_to_U64(correct2);
             if (r_mask2 != correct_r_mask2) {
                 print_error("FAIL: test_rook_center() - with blockers");
@@ -631,7 +617,7 @@ class Test {
             };
             // The square the knight occupies is (7,7)
             int sq1 = 7 * 8 + 7;
-            U64 r_mask1 = generate.getRookMask(blockers1, sq1);
+            U64 r_mask1 = generate.get_rook_mask(blockers1, sq1);
             U64 correct_r_mask1 = board_to_U64(correct1);
             if (r_mask1 != correct_r_mask1) {
                 print_error("FAIL: test_rook_corner() - no blockers");
@@ -666,7 +652,7 @@ class Test {
             };
             // The square the knight occupies is (0,0)
             int sq2 = 0 * 8 + 0;
-            U64 r_mask2 = generate.getRookMask(board_to_U64(blockers2), sq2);
+            U64 r_mask2 = generate.get_rook_mask(board_to_U64(blockers2), sq2);
             U64 correct_r_mask2 = board_to_U64(correct2);
             if (r_mask2 != correct_r_mask2) {
                 print_error("FAIL: test_rook_corner() - with blockers");
@@ -683,6 +669,57 @@ class Test {
                 print_success("PASS: test_rook_corner()");
             }
         }
+
+        // void test_pos_initialization() {
+        //     bool fail = false;
+        //     // 1 -- test initialization of white pieces
+        //     U64 white_pieces = generate.get_white_piece_pos();
+        //     vector<vector<int>> correct_white_vec = {
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0}, 
+        //         {1,1,1,1,1,1,1,1},
+        //         {1,1,1,1,1,1,1,1},               
+        //     };
+        //     if (white_pieces != board_to_U64(correct_white_vec)) {
+        //         print_error("FAIL: test_pos_inititalization() - white pieces");
+        //         cout << "The output was:\n";
+        //         print_binary(white_pieces);
+        //         cout << "\n\n";
+        //         cout << "When the output should have been:\n";
+        //         print_binary(board_to_U64(correct_white_vec));
+        //         cout << "\n\n";
+        //         fail = true;
+        //     }
+        //     // 2 -- test initialization of black pieces
+        //     U64 black_pieces = generate.get_black_piece_pos();
+        //     vector<vector<int>> correct_black_vec = {
+        //         {1,1,1,1,1,1,1,1},
+        //         {1,1,1,1,1,1,1,1},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},
+        //         {0,0,0,0,0,0,0,0},                
+        //     };
+        //     if (black_pieces != board_to_U64(correct_black_vec)) {
+        //         print_error("FAIL: test_pos_inititalization() - black pieces");
+        //         cout << "The output was:\n";
+        //         print_binary(black_pieces);
+        //         cout << "\n\n";
+        //         cout << "When the output should have been:\n";
+        //         print_binary(board_to_U64(correct_black_vec));
+        //         cout << "\n\n";
+        //         fail = true;
+        //     }
+        //     if (!fail) {
+        //         print_success("PASS: test_pos_initialization()");
+        //     }
+        // }
 };
 
 int main() {

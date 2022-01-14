@@ -29,15 +29,12 @@ U64 pop_bit(U64 bitboard, int sq) {
 }
 
 int get_ls1b(U64 mask) {
-    int pos = 0;
-    while (mask) {
-        if (mask & 1) {
-            return pos;
-        }
-        mask >>= 1;
-        ++pos;
+    if (mask) {
+        return count_bits((mask & -mask) - 1);
     }
-    return -1;
+    else {
+        return -1;
+    }
 }
 
 int count_bits(U64 mask) {
@@ -47,4 +44,18 @@ int count_bits(U64 mask) {
         mask >>= 1;
     }
     return count;
+}
+
+U64 board_to_U64(vector<vector<int>> vis) {
+    // This function is used for testing
+    // Allows conversion from visual 2D vector to bitset:
+    U64 ret = 0ULL;
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (vis[r][c]) {
+                ret += 1ULL << (r * 8 + c);
+            }
+        }
+    }
+    return ret;
 }
