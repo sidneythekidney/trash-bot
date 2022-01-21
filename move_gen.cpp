@@ -4,14 +4,14 @@
 #include "move.h"
 #include <vector>
 
-MoveGen::MoveGen(int depth, 
-        color active_player,
-        Initialize* init,
-        Generate* gen) : 
-        depth(depth), 
-        active_player(active_player),
+MoveGen::MoveGen(Initialize* init,
+        Generate* gen,
+        int depth,
+        color active_player) : 
         init(init),
-        gen(gen) {
+        gen(gen),
+        depth(depth), 
+        active_player(active_player) {
     // Set the initial board position:
     // Initialize the white pos masks:
     vector<vector<int>> white_pawn_vec = {
@@ -24,7 +24,7 @@ MoveGen::MoveGen(int depth,
         {1,1,1,1,1,1,1,1},
         {0,0,0,0,0,0,0,0},
     };
-    U64 white_pawns = board_to_U64(white_pawn_vec);
+    white_pawns = board_to_U64(white_pawn_vec);
     
     vector<vector<int>> white_knight_vec = {
         {0,0,0,0,0,0,0,0},
@@ -36,7 +36,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,1,0,0,0,0,1,0},
     };
-    U64 white_knights = board_to_U64(white_knight_vec);
+    white_knights = board_to_U64(white_knight_vec);
     
     vector<vector<int>> white_bishop_vec = {
         {0,0,0,0,0,0,0,0},
@@ -48,7 +48,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,1,0,0,1,0,0},
     };
-    U64 white_bishops = board_to_U64(white_bishop_vec);
+    white_bishops = board_to_U64(white_bishop_vec);
     
     vector<vector<int>> white_rook_vec = {
         {0,0,0,0,0,0,0,0},
@@ -60,7 +60,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {1,0,0,0,0,0,0,1},
     };
-    U64 white_rooks = board_to_U64(white_rook_vec);
+    white_rooks = board_to_U64(white_rook_vec);
 
     vector<vector<int>> white_queen_vec = {
         {0,0,0,0,0,0,0,0},
@@ -72,7 +72,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,1,0,0,0,0},
     };
-    U64 white_queens = board_to_U64(white_queen_vec);
+    white_queens = board_to_U64(white_queen_vec);
 
     vector<vector<int>> white_king_vec = {
         {0,0,0,0,0,0,0,0},
@@ -84,7 +84,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,1,0,0,0},
     };
-    U64 white_king = board_to_U64(white_king_vec);
+    white_king = board_to_U64(white_king_vec);
 
     // Initialize the black pos masks:
     vector<vector<int>> black_pawn_vec = {
@@ -97,7 +97,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_pawns = board_to_U64(black_pawn_vec);
+    black_pawns = board_to_U64(black_pawn_vec);
     
     vector<vector<int>> black_knight_vec = {
         {0,1,0,0,0,0,1,0},
@@ -109,7 +109,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_knights = board_to_U64(black_knight_vec);
+    black_knights = board_to_U64(black_knight_vec);
     
     vector<vector<int>> black_bishop_vec = {
         {0,0,1,0,0,1,0,0},
@@ -121,7 +121,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_bishops = board_to_U64(black_bishop_vec);
+    black_bishops = board_to_U64(black_bishop_vec);
     
     vector<vector<int>> black_rook_vec = {
         {1,0,0,0,0,0,0,1},
@@ -133,7 +133,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_rooks = board_to_U64(black_rook_vec);
+    black_rooks = board_to_U64(black_rook_vec);
 
     vector<vector<int>> black_queen_vec = {
         {0,0,0,1,0,0,0,0},
@@ -145,7 +145,7 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_queens = board_to_U64(black_queen_vec);
+    black_queens = board_to_U64(black_queen_vec);
 
     vector<vector<int>> black_king_vec = {
         {0,0,0,0,1,0,0,0},
@@ -157,12 +157,12 @@ MoveGen::MoveGen(int depth,
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
     };
-    U64 black_king = board_to_U64(black_king_vec);
+    black_king = board_to_U64(black_king_vec);
 
     en_passant = 0ULL;
 
-    // Initialized in starting position
-    int piece_board[64] = {
+    // Using the default constructor, set initial position
+    piece_board = {
         Move::BLACK_ROOK, Move::BLACK_KNIGHT, Move::BLACK_BISHOP, Move::BLACK_QUEEN, 
         Move::BLACK_KING, Move::BLACK_BISHOP, Move::BLACK_KNIGHT, Move::BLACK_ROOK,
         Move::BLACK_PAWN, Move::BLACK_PAWN, Move::BLACK_PAWN, Move::BLACK_PAWN, 
@@ -175,10 +175,64 @@ MoveGen::MoveGen(int depth,
         Move::WHITE_PAWN, Move::WHITE_PAWN, Move::WHITE_PAWN, Move::WHITE_PAWN, 
         Move::WHITE_ROOK, Move::WHITE_KNIGHT, Move::WHITE_BISHOP, Move::WHITE_QUEEN, 
         Move::WHITE_KING, Move::WHITE_BISHOP, Move::WHITE_KNIGHT, Move::WHITE_ROOK
-    };
-
-    calculate_moves();
+    }; 
 }
+
+// Secondary constructor used for testing
+MoveGen::MoveGen(
+    Initialize* init,
+    Generate* gen,
+    int depth,
+    color active_player,
+    vector<int> piece_board,
+    U64 en_passant,
+    unsigned int castles
+) : init(init),
+    gen(gen),
+    en_passant(en_passant),
+    depth(depth),
+    active_player(active_player),
+    piece_board(piece_board) {
+        // Initialize whatever the most recent castles are
+        curr_move = castles << 20;
+
+        // Initialize piece masks:
+        for (int i = 0; i < (int)piece_board.size(); ++i) {
+            if (piece_board[i] == Move::WHITE_PAWN) white_pawns |= 1ULL << i;
+            else if (piece_board[i] == Move::WHITE_KNIGHT) white_knights |= 1ULL << i;
+            else if (piece_board[i] == Move::WHITE_BISHOP) white_bishops |= 1ULL << i;
+            else if (piece_board[i] == Move::WHITE_ROOK) white_rooks |= 1ULL << i;
+            else if (piece_board[i] == Move::WHITE_QUEEN) white_queens |= 1ULL << i;
+            else if (piece_board[i] == Move::WHITE_KING) white_king = 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_PAWN) black_pawns |= 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_KNIGHT) black_knights |= 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_BISHOP) black_bishops |= 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_ROOK) black_rooks |= 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_QUEEN) black_queens |= 1ULL << i;
+            else if (piece_board[i] == Move::BLACK_KING) black_king = 1ULL << i;
+        }
+
+        // cout << "White Pawns:\n";
+        // print_binary(white_pawns);
+        // cout << "White knights:\n";
+        // print_binary(white_knights);
+        // cout << "White Bishops:\n";
+        // print_binary(white_bishops);
+        // cout << "White Queens:\n";
+        // print_binary(white_queens);
+        // cout << "White King:\n";
+        // print_binary(white_king);
+        // cout << "Black pawns:\n";
+        // print_binary(black_pawns);
+        // cout << "Black knights:\n";
+        // print_binary(black_knights);
+        // cout << "Black bishops:\n";
+        // print_binary(black_bishops);
+        // cout << "Black queens:\n";
+        // print_binary(black_queens);
+        // cout << "Black kings:\n";
+        // print_binary(black_king);
+    }
 
 U64 MoveGen::get_white_pieces() {
     // Return a bitboard of all the white pieces
@@ -245,6 +299,10 @@ U64 MoveGen::get_en_passant() {
     return en_passant;
 }
 
+int MoveGen::num_calculated_moves() {
+    return (int)move_vec.size();
+}
+
 void MoveGen::add_move(
     unsigned int from,
     unsigned int to,
@@ -270,7 +328,7 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             }
 
             // Move one square up
-            if (!((friend_bl | enemy_bl) & 1ULL << (pos-8))) {
+            if (!((friend_bl | enemy_bl) & 1ULL << (pos - 8))) {
                 // Move one square forward
                 add_move(pos, pos-8, Move::WHITE_PAWN, 0, curr_move.get_castles(), curr_move.get_flags() | promote);
                 // Consider moving two pawns up
@@ -280,11 +338,11 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             }
             // Check diagonal attack to the right, make sure not on right edge of board
             if (pos % 8 != 0) {
-                if ((enemy_bl & 1ULL << pos-7)) {
+                if ((enemy_bl & 1ULL << (pos - 7))) {
                     // Add the move, promotion set earlier
                     add_move(pos, pos-7, Move::WHITE_PAWN, piece_board[pos-7], curr_move.get_castles(), curr_move.get_flags() | promote);
                 }
-                else if (curr_move.get_en_passant() & (1ULL << pos + 1)) {
+                else if (curr_move.get_en_passant() & (1ULL << (pos + 1))) {
                     // en passant is valid to the right
                     add_move(pos, pos-7, Move::WHITE_PAWN, piece_board[pos+1], curr_move.get_castles(), curr_move.get_flags() | 1);
                     // Only the 1 is needed since you can only have 1 special move at a time (en passant or promotion)
@@ -293,18 +351,18 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             
             // Check diagonal attack to the left, make sure not on left edge of board
             if (pos % 8 != 7) {
-                if ((enemy_bl & 1ULL << pos-9)) {
+                if ((enemy_bl & 1ULL << (pos - 9))) {
                     // Add the move, promotion set earlier
                     add_move(pos, pos-9, Move::WHITE_PAWN, piece_board[pos-9], curr_move.get_castles(), curr_move.get_flags() | promote);
                 }
-                else if (curr_move.get_en_passant() & (1ULL << pos - 1)) {
+                else if (curr_move.get_en_passant() & (1ULL << (pos - 1))) {
                     // en passant is valid to the right
                     add_move(pos, pos-9, Move::WHITE_PAWN, piece_board[pos-1], curr_move.get_castles(), curr_move.get_flags() | 1);
                     // Note: Only the 1 is needed since there can only be 1 special move at a time (en passant or promotion)
                 }
             }
             // Remove the pawn from the copy mask to avoid checking repeated moves:
-            pop_bit(wp_copy, pos);
+            wp_copy = pop_bit(wp_copy, pos);
         }
     }
     else {
@@ -320,7 +378,7 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             }
 
             // Move one square up
-            if (!((friend_bl | enemy_bl) & 1ULL << (pos+8))) {
+            if (!((friend_bl | enemy_bl) & 1ULL << (pos + 8))) {
                 // Move one square forward
                 add_move(pos, pos+8, Move::BLACK_PAWN, 0, curr_move.get_castles(), curr_move.get_flags() | promote);
                 // Consider moving two pawns up
@@ -330,11 +388,11 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             }
             // Check diagonal attack to the left, make sure not on left edge of board
             if (pos % 8 != 0) {
-                if ((enemy_bl & 1ULL << pos+7)) {
+                if ((enemy_bl & 1ULL << (pos + 7))) {
                     // Add the move, promotion set earlier
                     add_move(pos, pos+7, Move::BLACK_PAWN, piece_board[pos+7], curr_move.get_castles(), curr_move.get_flags() | promote);
                 }
-                else if (curr_move.get_en_passant() & (1ULL << pos-1)) {
+                else if (curr_move.get_en_passant() & (1ULL << (pos - 1))) {
                     // en passant is valid to the right
                     add_move(pos, pos+7, Move::BLACK_PAWN, piece_board[pos-1], curr_move.get_castles(), curr_move.get_flags() | 1);
                     // Only the 1 is needed since you can only have 1 special move at a time (en passant or promotion)
@@ -343,20 +401,21 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
             
             // Check diagonal attack to the right, make sure not on right edge of board
             if (pos % 8 != 7) {
-                if ((enemy_bl & 1ULL << pos+9)) {
+                if ((enemy_bl & 1ULL << (pos + 9))) {
                     // Add the move, promotion set earlier
                     add_move(pos, pos+9, Move::BLACK_PAWN, piece_board[pos+9], curr_move.get_castles(), curr_move.get_flags() | promote);
                 }
-                else if (curr_move.get_en_passant() & (1ULL << pos+1)) {
+                else if (curr_move.get_en_passant() & (1ULL << (pos + 1))) {
                     // en passant is valid to the right
                     add_move(pos, pos+9, Move::BLACK_PAWN, piece_board[pos+1], curr_move.get_castles(), curr_move.get_flags() | 1);
                     // Note: Only the 1 is needed since there can only be 1 special move at a time (en passant or promotion)
                 }
             }
             // Remove the pawn from the copy mask to avoid checking repeated moves:
-            pop_bit(bp_copy, pos);
+            bp_copy = pop_bit(bp_copy, pos);
         }
     }
+    cout << "move list length after pawn moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::get_gen_knight_moves(int side, const U64 &friend_bl) {
@@ -375,11 +434,12 @@ void MoveGen::get_gen_knight_moves(int side, const U64 &friend_bl) {
             // Add individual move:
             add_move(pos, to_sq, piece_type, piece_board[to_sq], curr_move.get_castles(), curr_move.get_flags());
 
-            pop_bit(kn_moves, to_sq);
+            kn_moves = pop_bit(kn_moves, to_sq);
         }
 
-        pop_bit(knights, pos);
+        knights = pop_bit(knights, pos);
     }
+    cout << "move list length after knight moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::get_gen_bishop_moves(int side, const U64 &friend_bl, const U64 &enemy_bl) {
@@ -389,7 +449,7 @@ void MoveGen::get_gen_bishop_moves(int side, const U64 &friend_bl, const U64 &en
         int pos = get_ls1b(bishops);    
 
         // Determine possible bishop moves:
-        U64 bishop_moves = gen->get_bishop_mask(friend_bl & enemy_bl, pos);
+        U64 bishop_moves = gen->get_bishop_mask(friend_bl | enemy_bl, pos);
         // Remove bishop moves which involve capturing friendly piece
         U64 rel_friendly_blockers = bishop_moves & friend_bl;
         bishop_moves ^= rel_friendly_blockers;
@@ -400,11 +460,12 @@ void MoveGen::get_gen_bishop_moves(int side, const U64 &friend_bl, const U64 &en
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], curr_move.get_castles(), curr_move.get_flags());
 
-            pop_bit(bishop_moves, to_sq);
+            bishop_moves = pop_bit(bishop_moves, to_sq);
         }
 
-        pop_bit(bishops, pos);
+        bishops = pop_bit(bishops, pos);
     }
+    cout << "move list length after bishop moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::get_gen_rook_moves(int side, const U64 &friend_bl, const U64 &enemy_bl) {
@@ -414,7 +475,7 @@ void MoveGen::get_gen_rook_moves(int side, const U64 &friend_bl, const U64 &enem
         int pos = get_ls1b(rooks);    
 
         // Determine possible rook moves:
-        U64 rook_moves = gen->get_rook_mask(friend_bl & enemy_bl, pos);
+        U64 rook_moves = gen->get_rook_mask(friend_bl | enemy_bl, pos);
         // Remove bishop moves which involve capturing friendly piece
         U64 rel_friendly_blockers = rook_moves & friend_bl;
         rook_moves ^= rel_friendly_blockers;
@@ -444,11 +505,12 @@ void MoveGen::get_gen_rook_moves(int side, const U64 &friend_bl, const U64 &enem
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], castles, curr_move.get_flags());
 
-            pop_bit(rook_moves, to_sq);
+            rook_moves = pop_bit(rook_moves, to_sq);
         }
 
-        pop_bit(rooks, pos);
+        rooks = pop_bit(rooks, pos);
     }
+    cout << "move list length after rook moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::get_gen_queen_moves(int side, const U64 &friend_bl, const U64 &enemy_bl) {
@@ -458,9 +520,9 @@ void MoveGen::get_gen_queen_moves(int side, const U64 &friend_bl, const U64 &ene
     while (queens) {
         int pos = get_ls1b(queens);
         // Determine possible bishop moves from this square:
-        U64 bishop_moves = gen->get_bishop_mask(friend_bl & enemy_bl, pos);
-        U64 rel_friendly_blockers = bishop_moves & friend_bl;
-        bishop_moves ^= rel_friendly_blockers;
+        U64 bishop_moves = gen->get_bishop_mask(friend_bl | enemy_bl, pos);
+        U64 rel_friendly_blockers_bishop = bishop_moves & friend_bl;
+        bishop_moves ^= rel_friendly_blockers_bishop;
         // add moves for each bishop
         while (bishop_moves) {
             int to_sq = get_ls1b(bishop_moves);
@@ -468,22 +530,24 @@ void MoveGen::get_gen_queen_moves(int side, const U64 &friend_bl, const U64 &ene
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], curr_move.get_castles(), curr_move.get_flags());
 
-            pop_bit(bishop_moves, to_sq);
+            bishop_moves = pop_bit(bishop_moves, to_sq);
         }
         // Determine possible rook moves from this square:
-        U64 rook_moves = gen->get_rook_mask(friend_bl & enemy_bl, pos);
+        U64 rook_moves = gen->get_rook_mask(friend_bl | enemy_bl, pos);
         // Remove bishop moves which involve capturing friendly piece
-        U64 rel_friendly_blockers = rook_moves & friend_bl;
-        rook_moves ^= rel_friendly_blockers;
+        U64 rel_friendly_blockers_rook = rook_moves & friend_bl;
+        rook_moves ^= rel_friendly_blockers_rook;
         while (rook_moves) {
             int to_sq = get_ls1b(rook_moves);
 
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], curr_move.get_castles(), curr_move.get_flags());
 
-            pop_bit(rook_moves, to_sq);
+            rook_moves = pop_bit(rook_moves, to_sq);
         }
+        queens = pop_bit(queens, pos);
     }
+    cout << "move list length after queen moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::get_gen_king_moves(int side, const U64 &friend_bl, const U64 &enemy_bl) {
@@ -496,25 +560,25 @@ void MoveGen::get_gen_king_moves(int side, const U64 &friend_bl, const U64 &enem
     U64 k_moves = gen->get_king_mask(friend_bl, pos);
 
     // Consider white castling:
-    if (side == color::WHITE) {
-        if ((curr_move.get_castles() & 1) && !(enemy_bl & friend_bl & white_ks_blockers)) {
+    if (side == color::WHITE) { 
+        if ((curr_move.get_castles() & 1) && !((enemy_bl | friend_bl) & white_ks_blockers) && (white_rooks & (1ULL << 63))) {
             // white castle kingside
             add_move(pos, pos+2, piece_type, 0, curr_move.get_castles() & 0b1100, curr_move.get_flags() | 0b1000);
             // Note we flag that castling is occurring and remove the white castle option
         }
-        if ((curr_move.get_castles() & (1 << 1)) && !(enemy_bl & friend_bl & white_qs_blockers)) {
+        if ((curr_move.get_castles() & (1 << 1)) && !((enemy_bl | friend_bl) & white_qs_blockers) && (white_rooks & (1ULL << 56))) {
             // white castle queenside
             add_move(pos, pos-2, piece_type, 0, curr_move.get_castles() & 0b1100, curr_move.get_flags() | 0b1000);
         }
     }
     else {
         // Consider black castling:
-        if ((curr_move.get_castles() & (1 << 2)) && !(enemy_bl & friend_bl & black_ks_blockers)) {
+        if ((curr_move.get_castles() & (1 << 2)) && !((enemy_bl | friend_bl) & black_ks_blockers) && (black_rooks & (1ULL << 7))) {
             // black castle kingside
             add_move(pos, pos+2, piece_type, 0, curr_move.get_castles() & 0b0011, curr_move.get_flags() | 0b1000);
             // Note we flag that castling is occurring and remove the black castle option
         }
-        if ((curr_move.get_castles() & (1 << 3)) && !(enemy_bl & friend_bl & black_qs_blockers)) {
+        if ((curr_move.get_castles() & (1 << 3)) && !((enemy_bl | friend_bl) & black_qs_blockers) && (black_rooks & 1ULL)) {
             // black castle queenside
             add_move(pos, pos-2, piece_type, 0, curr_move.get_castles() & 0b0011, curr_move.get_flags() | 0b1000);
         }
@@ -526,10 +590,9 @@ void MoveGen::get_gen_king_moves(int side, const U64 &friend_bl, const U64 &enem
         // Add individual move:
         add_move(pos, to_sq, piece_type, piece_board[to_sq], curr_move.get_castles(), curr_move.get_flags());
 
-        pop_bit(k_moves, to_sq);
+        k_moves = pop_bit(k_moves, to_sq);
     }
-
-    pop_bit(king, pos);
+    cout << "move list length after king moves: " << move_vec.size() << "\n";
 }
 
 void MoveGen::calculate_moves() {
@@ -537,95 +600,51 @@ void MoveGen::calculate_moves() {
     U64 friend_bl = (active_player == color::WHITE) ? get_white_pieces() : get_black_pieces();
     U64 enemy_bl = (active_player == color::WHITE) ? get_black_pieces() : get_white_pieces(); 
 
+    cout << "calculating pawn moves\n";
     // Calculate pawn moves
     get_gen_pawn_moves(active_player, friend_bl, enemy_bl);
 
+    cout << "calculating knight moves\n";
     // Calculate knight moves:
     get_gen_knight_moves(active_player, friend_bl);
     
+    cout << "calculating bishop moves\n";
     // Caclulate bishop moves:
     get_gen_bishop_moves(active_player, friend_bl, enemy_bl);
 
+    cout << "calculating rook moves\n";
     // Calculate rook moves:
     get_gen_rook_moves(active_player, friend_bl, enemy_bl);
 
+    cout << "calculating queen moves\n";
     // Calculate queen moves:
     get_gen_queen_moves(active_player, friend_bl, enemy_bl);
+
+    // calculate king moves:
+    get_gen_king_moves(active_player, friend_bl, enemy_bl);
 }
 
-void MoveGen::make_move() {
-    // Make the last move on the move_vec, depth first search
-    if (move_vec.size() > 0) {
-        Move move = move_vec.back();
-        // Modify piece masks
-        switch(move.get_moved()) {
-            case Move::WHITE_PAWN:
-                white_pawns -= 1ULL << move.get_from();
-                white_pawns |= 1ULL << move.get_to();
-                break;
-            case Move::WHITE_KNIGHT:
-                white_knights -= 1ULL << move.get_from();
-                white_knights |= 1ULL << move.get_to();
-                break;
-            case Move::WHITE_BISHOP:
-                white_bishops -= 1ULL << move.get_from();
-                white_bishops |= 1ULL << move.get_to();
-                break;
-            case Move::WHITE_QUEEN:
-                white_queens -= 1ULL << move.get_from();
-                white_queens |= 1ULL << move.get_to();
-                break;
-            case Move::WHITE_KING:
-                white_king = 1ULL << move.get_to();
-                break;
-            case Move::BLACK_PAWN:
-                black_pawns -= 1ULL << move.get_from();
-                black_pawns |= 1ULL << move.get_to();
-                break;
-            case Move::BLACK_KNIGHT:
-                black_knights -= 1ULL << move.get_from();
-                black_knights |= 1ULL << move.get_to();
-                break;
-            case Move::BLACK_BISHOP:
-                black_bishops -= 1ULL << move.get_from();
-                black_bishops |= 1ULL << move.get_to();
-                break;
-            case Move::BLACK_QUEEN:
-                black_queens -= 1ULL << move.get_from();
-                black_queens |= 1ULL << move.get_to();
-                break;
-            case Move::BLACK_KING:
-                black_king = 1ULL << move.get_to();
-                break;
+void MoveGen::make_move() {}
+
+void MoveGen::undo_move() {}
+
+bool MoveGen::check_if_move_calculated(int piece_type, int from, int to) {
+    for (int i = 0; i < (int)move_vec.size(); ++i) {
+        if (move_vec[i].get_moved() == (unsigned int)piece_type && \
+            move_vec[i].get_from() == (unsigned int)from && \
+            move_vec[i].get_to() == (unsigned int)to)
+        {
+            return true;
         }
-        // Handle capture according to piece type
-        if (move.get_captured()) {
-            switch(move.get_captured()) {
-                case Move::WHITE_PAWN:
-                    white_pawns -= 1ULL << move.get_to();
-                    break;
-                case Move::WHITE_KNIGHT:
-                    white_knights -= 1ULL << move.get_to();
-                    break;
-                case Move::WHITE_BISHOP:
-                    white_bishops -= 1ULL << move.get_to();
-                    break;
-                case Move::WHITE_QUEEN:
-                    white_queens -= 1ULL << move.get_to();
-                    break;
-                case Move::BLACK_PAWN:
-                    black_pawns -= 1ULL << move.get_to();
-                    break;
-                case Move::BLACK_KNIGHT:
-                    black_knights -= 1ULL << move.get_to();
-                    break;
-                case Move::BLACK_BISHOP:
-                    black_bishops -= 1ULL << move.get_to();
-                    break;
-                case Move::BLACK_QUEEN:
-                    black_queens -= 1ULL << move.get_to();
-                    break;
-            }
-        }
+    }
+    return false;
+}
+
+void MoveGen::print_cur_moves() {
+    for (int i = 0; i < (int)move_vec.size(); ++i) {
+        cout << "Move #" << i << ": \n";
+        cout << " piece type: " << move_vec[i].get_moved();
+        cout << " from: " << move_vec[i].get_from();
+        cout << " to: " << move_vec[i].get_to() << "\n";
     }
 }

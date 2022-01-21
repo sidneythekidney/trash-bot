@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "defs.h"
+#include "move.h"
 #include <vector>
 
 using namespace std;
@@ -16,5 +17,7 @@ int get_ls1b(U64 mask);
 int count_bits(U64 mask);
 
 U64 board_to_U64(vector<vector<int>> vis);
+
+vector<int> char_board_to_piece_board(vector<char> char_board);
 
 #endif

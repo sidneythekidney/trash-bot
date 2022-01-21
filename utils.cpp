@@ -59,3 +59,25 @@ U64 board_to_U64(vector<vector<int>> vis) {
     }
     return ret;
 }
+
+vector<int> char_board_to_piece_board(vector<char> char_board) {    
+    vector<int> piece_board = {};
+    for (int i = 0; i < (int)char_board.size(); ++i) {
+
+        if (char_board[i] == 'p') piece_board.push_back(Move::WHITE_PAWN);
+        else if (char_board[i] == 'n') piece_board.push_back(Move::WHITE_KNIGHT);
+        else if (char_board[i] == 'b') piece_board.push_back(Move::WHITE_BISHOP);
+        else if (char_board[i] == 'r') piece_board.push_back(Move::WHITE_ROOK);
+        else if (char_board[i] == 'q') piece_board.push_back(Move::WHITE_QUEEN);
+        else if (char_board[i] == 'k') piece_board.push_back(Move::WHITE_KING);
+        else if (char_board[i] == 'P') piece_board.push_back(Move::BLACK_PAWN);
+        else if (char_board[i] == 'N') piece_board.push_back(Move::BLACK_KNIGHT);
+        else if (char_board[i] == 'B') piece_board.push_back(Move::BLACK_BISHOP);
+        else if (char_board[i] == 'R') piece_board.push_back(Move::BLACK_ROOK);
+        else if (char_board[i] == 'Q') piece_board.push_back(Move::BLACK_QUEEN);
+        else if (char_board[i] == 'K') piece_board.push_back(Move::BLACK_KING);
+        else piece_board.push_back(0);
+    }
+
+    return piece_board;
+}

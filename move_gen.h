@@ -10,16 +10,26 @@ using namespace std;
 
 class MoveGen {
     public:
-        MoveGen(int depth, 
-                color active_player,
-                Initialize* init,
-                Generate* gen) : 
-                depth(depth), 
-                active_player(active_player),
-                init(init),
-                gen(gen) {};     
-        
+        MoveGen(
+            Initialize* init,
+            Generate* gen,
+            int depth, 
+            color active_player
+        );
+        // Secondary constructor used for testing:
+        MoveGen(
+            Initialize* init,
+            Generate* gen,
+            int depth,
+            color active_player,
+            vector<int> piece_board,
+            U64 en_passant,
+            unsigned int castles
+        );
+    
         void make_move();
+        void undo_move();
+
         // Obtain color masks:
         U64 get_white_pieces();
         U64 get_black_pieces();
@@ -42,22 +52,33 @@ class MoveGen {
 
         U64 get_en_passant();
 
+        // Used for testing calculated moves:
+        int num_calculated_moves();
+
+        // Calculate all moves for the give position
+        void calculate_moves();
+
+        // Check if a move is a current move, used for testing
+        bool check_if_move_calculated(int piece_type, int from, int to);
+        // Print the moves in the cur_move vector:
+        void print_cur_moves();
+
     private:
         Initialize* init;
         Generate* gen;
         // Variables to keep track of the pieces
-        U64 white_pawns;
-        U64 white_knights;
-        U64 white_bishops;
-        U64 white_rooks;
-        U64 white_queens;
-        U64 white_king;
-        U64 black_pawns;
-        U64 black_knights;
-        U64 black_bishops;
-        U64 black_rooks;
-        U64 black_queens;
-        U64 black_king;
+        U64 white_pawns = 0ULL;
+        U64 white_knights = 0ULL;
+        U64 white_bishops = 0ULL;
+        U64 white_rooks = 0ULL;
+        U64 white_queens = 0ULL;
+        U64 white_king = 0ULL;
+        U64 black_pawns = 0ULL;
+        U64 black_knights = 0ULL;
+        U64 black_bishops = 0ULL;
+        U64 black_rooks = 0ULL;
+        U64 black_queens = 0ULL;
+        U64 black_king = 0ULL;
 
         U64 en_passant; // Keeps track of what squares can be en passanted
 
@@ -65,6 +86,12 @@ class MoveGen {
 
         Move curr_move = Move(0xf << 20); // Keeps track of the last move made
         // Use 0xf since initially all castles are still valid (no castling has occured)
+
+        // Define blocker masks used when calcuclating castles:
+        U64 white_ks_blockers = 3ULL << 61;
+        U64 white_qs_blockers = 7ULL << 57;
+        U64 black_ks_blockers = 3ULL << 5;
+        U64 black_qs_blockers = 7ULL << 1;
 
         void add_move(
             unsigned int from,
@@ -74,16 +101,12 @@ class MoveGen {
             unsigned int legal_castles,
             unsigned int flags
         );
+
         int depth;
         color active_player;
 
         // Piece board holds all of positions of all of the pieces by type in one variable
-        int piece_board[64];
-
-        // Calculate all moves for the give position
-        void calculate_moves();
-
-        void make_move();
+        vector<int> piece_board;
 
         void get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enemy_bl);
 

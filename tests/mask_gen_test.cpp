@@ -29,11 +29,7 @@ class Test {
             // Rook tests
             test_rook_corner();
             test_rook_center();
-            // Position initialization test:
-            // test_pos_initialization();
         }
-
-        void do_nothing() { }
 
     private:
         Initialize init;
@@ -669,57 +665,6 @@ class Test {
                 print_success("PASS: test_rook_corner()");
             }
         }
-
-        // void test_pos_initialization() {
-        //     bool fail = false;
-        //     // 1 -- test initialization of white pieces
-        //     U64 white_pieces = generate.get_white_piece_pos();
-        //     vector<vector<int>> correct_white_vec = {
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0}, 
-        //         {1,1,1,1,1,1,1,1},
-        //         {1,1,1,1,1,1,1,1},               
-        //     };
-        //     if (white_pieces != board_to_U64(correct_white_vec)) {
-        //         print_error("FAIL: test_pos_inititalization() - white pieces");
-        //         cout << "The output was:\n";
-        //         print_binary(white_pieces);
-        //         cout << "\n\n";
-        //         cout << "When the output should have been:\n";
-        //         print_binary(board_to_U64(correct_white_vec));
-        //         cout << "\n\n";
-        //         fail = true;
-        //     }
-        //     // 2 -- test initialization of black pieces
-        //     U64 black_pieces = generate.get_black_piece_pos();
-        //     vector<vector<int>> correct_black_vec = {
-        //         {1,1,1,1,1,1,1,1},
-        //         {1,1,1,1,1,1,1,1},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},
-        //         {0,0,0,0,0,0,0,0},                
-        //     };
-        //     if (black_pieces != board_to_U64(correct_black_vec)) {
-        //         print_error("FAIL: test_pos_inititalization() - black pieces");
-        //         cout << "The output was:\n";
-        //         print_binary(black_pieces);
-        //         cout << "\n\n";
-        //         cout << "When the output should have been:\n";
-        //         print_binary(board_to_U64(correct_black_vec));
-        //         cout << "\n\n";
-        //         fail = true;
-        //     }
-        //     if (!fail) {
-        //         print_success("PASS: test_pos_initialization()");
-        //     }
-        // }
 };
 
 int main() {
@@ -729,7 +674,6 @@ int main() {
     init->init_all();
     Generate* generate = new Generate(*init);
     Test test = Test(init, generate);
-    test.do_nothing();
     test.test_all();
     delete init;
     delete generate;
