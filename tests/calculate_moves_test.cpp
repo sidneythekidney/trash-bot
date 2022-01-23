@@ -10,15 +10,17 @@ class MoveTest {
     public:
         MoveTest(Initialize* init, Generate* gen) : init(init), gen(gen) {}
         void test_all() {
-            test_first_moves_depth_1_white();
-            test_first_moves_depth_1_black();
-            test_white_castle_ks_no_check_no_blockers();
-            test_white_castle_ks_no_check_with_blockers();
-            test_white_castle_ks_with_check_no_blockers();
-            test_white_castle_qs_no_check_no_blockers();
-            test_black_castle_ks_no_check_no_blockers();
-            test_black_castle_qs_no_check_no_blockers();
+            // test_first_moves_depth_1_white();
+            // test_first_moves_depth_1_black();
+            // test_white_castle_ks_no_check_no_blockers();
+            // test_white_castle_ks_no_check_with_blockers();
+            // test_white_castle_ks_with_check_no_blockers();
+            // test_white_castle_qs_no_check_no_blockers();
+            // test_black_castle_ks_no_check_no_blockers();
+            // test_black_castle_qs_no_check_no_blockers();
             test_basic_white_en_passant();
+            test_double_white_en_passant();
+            test_double_black_en_passant();
         }
 
     private:
@@ -46,6 +48,7 @@ class MoveTest {
             }
             // Calculate starting moves for white:
             move_gen.calculate_moves();
+            // move_gen.print_cur_moves();
             // Check if 20 moves is calculated for opening white moves
             if (move_gen.num_calculated_moves() != 20) {
                 print_error("Failed test_first_move_depth_1: number of opening white moves != 20\n");
@@ -250,7 +253,7 @@ class MoveTest {
                 fail = true;
             }
             if (!fail) {
-                print_success("PASS: test_black_qs_no_check_no_blockers");
+                print_success("PASS: test_castle_black_qs_no_check_no_blockers");
             }
         }
 
@@ -272,13 +275,101 @@ class MoveTest {
             bool fail = false;
             move_gen.calculate_moves();
             move_gen.print_cur_moves();
-            // Check if the castle is not generated
+            // Check if the en passant is not generated
             if (!move_gen.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
-                print_error("Failed test_castle_black_qs_no_check_no_blockers: did not generate castle!\n");
+                print_error("Failed test_basic_white_en_passant: did not generate en passant!\n");
                 fail = true;
             }
             if (!fail) {
-                print_success("PASS: test_black_qs_no_check_no_blockers");
+                print_success("PASS: test_basic_white_en_passant");
+            }
+        }
+
+        void test_basic_black_en_passant() {
+            // Test en passant for white to the left:
+            vector<char> char_board = {
+                'R', '0', '0', '0', 'K', '0', '0', 'R',
+                'P', 'P', 'P', '0', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'b', 'P', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            U64 en_passant = 1ULL << 36; // the square with the pawn that can be en passanted
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            move_gen.print_cur_moves();
+            // Check if the en passant is not generated
+            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 35, 44)) {
+                print_error("Failed test_basic_black_en_passant: did not generate en passant!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_basic_black_en_passant");
+            }
+        }
+
+        void test_double_white_en_passant() {
+            // Test en passant for white to the left:
+            vector<char> char_board = {
+                'R', '0', '0', '0', 'K', '0', '0', 'R',
+                'P', 'P', 'P', '0', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', 'p', 'P', 'p', '0', '0', '0',
+                '0', '0', 'b', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', '0', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted (captured)
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, en_passant, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            move_gen.print_cur_moves();
+            // Check if either en passant is not generated
+            if (!move_gen.check_if_move_calculated(Move::WHITE_PAWN, 28, 19) || 
+                !move_gen.check_if_move_calculated(Move::WHITE_PAWN, 26, 19)) {
+                // Missing one or both of the en_passants
+                print_error("Failed test_double_white_en_passant: did not generate en passant!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_double_white_en_passant");
+            }
+        }
+
+        void test_double_black_en_passant() {
+            // Test en passant for white to the left:
+            vector<char> char_board = {
+                'R', '0', '0', '0', 'K', '0', '0', 'R',
+                'P', 'P', 'P', '0', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'P', 'p', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', '0', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted (captured)
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            move_gen.print_cur_moves();
+            // Check if either en passant is not generated
+            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 34, 43) || 
+                !move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 43)) {
+                // Missing one or both of the en_passants
+                print_error("Failed test_double_black_en_passant: did not generate en passant!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_double_black_en_passant");
             }
         }
 };

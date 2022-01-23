@@ -66,19 +66,24 @@ class MoveGen {
     private:
         Initialize* init;
         Generate* gen;
-        // Variables to keep track of the pieces
-        U64 white_pawns = 0ULL;
-        U64 white_knights = 0ULL;
-        U64 white_bishops = 0ULL;
-        U64 white_rooks = 0ULL;
-        U64 white_queens = 0ULL;
-        U64 white_king = 0ULL;
-        U64 black_pawns = 0ULL;
-        U64 black_knights = 0ULL;
-        U64 black_bishops = 0ULL;
-        U64 black_rooks = 0ULL;
-        U64 black_queens = 0ULL;
-        U64 black_king = 0ULL;
+        // Vector to keep track of the pieces
+        int NUM_PIECE_TYPES = 12; 
+
+        // U64 white_pawns = 0ULL;
+        // U64 white_knights = 0ULL;
+        // U64 white_bishops = 0ULL;
+        // U64 white_rooks = 0ULL;
+        // U64 white_queens = 0ULL;
+        // U64 white_king = 0ULL;
+        // U64 black_pawns = 0ULL;
+        // U64 black_knights = 0ULL;
+        // U64 black_bishops = 0ULL;
+        // U64 black_rooks = 0ULL;
+        // U64 black_queens = 0ULL;
+        // U64 black_king = 0ULL;
+
+        // Holds a vector of all pieces by type:
+        vector< U64 > p;
 
         U64 en_passant; // Keeps track of what squares can be en passanted
 
