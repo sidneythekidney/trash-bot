@@ -50,6 +50,8 @@ class MoveGen {
         U64 get_black_queens();
         U64 get_black_king();
 
+        vector<int> get_piece_board();
+
         U64 get_en_passant();
 
         // Used for testing calculated moves:
@@ -124,6 +126,17 @@ class MoveGen {
         void get_gen_queen_moves(int side, const U64 &friend_bl, const U64 &enemy_bl);
 
         void get_gen_king_moves(int side, const U64 &friend_bl, const U64 &enemy_bl);
+
+        bool in_check(int castle);
+
+        int move_piece(
+            unsigned int from,
+            unsigned int to,
+            unsigned int moved_piece,
+            unsigned int captured_piece,
+            unsigned int flags,
+            int undo
+        ); // Returns the castle type after being moved
 };
 
 #endif

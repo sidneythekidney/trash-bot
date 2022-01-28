@@ -19,4 +19,10 @@ enum pieces {
     PAWN
 };
 
+enum castle {
+    NONE = 0,
+    KING_SIDE = 1,
+    QUEEN_SIDE = 2
+};
+
 #endif
