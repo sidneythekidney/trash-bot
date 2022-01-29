@@ -18,7 +18,7 @@ class Generate {
         U64 get_rook_mask(U64 blockers, int sq);
         U64 get_knight_mask(U64 blockers, int sq);
         U64 get_king_mask(U64 blockers, int sq);
-
+        U64 get_pawn_mask(int color, int sq);
 };
 
 #endif

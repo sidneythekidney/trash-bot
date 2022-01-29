@@ -234,6 +234,7 @@ void Initialize::init_pawn_attacks() {
         if (i % 8 != 0 && i / 8 != 7) {
             initial |= (1ULL << (i+7)); 
         }
+        // Check right
         if (i % 8 != 7 && i / 8 != 7) {
             initial |= (1ULL << (i+9)); 
         }
@@ -247,6 +248,7 @@ void Initialize::init_pawn_attacks() {
         if (i % 8 != 0 && i / 8 != 0) {
             initial |= (1ULL << (i-7)); 
         }
+        // Check right
         if (i % 8 != 7 && i / 8 != 0) {
             initial |= (1ULL << (i-9)); 
         }

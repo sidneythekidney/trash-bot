@@ -29,10 +29,24 @@ class MoveTest {
             test_white_en_passant_does_not_induce_check();
             test_black_en_passant_does_not_induce_check();
             // pin tests
-            // check tests
+            test_standard_white_pin();
+            test_standard_black_pin();
             // block tests
+            test_standard_white_block();
+            test_en_passant_white_block();
+            test_standard_black_block();
+            test_en_passant_black_block();
             // checkmate tests
+            test_standard_white_checkmate();
+            test_white_checkmate_suffocation();
+            test_standard_black_checkmate();
+            test_black_checkmate_suffocation();
             // stalemate tests
+            test_white_standard_stalemate();
+            test_black_standard_stalemate();
+            // Test double check
+            test_white_double_check();
+            test_black_double_check();
         }
 
     private:
@@ -568,6 +582,379 @@ class MoveTest {
             }
             if (!fail) {
                 print_success("PASS: test_black_en_passant_does_not_induce_check");
+            }
+        }
+
+        // Pin tests:
+        void test_standard_white_pin() {
+            // Test if the white_knight can move given its pinned:
+            vector<char> char_board = {
+                '0', '0', 'Q', '0', '0', '0', '0', '0',
+                '0', '0', 'n', 'P', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'K',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            move_gen.calculate_moves();
+            bool fail = false;
+            if (move_gen.check_if_move_calculated(Move::WHITE_KNIGHT, 10, 0)) {
+                print_error("Failed test_standard_white_pin: white knight can move when pinned!\n");
+                fail = true;
+            }
+            // Make sure the only moves generated are king moves:
+            if (!(move_gen.num_calculated_moves() == 8)) {
+                print_error("Failed test_standard_white_pin: incorrect number of moves generated!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_white_pin");
+            }
+        }
+        void test_standard_black_pin() {
+             // Test if the black_rook can move given its pinned:
+            vector<char> char_board = {
+                '0', '0', 'Q', '0', '0', '0', '0', '0',
+                '0', '0', 'n', 'P', 'b', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'R', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'K',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            move_gen.calculate_moves();
+            bool fail = false;
+            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 30, 22)) {
+                print_error("Failed test_standard_black_pin: black rook can move when pinned!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_black_pin");
+            }
+        }
+        void test_standard_white_block() {
+            // Test white queen block:
+            vector<char> char_board = {
+                '0', '0', 'Q', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'P', 'b', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'R', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'K',
+                '0', '0', '0', '0', 'q', '0', '0', '0',
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            move_gen.calculate_moves();
+            bool fail = false;
+            if (!move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 44, 42)) {
+                print_error("Failed test_standard_white_block: not generating white queen!\n");
+                fail = true;
+            }
+            // Make sure white queen can't move elsewhere (randomly selected square)
+            if (move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 44, 36)) {
+                print_error("Failed test_standard_white_block: generating incorrect queen move!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_white_block");
+            }
+        }
+        void test_en_passant_white_block() {
+            // Test en passant to block check
+            vector<char> char_board1 = {
+                '0', '0', 'K', '0', 'R', '0', '0', 'R',
+                '0', '0', '0', '0', '0', 'P', 'P', '0',
+                '0', 'k', '0', '0', '0', 'R', '0', 'P',
+                '0', '0', '0', 'P', 'p', '0', '0', '0',
+                '0', '0', 'b', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', '0', '0', '0', 'r'
+            };
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
+            MoveGen move_gen1 = MoveGen(init, gen, 1, color::WHITE, piece_board1, en_passant, 0xf);
+            bool fail = false;
+            move_gen1.calculate_moves();
+            // Check if the en passant is not generated
+            if (!move_gen1.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
+                print_error("Failed test_white_en_passant_does_not_induce_check: generated en passant induces check (black rook)!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_en_passant_white_block");
+            }
+        }
+        void test_standard_black_block() {
+            // Test black rook block:
+            vector<char> char_board = {
+                '0', '0', '0', '0', '0', '0', 'R', '0',
+                '0', '0', '0', 'P', 'b', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'b', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'K',
+                '0', '0', '0', '0', 'q', '0', '0', '0',
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            move_gen.calculate_moves();
+            bool fail = false;
+            if (!move_gen.check_if_move_calculated(Move::BLACK_ROOK, 6, 30)) {
+                print_error("Failed test_standard_black_block: not generating black rook move!\n");
+                fail = true;
+            }
+            // Make sure white queen can't move elsewhere (randomly selected square)
+            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 6, 7)) {
+                print_error("Failed test_standard_black_block: generating incorrect rook move!\n");
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_black_block");
+            }
+        }
+        void test_en_passant_black_block() {
+            // Test en passant to block check
+            cout << "testing en passant black block\n";
+            vector<char> char_board = {
+                '0', '0', '0', '0', 'R', '0', '0', 'R',
+                '0', '0', '0', '0', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'R', '0', 'P',
+                '0', 'K', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'p', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', 'p', '0', 'b', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', '0', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            // Check if the en passant is not generated
+            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 43)) {
+                print_error("Failed test_en_passant_black_block: not generating en passant block!\n");
+                return;
+            }
+            // Make sure a non-blocking pawn move isn't generated
+            if (move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 44)) {
+                print_error("Failed test_en_passant_black_block: move induces check!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_en_passant_black_block");
+            }
+        }
+        // checkmate tests
+        void test_standard_white_checkmate() {
+            // If black is checkmated there should be no moves:
+            vector<char> char_board = {
+                'R', '0', 'B', 'Q', 'K', 'B', '0', 'R',
+                '0', 'P', 'P', 'P', '0', 'q', 'P', 'P',
+                'P', '0', 'N', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'P', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', '0', 'k', '0', 'n', 'r'
+            };
+            // NOTE: The above is a scholar's move for white
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_standard_white_checkmate: found moves for black in checkmate!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_white_checkmate");
+            }
+        }
+        void test_white_checkmate_suffocation() {
+            // If there is checkmate by suffocation, there should be no moves:
+            vector<char> char_board = {
+                'K', 'R', '0', '0', '0', '0', '0', 'B',
+                'P', 'P', 'n', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'k', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_white_checkmate_suffocation: found moves for black in suffocation checkmate!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_white_checkmate_suffocation");
+            }
+        }
+        void test_standard_black_checkmate() {
+            // Test back rank checkmate for black:
+            vector<char> char_board = {
+                'K', 'R', '0', '0', '0', '0', '0', 'B',
+                'P', 'P', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'b', '0', '0', '0', '0',
+                'p', 'p', 'p', '0', '0', '0', '0', '0',
+                '0', 'k', '0', '0', 'R', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_standard_black_checkmate: found moves for white in back-rank checkmate!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_standard_black_checkmate");
+            }
+        }
+        void test_black_checkmate_suffocation() {
+            vector<char> char_board = {
+                'K', 'R', '0', '0', '0', '0', '0', 'B',
+                'P', 'P', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'b', '0', '0', '0', '0',
+                'p', 'p', 'p', '0', '0', 'N', 'p', 'p',
+                '0', 'r', '0', '0', '0', '0', 'r', 'k'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_black_checkmate_suffocation: found moves for white in suffocation checkmate!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_black_checkmate_suffocation");
+            }
+        }
+        // stalemate tests
+        void test_white_standard_stalemate() {
+            vector<char> char_board = {
+                '0', 'R', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'K',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'R',
+                'k', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_white_standard_stalemate: found moves for white in stalemate position!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_white_standard_stalemate");
+            }
+        }
+        void test_black_standard_stalemate() {
+            vector<char> char_board = {
+                '0', '0', '0', 'K', '0', 'b', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', 'b', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'r', '0', '0', '0', '0', 'k'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            move_gen.print_cur_moves();
+            if (move_gen.num_calculated_moves() != 0) {
+                print_error("Failed test_black_standard_stalemate: found moves for black in stalemate position!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_black_standard_stalemate");
+            }
+        }
+        // Test double check:
+        void test_white_double_check() {
+            // When we have double check the only moves we can make are king moves:
+            vector<char> char_board = {
+                '0', '0', 'K', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'b', '0', '0', '0', '0', 'B',
+                '0', '0', '0', '0', 'R', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'k', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::WHITE_BISHOP, 34, 52)) {
+                print_error("Failed test_white_double_check: found non-blocking moves for white in check!\n");
+                return;
+            }
+            if (move_gen.num_calculated_moves() != 3) {
+                print_error("Failed test_white_double_check: incorrect number of moves generated!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_white_double_check");
+            }
+        }
+        void test_black_double_check() {
+            vector<char> char_board = {
+                '0', '0', 'K', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'b', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'r', '0', '0', '0', '0', 'B',
+                '0', '0', '0', '0', 'R', '0', '0', '0',
+                '0', 'k', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            move_gen.print_cur_moves();
+            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 44, 41)) {
+                print_error("Failed test_black_double_check: found non-blocking moves for black in check!\n");
+                return;
+            }
+            if (move_gen.num_calculated_moves() != 4) {
+                print_error("Failed test_black_double_check: incorrect number of moves generated!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_black_double_check");
             }
         }
 };

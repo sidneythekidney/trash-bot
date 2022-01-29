@@ -57,6 +57,10 @@ class MoveTest {
                 print_binary(move_gen.get_white_pawns());
                 fail = true;
             }
+
+            // Make sure piece board is correct:
+            
+
             if (!fail) {
                 print_success("PASS: test_make_move_basic()");
             }

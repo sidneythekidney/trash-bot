@@ -333,6 +333,7 @@ bool MoveGen::in_check(int castle_status) {
         king_sqs.push_back(pos+2);
     }
     // Get attacking pieces
+    U64 pawns = (active_player == color::WHITE) ? get_black_pawns() : get_white_pawns();
     U64 knights = (active_player == color::WHITE) ? get_black_knights() : get_white_knights();
     U64 bishops = (active_player == color::WHITE) ? get_black_bishops() : get_white_bishops();
     U64 rooks = (active_player == color::WHITE) ? get_black_rooks() : get_white_rooks();
@@ -341,6 +342,7 @@ bool MoveGen::in_check(int castle_status) {
     for (auto pos : king_sqs) {
         // Check if any enemy pieces are attacking the king
         if (
+            (gen->get_pawn_mask(1-active_player, pos) & pawns) || \
             (gen->get_knight_mask(0ULL, pos) & knights) || \
             (gen->get_bishop_mask(get_white_pieces() | get_black_pieces(), pos) & (bishops | queens)) || \
             (gen->get_rook_mask(get_white_pieces() | get_black_pieces(), pos) & (rooks | queens)) || \
@@ -354,16 +356,9 @@ bool MoveGen::in_check(int castle_status) {
             //     }
             //     cout << "\n";
             // }
-            cout << "position where check happened: " << pos << "\n";
+            // cout << "position where check happened: " << pos << "\n";
             return true;
         }
-    }
-    // Handle pawn checks: done last since pawn checks are rare
-    if (active_player == color::WHITE) {
-        if (init->pawn_attacks[color::WHITE][pos] & get_black_pawns()) return true;
-    }
-    else {
-        if (init->pawn_attacks[color::BLACK][pos] & get_white_pawns()) return true;
     }
 
     // No enemy piece can attack the king, move is valid
@@ -398,12 +393,20 @@ void MoveGen::add_move(
     // cout << "before move: \n";
     // print_binary(p[moved_piece]);
 
+    // cout << "white_bishops before moving:\n";
+    // print_binary(get_white_bishops());
+
+    // cout << "to: " << to << "\n";
+
     int castle_type = move_piece(from, to, moved_piece, captured_piece, flags, 1);
+
     if (in_check(castle_type)) {
         valid_move = false;
     }
     move_piece(from, to, moved_piece, captured_piece, flags, -1);
 
+    // cout << "white_bishops afterclea moving:\n";
+    // print_binary(get_white_bishops());
     // cout << "after move:\n";
     // print_binary(p[moved_piece]);
 
@@ -467,6 +470,7 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
         }
     }
     else {
+        cout << "generating black pawn moves\n";
         // Calculate black pawn moves:
         U64 bp_copy = p[Move::BLACK_PAWN];
         while (bp_copy) {
@@ -762,6 +766,7 @@ int MoveGen::move_piece(
 
     // Preview capture:
     if (captured_piece) {
+        // cout << "capturing piece!\n";
         if (flags & 1) {
             // Handle en passant capture:
             if (moved_piece == Move::WHITE_PAWN){
@@ -776,7 +781,7 @@ int MoveGen::move_piece(
             }
         }
         else {
-            p[captured_piece] -= undo * (1ULL << (to-8));
+            p[captured_piece] -= undo * (1ULL << (to));
         }
     }
     // make sure king is not checked:

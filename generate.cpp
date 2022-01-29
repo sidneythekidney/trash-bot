@@ -27,3 +27,7 @@ U64 Generate::get_king_mask(U64 blockers, int sq) {
     blockers &= init.king_attacks[sq];
     return blockers ^ init.king_attacks[sq];
 }
+
+U64 Generate::get_pawn_mask(int color, int sq) {
+    return init.pawn_attacks[color][sq];
+}
