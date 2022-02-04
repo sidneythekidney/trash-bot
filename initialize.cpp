@@ -73,7 +73,7 @@ U64 Initialize::slow_rook_attacks(int sq, U64 blockers) {
             break;
         }
     }
-    for (nc = r-1, nr = r; nc >= 0; --nc) {
+    for (nc = c-1, nr = r; nc >= 0; --nc) {
         attacks |= (1ULL << (nr * 8 + nc));
         if (blockers & (1ULL << (nr * 8 + nc))) {
             break;

@@ -14,6 +14,10 @@ move_undo_test : make_undo_move_test.cpp
 	make clean
 	$(CXX) $(CXXFLAGS) make_undo_move_test.cpp ../move_gen.h ../move_gen.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp -o move_undo_test.exe
 
+perft_test: perft_test.cpp
+	make clean
+	$(CXX) $(CXXFLAGS) perft_test.cpp ../move_gen.h ../move_gen.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp ../perft.h ../perft.cpp -o perft_test.exe
+
 debug_test : test.cpp
 	$(CXX) $(CXXFLAGS) test.cpp -o test
 

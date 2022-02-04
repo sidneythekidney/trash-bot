@@ -44,9 +44,22 @@ class MoveTest {
             // stalemate tests
             test_white_standard_stalemate();
             test_black_standard_stalemate();
-            // Test double check
+            // double check tests
             test_white_double_check();
             test_black_double_check();
+            // promotion tests:
+            test_white_basic_promotion();
+            test_black_basic_promotion();
+            // additional perft tests:
+            test_rook_does_not_move_through_pieces();
+            test_white_pawn_cant_go_left_on_col_0();
+            test_white_pawn_cant_go_right_on_col_7();
+            test_black_pawn_cant_go_right_on_col_0();
+            test_black_pawn_cant_go_right_on_col_7();
+            test_white_king_cant_go_left_on_col_0();
+            test_white_king_cant_go_right_on_col_7();
+            test_black_king_cant_go_right_on_col_0();
+            test_black_king_cant_go_right_on_col_7();
         }
 
     private:
@@ -99,7 +112,7 @@ class MoveTest {
             move_gen.calculate_moves();
             // Check if 20 moves is calculated for opening white moves
             if (move_gen.num_calculated_moves() != 20) {
-                print_error("Failed test_first_move_depth_1: number of opening white moves != 20\n");
+                print_error("Failed test_first_moves_depth_1_black: number of opening black moves != 20\n");
                 cout << "Expected: 20, Received: " << move_gen.num_calculated_moves() << "\n"; 
                 fail = true;
             }
@@ -956,6 +969,131 @@ class MoveTest {
             if (!fail) {
                 print_success("PASS: test_black_double_check");
             }
+        }
+
+        void test_white_basic_promotion() {
+            vector<char> char_board = {
+                '0', '0', 'k', '0', '0', '0', '0', 'R',
+                'R', '0', '0', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'K', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (!move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 12, 4)) {
+                print_error("Failed test_white_basic_promotion: did not generate white pawn promotion to queen!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_white_basic_promotion");
+            }
+        }
+
+        void test_black_basic_promotion() {
+            vector<char> char_board = {
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                'R', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'p', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'K', '0', 'P', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (!move_gen.check_if_move_calculated(Move::BLACK_KNIGHT, 51, 59)) {
+                print_error("Failed test_knight_basic_promotion: did not generate black pawn promotion to knight!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_black_basic_promotion");
+            }
+        }
+
+        void test_rook_does_not_move_through_pieces() {
+            vector<char> char_board = {
+                '0', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
+                '0', 'P', 'P', 'P', 'P', 'P', 'P', 'P',
+                'P', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'n',
+                'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', 'b', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::WHITE_ROOK, 56, 62)) {
+                print_error("Failed test_rook_does_not_move_through_pieces: generated rook move through friendly pieces!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_rook_does_not_move_through_pieces");
+            }
+        }
+
+        void test_white_pawn_cant_go_left_on_col_0() {
+            // This tests for a bug found in perft_test
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
+                'P', 'P', 'P', 'P', 'P', 'P', 'P', '0',
+                'P', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'P',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::WHITE_PAWN, 40, 31)) {
+                print_error("Failed test_white_pawn_cant_go_left_on_col_0: white pawn can move through board edge!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_white_pawn_cant_go_left_on_col_0");
+            }
+        }
+
+        void test_white_pawn_cant_go_right_on_col_7() {
+
+        }
+
+        void test_black_pawn_cant_go_right_on_col_0() {
+
+        }
+
+        void test_black_pawn_cant_go_right_on_col_7() {
+
+        }
+
+        void test_white_king_cant_go_left_on_col_0() {
+
+        }
+
+        void test_white_king_cant_go_right_on_col_7() {
+
+        }
+
+        void test_black_king_cant_go_right_on_col_0() {
+
+        }
+
+        void test_black_king_cant_go_right_on_col_7() {
+
         }
 };
 

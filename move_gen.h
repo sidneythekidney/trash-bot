@@ -2,6 +2,7 @@
 #define MOVE_GEN_H
 
 #include <vector>
+#include <stack>
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"
@@ -27,7 +28,7 @@ class MoveGen {
             unsigned int castles
         );
     
-        void make_move();
+        bool make_move();
         void undo_move();
 
         // Obtain color masks:
@@ -51,11 +52,14 @@ class MoveGen {
         U64 get_black_king();
 
         vector<int> get_piece_board();
+        void print_piece_board();
 
         U64 get_en_passant();
 
         // Used for testing calculated moves:
         int num_calculated_moves();
+        // Used for testing move/undo moves:
+        int num_moves_in_moves_vec();
 
         // Calculate all moves for the give position
         void calculate_moves();
@@ -64,6 +68,10 @@ class MoveGen {
         bool check_if_move_calculated(int piece_type, int from, int to);
         // Print the moves in the cur_move vector:
         void print_cur_moves();
+
+        U64 get_num_move_combs();
+
+        U64 last_num_move_combs = 0ULL;
 
     private:
         Initialize* init;
@@ -84,12 +92,12 @@ class MoveGen {
         // U64 black_queens = 0ULL;
         // U64 black_king = 0ULL;
 
-        // Holds a vector of all pieces by type:
-        vector< U64 > p;
+        vector< U64 > p; // Holds a vector of all pieces by type:
 
         U64 en_passant; // Keeps track of what squares can be en passanted
 
-        vector<Move> move_vec;
+        vector< vector<Move> > move_vec;
+        stack<Move> move_history;
 
         Move curr_move = Move(0xf << 20); // Keeps track of the last move made
         // Use 0xf since initially all castles are still valid (no castling has occured)
@@ -110,6 +118,7 @@ class MoveGen {
         );
 
         int depth;
+        int curr_depth = 1;
         color active_player;
 
         // Piece board holds all of positions of all of the pieces by type in one variable
@@ -137,6 +146,9 @@ class MoveGen {
             unsigned int flags,
             int undo
         ); // Returns the castle type after being moved
+
+        U64 num_move_combs = 0ULL; //Used for perft test calculations
+        bool print_moves = false;
 };
 
 #endif

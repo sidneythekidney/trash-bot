@@ -29,6 +29,7 @@ class Test {
             // Rook tests
             test_rook_corner();
             test_rook_center();
+            test_rook_cant_move_through_friendly_piece();
         }
 
     private:
@@ -665,6 +666,47 @@ class Test {
                 print_success("PASS: test_rook_corner()");
             }
         }
+
+        void test_rook_cant_move_through_friendly_piece() {
+            bool fail = false;
+            vector<vector<int>> blockers1 = {
+                {0,1,1,1,1,1,1,1},
+                {0,1,1,1,1,1,1,1},
+                {1,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,1},
+                {1,1,1,1,1,1,1,1},
+                {1,1,1,1,1,1,0,1},             
+            };
+            vector<vector<int>> correct1 = {
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,0},
+                {0,1,0,0,0,0,0,0},                
+            };
+            // The square the knight occupies is (7,0)
+            int sq1 = 7 * 8 + 0;
+            U64 r_mask1 = generate.get_rook_mask(board_to_U64(blockers1), sq1);
+            U64 correct_r_mask1 = board_to_U64(correct1);
+            if (r_mask1 != correct_r_mask1) {
+                print_error("FAIL: test_rook_cant_move_through_friendly_piece()");
+                cout << "The output was:\n";
+                print_binary(r_mask1);
+                cout << "\n\n";
+                cout << "When the output should have been:\n";
+                print_binary(correct_r_mask1);
+                cout << "\n\n";
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test_rook_cant_move_through_friendly_piece()");
+            }
+        };
 };
 
 int main() {
