@@ -81,3 +81,11 @@ vector<int> char_board_to_piece_board(vector<char> char_board) {
 
     return piece_board;
 }
+
+string algebraic_move(int from, int to) {
+    string ret = "";
+    vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    ret += (rows[from % 8] + to_string((int)(from / 8)));
+    ret += (rows[to % 8] + to_string((int)(to / 8)));
+    return ret;
+}

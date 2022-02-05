@@ -16,11 +16,12 @@ class PerftTest {
             // Run initial test:
             test_init();
             // Run tests for depth up to 6 from start position
-            // test_perft_from_start_depth_1();
-            // test_perft_from_start_depth_2();
-            // test_perft_from_start_depth_3();
-            // test_perft_from_start_depth_4();
+            test_perft_from_start_depth_1();
+            test_perft_from_start_depth_2();
+            test_perft_from_start_depth_3();
+            test_perft_from_start_depth_4();
             test_perft_from_start_depth_5();
+            test_perft_debug();
         };
     
     private:
@@ -126,6 +127,35 @@ class PerftTest {
             }
             if (!fail) {
                 print_success("PASS: test_perft_from_start_depth_5");
+            }
+        }
+
+        void test_perft_debug() {
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
+                'P', 'P', '0', 'P', 'P', 'P', 'P', 'P',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', 'p', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', 'p', 'p', '0', 'p', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen* move_gen = new MoveGen(init, gen, 2, color::BLACK, piece_board, 0ULL, 0xf);
+            Perft perft = Perft(move_gen);
+            int num_moves = perft.calculate_num_moves();
+            
+            bool fail = false;
+            if (num_moves != 646) {
+                fail = true;
+                print_error("Failed test_perft_debug: generated the incorrect number of moves from depth=2!");
+                cout << "Expected: 646\n";
+                cout << "Received: " << num_moves << "\n";
+                // move_gen->print_cur_moves();
+            }
+            if (!fail) {
+                print_success("PASS: test_perft_debug");
             }
         }
 };

@@ -183,8 +183,8 @@ MoveGen::MoveGen(Initialize* init,
         Move::WHITE_ROOK, Move::WHITE_KNIGHT, Move::WHITE_BISHOP, Move::WHITE_QUEEN, 
         Move::WHITE_KING, Move::WHITE_BISHOP, Move::WHITE_KNIGHT, Move::WHITE_ROOK
     };
-    cout << "init piece board:\n";
-    print_piece_board();
+    // cout << "init piece board:\n";
+    // print_piece_board();
 }
 
 // Secondary constructor used for testing
@@ -227,8 +227,8 @@ MoveGen::MoveGen(
             else if (piece_board[i] == Move::BLACK_QUEEN) p[Move::BLACK_QUEEN] |= 1ULL << i;
             else if (piece_board[i] == Move::BLACK_KING) p[Move::BLACK_KING] = 1ULL << i;
         }
-        cout << "init piece board:\n";
-        print_piece_board();
+        // cout << "init piece board:\n";
+        // print_piece_board();
         // cout << "White Pawns:\n";
         // print_binary(p[Move::WHITE_PAWN]);
         // cout << "White knights final:\n";
@@ -440,15 +440,37 @@ void MoveGen::add_move(
     // cout << "white_bishops before moving:\n";
     // print_binary(get_white_bishops());
 
-    // cout << "to: " << to << "\n";
+    // if (print_moves) {
+    //     cout << "move: from: " << from << " to: " << to << " moved: " << moved_piece << "\n";
+    // }
     // cout << "moving piece!\n";
+    // if (print_moves) {
+    //     cout << "before moving: \n";
+    //     print_piece_board();
+    // }
     int castle_type = move_piece(from, to, moved_piece, captured_piece, flags, 1);
+    // if (print_moves) {
+    //     cout << "after moving: \n";
+    //     print_piece_board();
+    // }
     // cout << "checking check!\n";
     if (in_check(castle_type)) {
         valid_move = false;
     }
+    // if (print_moves) {
+    //     cout << "before unmoving: \n";
+    //     print_piece_board();
+    // }
     // cout << "unmoving piece!\n";
     move_piece(from, to, moved_piece, captured_piece, flags, -1);
+    // if (print_moves) {
+    //     cout << "after unmoving: \n";
+    //     print_piece_board();
+    //     cout << "black pawns:\n";
+    //     print_binary(get_black_pawns());
+    //     cout << "white pawns:\n";
+    //     print_binary(get_white_pawns());
+    // }
 
     // cout << "white_bishops afterclea moving:\n";
     // print_binary(get_white_bishops());
@@ -562,7 +584,7 @@ void MoveGen::get_gen_pawn_moves(int side, const U64 &friend_bl, const U64 &enem
                     add_move(pos, pos+7, Move::BLACK_PAWN, piece_board[pos+7], curr_move.get_castles(), new_flags);
                 }
                 else if (en_passant & (1ULL << (pos - 1))) {
-                    // en passant is valid to the right
+                    // en passant is valid to the left
                     add_move(pos, pos+7, Move::BLACK_PAWN, piece_board[pos-1], curr_move.get_castles(), 0b0001);
                     // Only the 1 is needed since you can only have 1 special move at a time (en passant or promotion)
                 }
@@ -790,6 +812,10 @@ void MoveGen::calculate_moves() {
     // cout << "calculating pawn moves\n";
     // Calculate pawn moves
     get_gen_pawn_moves(active_player, friend_bl, enemy_bl);
+    // if (print_moves) {
+    //     cout << "after generating pawn moves:\n";
+    //     print_piece_board();
+    // }
 
     // cout << "calculating knight moves\n";
     // Calculate knight moves:
@@ -840,7 +866,12 @@ int MoveGen::move_piece(
         piece_board[from] = 0;
     }
     else {
-        piece_board[to] = captured_piece;
+        if (!(flags & 1)) {
+            piece_board[to] = captured_piece;
+        } 
+        else { // undo en passant move
+            piece_board[to] = 0;
+        }
         if (!(flags & (1 << 2))) { // No pawn promotion
             piece_board[from] = moved_piece;
         }   
@@ -858,7 +889,7 @@ int MoveGen::move_piece(
     // print_binary(get_white_king());
     // cout << "white rooks: " << "\n";
     // print_binary(get_white_rooks());
-
+    // cout << "flags: " << flags << "\n";
     // Preview capture:
     if (captured_piece) {
         // cout << "capturing piece!\n";
@@ -875,14 +906,14 @@ int MoveGen::move_piece(
             }
         }
         else {
-            p[captured_piece] -= undo * (1ULL << (to));
+            p[captured_piece] -= undo * (1ULL << to);
         }
     }
     // make sure king is not checked:
     // NOTE: flags >> 3 yields the castling bit
     int castle_type = castle::NONE;
     if (flags & (1 << 3)) {
-        cout << "attempting to castle!!\n";
+        // cout << "attempting to castle!!\n";
         if (to > from) {
             castle_type = castle::KING_SIDE;
             // Make rook move
@@ -958,18 +989,39 @@ bool MoveGen::make_move() {
         if (get_num_move_combs() != 0) {
             cout << "num_move_combs: " << get_num_move_combs() - last_num_move_combs << "\n";
         }
-        cout << "move: " << move.get_moved() << " " << move.get_from() << " " << move.get_to() << "\n";
+        // cout << "move: " << move.get_moved() << " " << move.get_from() << " " << move.get_to() << "\n";
+        string algebraic = "";
+        vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        algebraic += (rows[move.get_from() % 8] + to_string(8-(int)(move.get_from() / 8)));
+        algebraic += (rows[move.get_to() % 8] + to_string(8-(int)(move.get_to() / 8)));
         
+        cout << "move: " << algebraic << "  " << move.get_moved() << "\n";
+        // cout << "double pawn push: " << (move.get_flags() & (1 << 1)) << "\n";
+        // cout << "en passant: " << (move.get_flags() & 1) << "\n";
+        // cout << "from: " << move.get_from() << "\n";
+        // cout << "to: " << move.get_to() << "\n";
         last_num_move_combs = get_num_move_combs();
+        // cout << "before making move:\n";
+        // print_piece_board();
         // for (int i = 0; i < 40; ++i) {
         //     cout << "\n";
         // }
-        // if (move.get_moved() == 1 && move.get_from() == 48 && move.get_to() == 40) {
+        // if (move.get_moved() == Move::BLACK_PAWN && move.get_from() == 9 && move.get_to() == 25) {
         //     print_moves = true;
         // }
         // else {
         //     print_moves = false;
         // }
+    }
+    if (print_moves) {
+        string algebraic = "";
+        vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+        algebraic += (rows[move.get_from() % 8] + to_string(8-(int)(move.get_from() / 8)));
+        algebraic += (rows[move.get_to() % 8] + to_string(8-(int)(move.get_to() / 8)));
+        
+        cout << "move: " << algebraic << "  " << move.get_moved() << "\n";
+        cout << "before making move:\n";
+        print_piece_board();
     }
 
     move_piece(move.get_from(),
@@ -982,29 +1034,37 @@ bool MoveGen::make_move() {
 
     // Set en passant as needed
     if (move.get_flags() & (1 << 1)) {
-        // en_passant = 1ULL << move.get_to();
+        en_passant = 1ULL << move.get_to();
         // cout << "generated en passant!\n";
     }
     else {
         en_passant = 0ULL;
     }
 
-    if (curr_depth == depth) {
-        if (print_moves) {
-            cout << "printed move: " << num_move_combs - last_num_move_combs + 1 << "\n";
-            cout << "from: " << move.get_from() << " to: " << move.get_to() << " moved: " << move.get_moved() << "\n";
-            print_piece_board();
-        }
-    }
+    // if (curr_depth == depth) {
+    //     if (print_moves) {
+    //         cout << "after making move!\n";
+    //         print_piece_board();
+    //     }
+    // }
 
     curr_move = move;
     move_history.push(curr_move);
+    // if (curr_depth == 1) {
+    //     cout << "after making move:\n";
+    //     print_piece_board();
+    //     cout << "en passant: " << en_passant << "\n";
+    // }
     ++curr_depth;
     // Switch the active player
     (active_player == color::WHITE) ? active_player = color::BLACK : active_player = color::WHITE;
     // cout << "curr_depth: " << curr_depth << "\n";
     if (!(curr_depth > depth)) {
         calculate_moves();
+        // if (print_moves) {
+        //     cout << "after calculating moves:\n";
+        //     print_piece_board();
+        // }
     }
     else {
         // cout << "num_move_combs: " << num_move_combs << "\n";
@@ -1012,6 +1072,8 @@ bool MoveGen::make_move() {
         // print_piece_board();
         ++num_move_combs;
     }
+
+    
 
     return true; // We were able to make a move
 }
@@ -1038,7 +1100,6 @@ void MoveGen::undo_move() {
     // Set en passant as needed
     if (curr_move.get_flags() & (1 << 1)) {
         en_passant = 1ULL << curr_move.get_to();
-        // en_passant = 1ULL << shift;
     }
     else {
         en_passant = 0ULL;
