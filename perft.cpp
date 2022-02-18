@@ -11,7 +11,9 @@ U64 Perft::calculate_num_moves() {
 
     // move_gen->print_piece_board();
 
-    while (move_gen->make_move()) {}
+    while (move_gen->make_move()) {
+        // cout << "depth: " << move_gen->get_curr_depth() << "\n"; 
+    }
 
     cout << "num_move_combs: " << move_gen->get_num_move_combs() - move_gen->last_num_move_combs << "\n";
 

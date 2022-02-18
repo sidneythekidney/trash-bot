@@ -342,6 +342,19 @@ U64 MoveGen::get_en_passant() {
     return en_passant;
 }
 
+int MoveGen::get_curr_depth() {
+    return curr_depth;
+}
+
+int MoveGen::get_depth() {
+    return depth;
+}
+
+Move MoveGen::get_curr_move() {
+    return curr_move;
+}
+
+
 int MoveGen::num_calculated_moves() {
     return (int)move_vec[curr_depth].size();
 }

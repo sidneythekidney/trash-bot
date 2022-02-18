@@ -56,6 +56,13 @@ class MoveGen {
 
         U64 get_en_passant();
 
+        // Getters used for MovePicker:
+        int get_curr_depth();
+
+        int get_depth();
+
+        Move get_curr_move();
+
         // Used for testing calculated moves:
         int num_calculated_moves();
         // Used for testing move/undo moves:
