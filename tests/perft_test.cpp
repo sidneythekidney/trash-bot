@@ -21,6 +21,17 @@ class PerftTest {
             test_perft_from_start_depth_3();
             test_perft_from_start_depth_4();
             test_perft_from_start_depth_5();
+            // Run test for Perft with checks:
+            test_perft_check();
+            // Run test for Perft with castling:
+            test_perft_castle();
+            // Run test for Perft with promotion:
+            test_perft_promotion();
+            // Run test for Perft with checkmate
+            test_perft_checkmate();
+            // Run test for Perft with stalemate
+            test_perft_stalemate();
+            // debug test
             test_perft_debug();
         };
     
@@ -128,6 +139,26 @@ class PerftTest {
             if (!fail) {
                 print_success("PASS: test_perft_from_start_depth_5");
             }
+        }
+
+        void test_perft_check() {
+
+        }
+
+        void test_perft_castle() {
+
+        }
+
+        void test_perft_promotion() {
+            
+        }
+
+        void test_perft_checkmate() {
+
+        }
+
+        void test_perft_stalemate() {
+
         }
 
         void test_perft_debug() {
