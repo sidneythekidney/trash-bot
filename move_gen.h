@@ -80,6 +80,15 @@ class MoveGen {
 
         U64 last_num_move_combs = 0ULL;
 
+        void add_move(
+            unsigned int from,
+            unsigned int to,
+            unsigned int moved_piece,
+            unsigned int captured_piece,
+            unsigned int legal_castles,
+            unsigned int flags
+        );
+
     private:
         Initialize* init;
         Generate* gen;
@@ -114,15 +123,6 @@ class MoveGen {
         U64 white_qs_blockers = 7ULL << 57;
         U64 black_ks_blockers = 3ULL << 5;
         U64 black_qs_blockers = 7ULL << 1;
-
-        void add_move(
-            unsigned int from,
-            unsigned int to,
-            unsigned int moved_piece,
-            unsigned int captured_piece,
-            unsigned int legal_castles,
-            unsigned int flags
-        );
 
         int depth;
         int curr_depth = 1;

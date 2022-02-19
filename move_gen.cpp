@@ -860,6 +860,9 @@ int MoveGen::move_piece(
     int undo // +1 when making a move, -1 when unmaking a move
 ) {
 
+    // cout << "piece board before make_move:\n";
+    // print_piece_board();
+
     // Preview Move:
     if (!(flags & (1 << 2))) { // No pawn promotion
         p[moved_piece] -= undo * (1ULL << from);
@@ -872,6 +875,7 @@ int MoveGen::move_piece(
             p[Move::WHITE_PAWN] -= undo * (1ULL << from);
         }
     }
+
     p[moved_piece] += undo * (1ULL << to);
 
     if (undo == 1) {
@@ -931,6 +935,8 @@ int MoveGen::move_piece(
             castle_type = castle::KING_SIDE;
             // Make rook move
             if (active_player == color::WHITE) {
+                // cout << "king side castle for white!\n";
+                // cout << "undo: " << undo << "\n";
                 p[Move::WHITE_ROOK] += undo * (1ULL << 61);
                 p[Move::WHITE_ROOK] -= undo * (1ULL << 63);
                 
@@ -939,6 +945,7 @@ int MoveGen::move_piece(
 
             }
             else {
+                // cout << "king side castle for black!\n";
                 p[Move::BLACK_ROOK] += undo * (1ULL << 5);
                 p[Move::BLACK_ROOK] -= undo * (1ULL << 7);
 
@@ -948,7 +955,6 @@ int MoveGen::move_piece(
         } 
         else {
             castle_type = castle::QUEEN_SIDE;
-
             if (active_player == color::WHITE) {
                 p[Move::WHITE_ROOK] += undo * (1ULL << 59);
                 p[Move::WHITE_ROOK] -= undo * (1ULL << 56);
@@ -977,6 +983,9 @@ int MoveGen::move_piece(
     //     print_piece_board();
     // }
 
+    // cout << "piece board after make_move:\n";
+    // print_piece_board();
+
     return castle_type;
 }
 
@@ -999,6 +1008,7 @@ bool MoveGen::make_move() {
     move_vec[curr_depth].erase(move_vec[curr_depth].begin());
 
     if (curr_depth == 1) {
+        // print_piece_board();
         if (get_num_move_combs() != 0) {
             cout << "num_move_combs: " << get_num_move_combs() - last_num_move_combs << "\n";
         }
@@ -1013,13 +1023,14 @@ bool MoveGen::make_move() {
         // cout << "en passant: " << (move.get_flags() & 1) << "\n";
         // cout << "from: " << move.get_from() << "\n";
         // cout << "to: " << move.get_to() << "\n";
+        
         last_num_move_combs = get_num_move_combs();
         // cout << "before making move:\n";
         // print_piece_board();
         // for (int i = 0; i < 40; ++i) {
         //     cout << "\n";
         // }
-        // if (move.get_moved() == Move::BLACK_PAWN && move.get_from() == 9 && move.get_to() == 25) {
+        // if (move.get_moved() == Move::BLACK_PAWN && move.get_from() == 9 && move.get_to() == 17) {
         //     print_moves = true;
         // }
         // else {
@@ -1086,13 +1097,19 @@ bool MoveGen::make_move() {
         ++num_move_combs;
     }
 
-    
-
     return true; // We were able to make a move
 }
 
 void MoveGen::undo_move() {
     // cout << "starting undo move\n";
+    if (print_moves) {
+        cout << "piece board before undo: \n";
+        print_piece_board();
+        cout << "castle: " << (curr_move.get_flags() & (1 << 3)) << "\n";
+    }
+
+    (active_player == color::WHITE) ? active_player = color::BLACK : active_player = color::WHITE;
+
     move_piece(curr_move.get_from(),
                curr_move.get_to(), 
                curr_move.get_moved(), 
@@ -1103,7 +1120,7 @@ void MoveGen::undo_move() {
     // cout << "get here 1\n";
     // Switch the active player
     --curr_depth;
-    (active_player == color::WHITE) ? active_player = color::BLACK : active_player = color::WHITE;
+    
     move_history.pop();
     if (move_history.size() == 0) {
         return;
@@ -1119,6 +1136,10 @@ void MoveGen::undo_move() {
     }
     // cout << "get here 4\n";
     // cout << "ending undo move\n";
+    if (print_moves) {
+        cout << "piece board after undo: \n";
+        print_piece_board();
+    }
 }
 
 bool MoveGen::check_if_move_calculated(int piece_type, int from, int to) {

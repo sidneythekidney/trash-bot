@@ -12,6 +12,10 @@ class MoveTest {
         void test_all() {
             test_init();
             test_make_move_basic();
+            test_white_castle_ks();
+            test_black_castle_ks();
+            test_white_castle_qs();
+            test_black_castle_qs();
         }
 
     private:
@@ -59,7 +63,291 @@ class MoveTest {
             }            
 
             if (!fail) {
-                print_success("PASS: test_make_move_basic()");
+                print_success("PASS: test_make_move_basic");
+            }
+        }
+
+        void test_white_castle_ks() {
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', 'B', '0', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', '0', '0', 'P', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            cout << "initializing move_gen\n";
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Add only the castle move:
+            cout << "adding move\n";
+            move_gen.add_move(60, 62, Move::WHITE_KING, 0, 0b0011, 0b1000);
+            // Make and undo castling move
+            cout << "making move\n";
+            move_gen.make_move();
+            cout << "undoing move\n";
+            move_gen.undo_move();
+
+            // Make sure piece board is correct:
+            bool fail = false;
+            vector<int> move_gen_pb = move_gen.get_piece_board();
+            if (move_gen_pb[61] == Move::WHITE_ROOK || move_gen_pb[63] != Move::WHITE_ROOK) {
+                print_error("FAIL: test_white_castle_ks - white rook not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            if (move_gen_pb[60] != Move::WHITE_KING || move_gen_pb[62] == Move::WHITE_KING) {
+                print_error("FAIL: test_white_castle_ks - white king not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            // Check the white rook mask:
+            vector<vector<int>> correct_white_rooks = {
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,1},
+            };
+            U64 white_rooks_u64 = board_to_U64(correct_white_rooks);
+            if (white_rooks_u64 != move_gen.get_white_rooks()) {
+                print_error("FAIL: test_white_castle_ks - incorrect white rook mask generated!");
+                cout << "expected white rooks: \n";
+                print_binary(white_rooks_u64);
+                cout << "actual white rooks:\n";
+                print_binary(move_gen.get_white_rooks());
+                fail = true;
+            }
+
+            U64 white_king_u64 = 1ULL << 60;
+            if (white_king_u64 != move_gen.get_white_king()) {
+                print_error("FAIL: test_white_castle_ks - incorrect white king mask generated!");
+                cout << "expected white king: \n";
+                print_binary(white_king_u64);
+                cout << "actual white king:\n";
+                print_binary(move_gen.get_white_king());
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_white_castle_ks");
+            }
+        }
+
+        void test_black_castle_ks() {
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', '0', '0', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', 'B', '0', 'P', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', 'p', '0', 'n', '0', '0',
+                'p', 'p', 'p', '0', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            // Add only the castle move:
+            move_gen.add_move(4, 6, Move::BLACK_KING, 0, 0b1100, 0b1000);
+            // Make and undo castling move
+            move_gen.make_move();
+            move_gen.undo_move();
+
+            // Make sure piece board is correct:
+            bool fail = false;
+            vector<int> move_gen_pb = move_gen.get_piece_board();
+            if (move_gen_pb[4] == Move::BLACK_ROOK || move_gen_pb[7] != Move::BLACK_ROOK) {
+                print_error("FAIL: test_black_castle_ks - black rook not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            if (move_gen_pb[4] != Move::BLACK_KING || move_gen_pb[6] == Move::BLACK_KING) {
+                print_error("FAIL: test_black_castle_ks - black king not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            // Check the white rook mask:
+            vector<vector<int>> correct_black_rooks = {
+                {1,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+            };
+            U64 black_rooks_u64 = board_to_U64(correct_black_rooks);
+            if (black_rooks_u64 != move_gen.get_black_rooks()) {
+                print_error("FAIL: test_black_castle_ks - incorrect black rook mask generated!");
+                cout << "expected black rooks: \n";
+                print_binary(black_rooks_u64);
+                cout << "actual black rooks:\n";
+                print_binary(move_gen.get_black_rooks());
+                fail = true;
+            }
+
+            U64 black_king_u64 = 1ULL << 4;
+            if (black_king_u64 != move_gen.get_black_king()) {
+                print_error("FAIL: test_white_castle_ks - incorrect white king mask generated!");
+                cout << "expected black king: \n";
+                print_binary(black_king_u64);
+                cout << "actual black king:\n";
+                print_binary(move_gen.get_black_king());
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_black_castle_ks");
+            }
+        }
+
+        void test_white_castle_qs() {
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', 'B', '0', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', '0', '0', 'P', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', '0', '0',
+                '0', '0', 'n', 'p', '0', 'q', '0', '0',
+                'p', 'p', 'p', 'b', '0', 'p', 'p', 'p',
+                'r', '0', '0', '0', 'k', 'b', 'n', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Add only the castle move:
+            move_gen.add_move(60, 58, Move::WHITE_KING, 0, 0b0011, 0b1000);
+            // Make and undo castling move
+            move_gen.make_move();
+            move_gen.undo_move();
+
+            // Make sure piece board is correct:
+            bool fail = false;
+            vector<int> move_gen_pb = move_gen.get_piece_board();
+            if (move_gen_pb[59] == Move::WHITE_ROOK || move_gen_pb[56] != Move::WHITE_ROOK) {
+                print_error("FAIL: test_white_castle_qs - white rook not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            if (move_gen_pb[60] != Move::WHITE_KING || move_gen_pb[58] == Move::WHITE_KING) {
+                print_error("FAIL: test_white_castle_qs - white king not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            // Check the white rook mask:
+            vector<vector<int>> correct_white_rooks = {
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {1,0,0,0,0,0,0,1},
+            };
+            U64 white_rooks_u64 = board_to_U64(correct_white_rooks);
+            if (white_rooks_u64 != move_gen.get_white_rooks()) {
+                print_error("FAIL: test_white_castle_qs - incorrect white rook mask generated!");
+                cout << "expected white rooks: \n";
+                print_binary(white_rooks_u64);
+                cout << "actual white rooks:\n";
+                print_binary(move_gen.get_white_rooks());
+                fail = true;
+            }
+
+            U64 white_king_u64 = 1ULL << 60;
+            if (white_king_u64 != move_gen.get_white_king()) {
+                print_error("FAIL: test_white_castle_qs - incorrect white king mask generated!");
+                cout << "expected white king: \n";
+                print_binary(white_king_u64);
+                cout << "actual white king:\n";
+                print_binary(move_gen.get_white_king());
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_white_castle_qs");
+            }
+        }
+
+        void test_black_castle_qs() {
+            vector<char> char_board = {
+                'R', '0', '0', '0', 'K', 'B', 'N', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'P',
+                '0', '0', '0', '0', 'P', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', 'p', '0', 'n', '0', '0',
+                'p', 'p', 'p', '0', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            // Add only the castle move:
+            move_gen.add_move(4, 2, Move::BLACK_KING, 0, 0b1100, 0b1000);
+            // Make and undo castling move
+            move_gen.make_move();
+            move_gen.undo_move();
+
+            // Make sure piece board is correct:
+            bool fail = false;
+            vector<int> move_gen_pb = move_gen.get_piece_board();
+            if (move_gen_pb[3] == Move::BLACK_ROOK || move_gen_pb[0] != Move::BLACK_ROOK) {
+                print_error("FAIL: test_black_castle_qs - black rook not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            if (move_gen_pb[4] != Move::BLACK_KING || move_gen_pb[2] == Move::BLACK_KING) {
+                print_error("FAIL: test_black_castle_qs - black king not moved correctly!\n");
+                cout <<  "current piece board:\n";
+                move_gen.print_piece_board();
+                fail = true;
+            }
+            // Check the white rook mask:
+            vector<vector<int>> correct_black_rooks = {
+                {1,0,0,0,0,0,0,1},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+                {0,0,0,0,0,0,0,0},
+            };
+            U64 black_rooks_u64 = board_to_U64(correct_black_rooks);
+            if (black_rooks_u64 != move_gen.get_black_rooks()) {
+                print_error("FAIL: test_black_castle_qs - incorrect black rook mask generated!");
+                cout << "expected black rooks: \n";
+                print_binary(black_rooks_u64);
+                cout << "actual black rooks:\n";
+                print_binary(move_gen.get_black_rooks());
+                fail = true;
+            }
+
+            U64 black_king_u64 = 1ULL << 4;
+            if (black_king_u64 != move_gen.get_black_king()) {
+                print_error("FAIL: test_white_castle_qs - incorrect white king mask generated!");
+                cout << "expected black king: \n";
+                print_binary(black_king_u64);
+                cout << "actual black king:\n";
+                print_binary(move_gen.get_black_king());
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: test_black_castle_qs");
             }
         }
 };

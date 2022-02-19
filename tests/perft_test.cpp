@@ -142,6 +142,11 @@ class PerftTest {
         }
 
         void test_perft_check() {
+            /*
+            Set position on StockFish:
+            position fen r1bqkbnr/1ppp1ppp/p1n5/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 2 2
+            go perft 3
+            */
             vector<char> char_board = {
                 'R', '0', 'B', 'Q', 'K', 'B', 'N', 'R',
                 '0', 'P', 'P', 'P', '0', 'P', 'P', 'P',
@@ -154,6 +159,7 @@ class PerftTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             MoveGen* move_gen = new MoveGen(init, gen, 4, color::WHITE, piece_board, 0ULL, 0xf);
+            move_gen->print_piece_board();
             Perft perft = Perft(move_gen);
             int num_moves = perft.calculate_num_moves();
 
@@ -199,7 +205,7 @@ class PerftTest {
             }
 
             // TODO: Add more tests for different possible castles:
-            
+
         }
 
         void test_perft_promotion() {
@@ -291,31 +297,37 @@ class PerftTest {
         }
 
         void test_perft_debug() {
+             /*
+            Set position on StockFish:
+            position fen r1bqkbnr/1ppp1ppp/p1n5/4p3/2B1P3/5Q2/PPPPNPPP/RNB1K2R b KQkq - 2 2
+            go perft 4
+            */
             vector<char> char_board = {
-                'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
-                'P', 'P', '0', 'P', 'P', 'P', 'P', 'P',
-                '0', '0', '0', '0', '0', '0', '0', '0',
-                '0', '0', 'p', '0', '0', '0', '0', '0',
-                '0', '0', '0', '0', '0', '0', '0', '0',
-                '0', '0', '0', '0', '0', '0', '0', '0',
-                'p', 'p', 'p', '0', 'p', 'p', 'p', 'p',
-                'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
+                'R', '0', 'B', 'Q', 'K', 'B', 'N', 'R',
+                '0', 'P', 'P', 'P', '0', 'P', 'P', 'P',
+                'P', '0', 'N', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'P', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'q', '0', '0',
+                'p', 'p', 'p', 'p', 'n', 'p', 'p', 'p',
+                'r', 'n', 'b', '0', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen* move_gen = new MoveGen(init, gen, 2, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGen* move_gen = new MoveGen(init, gen, 3, color::BLACK, piece_board, 0ULL, 0xf);
+            move_gen->print_piece_board();
             Perft perft = Perft(move_gen);
             int num_moves = perft.calculate_num_moves();
-            
+
             bool fail = false;
-            if (num_moves != 646) {
+            if (num_moves != 41515) {
                 fail = true;
-                print_error("Failed test_perft_debug: generated the incorrect number of moves from depth=2!");
-                cout << "Expected: 646\n";
+                print_error("Failed test_perft_check: generated the incorrect number of moves from depth=4!");
+                cout << "Expected: 41515\n";
                 cout << "Received: " << num_moves << "\n";
-                // move_gen->print_cur_moves();
+                move_gen->print_cur_moves();
             }
             if (!fail) {
-                print_success("PASS: test_perft_debug");
+                print_success("PASS: test_perft_check");
             }
         }
 };
