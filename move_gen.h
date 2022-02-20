@@ -142,6 +142,9 @@ class MoveGen {
         void get_gen_queen_moves(int side, const U64 &friend_bl, const U64 &enemy_bl);
 
         void get_gen_king_moves(int side, const U64 &friend_bl, const U64 &enemy_bl);
+        // Constant castle masks:
+        int black_castles = 0b1100;
+        int white_castles = 0b0011;
 
         bool in_check(int castle);
 

@@ -231,12 +231,12 @@ void Initialize::init_pawn_attacks() {
     for (int i = 0; i < 64; ++i) {
         // Check left:
         U64 initial = 0ULL;
-        if (i % 8 != 0 && i / 8 != 7) {
-            initial |= (1ULL << (i+7)); 
+        if (i % 8 != 0 && i / 8 != 0) {
+            initial |= (1ULL << (i-9)); 
         }
         // Check right
-        if (i % 8 != 7 && i / 8 != 7) {
-            initial |= (1ULL << (i+9)); 
+        if (i % 8 != 7 && i / 8 != 0) {
+            initial |= (1ULL << (i-7)); 
         }
         pawn_attacks[0][i] = initial;
     }
@@ -245,12 +245,12 @@ void Initialize::init_pawn_attacks() {
     for (int i = 0; i < 64; ++i) {
         // Check left:
         U64 initial = 0ULL;
-        if (i % 8 != 0 && i / 8 != 0) {
-            initial |= (1ULL << (i-7)); 
+        if (i % 8 != 0 && i / 8 != 7) {
+            initial |= (1ULL << (i+7)); 
         }
         // Check right
-        if (i % 8 != 7 && i / 8 != 0) {
-            initial |= (1ULL << (i-9)); 
+        if (i % 8 != 7 && i / 8 != 7) {
+            initial |= (1ULL << (i+9)); 
         }
         pawn_attacks[1][i] = initial;
     }

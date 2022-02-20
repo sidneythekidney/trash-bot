@@ -50,7 +50,7 @@ class MoveTest {
             // promotion tests:
             test_white_basic_promotion();
             test_black_basic_promotion();
-            // additional perft tests:
+            // additional perft debudding tests:
             test_rook_does_not_move_through_pieces();
             test_white_pawn_cant_go_left_on_col_0();
             test_white_pawn_cant_go_right_on_col_7();
@@ -60,6 +60,9 @@ class MoveTest {
             test_white_king_cant_go_right_on_col_7();
             test_black_king_cant_go_right_on_col_0();
             test_black_king_cant_go_right_on_col_7();
+            test_castle_on_second_rank();
+            white_king_moves_into_black_pawn();
+            black_king_moves_into_white_pawn();
         }
 
     private:
@@ -1094,6 +1097,85 @@ class MoveTest {
 
         void test_black_king_cant_go_right_on_col_7() {
 
+        }
+
+        void test_castle_on_second_rank() {
+            vector<char> char_board = {
+                'R', 'N', 'B', 'Q', 'K', 'B', '0', 'R',
+                '0', 'P', 'P', '0', 'P', 'P', 'P', '0',
+                'P', '0', '0', '0', '0', 'N', '0', 'P',
+                '0', '0', '0', 'P', '0', '0', '0', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', 'n', '0', '0',
+                'p', 'p', 'p', 'p', 'k', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', '0', '0', '0', 'r'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0b1100);
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 52, 54)) {
+                print_error("Failed test_castle_on_second_rank: white king can castle on 2nd rank!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: test_castle_on_second_rank");
+            }
+        }
+
+        void white_king_moves_into_black_pawn() {
+             vector<char> char_board = {
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'k', 'P', '0', '0', '0', 'p', '0', '0',
+                '0', '0', 'P', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'R',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'Q', '0', '0', '0', '0', '0', '0',
+                '0', 'K', '0', '0', '0', '0', '0', '0'
+            };
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0);
+            move_gen.calculate_moves();
+
+            // move_gen.print_piece_board();
+
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 8, 16)) {
+                print_error("Failed white_king_moves_into_black_pawn: white king can move into check!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: white_king_moves_into_black_pawn");
+            }
+        }
+
+        void black_king_moves_into_white_pawn() {
+            vector<char> char_board = {
+                'K', '0', '0', '0', '0', '0', '0', '0',
+                'p', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'q', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', 'p', '0', '0', '0', '0', '0', '0',
+                '0', 'k', '0', '0', '0', '0', '0', '0'
+            };
+
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0);
+            move_gen.calculate_moves();
+
+            bool fail = false;
+            move_gen.calculate_moves();
+            if (move_gen.check_if_move_calculated(Move::BLACK_KING, 0, 1)) {
+                print_error("FAILED: black_king_moves_into_white_pawn - white king can move into check!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: black_king_moves_into_white_pawn");
+            }
         }
 };
 

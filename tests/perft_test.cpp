@@ -59,7 +59,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 20) {
                 fail = true;
-                print_error("Failed test_perft_from_start_depth_1: generated the incorrect number of moves from depth=1!");
+                print_error("FAIL test_perft_from_start_depth_1: generated the incorrect number of moves from depth=1!");
                 cout << "Expected: 20\n";
                 cout << "Received: " << num_moves << "\n";
                 // move_gen->print_cur_moves();
@@ -77,7 +77,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 400) {
                 fail = true;
-                print_error("Failed test_perft_from_start_depth_2: generated the incorrect number of moves from depth=2!");
+                print_error("FAIL test_perft_from_start_depth_2: generated the incorrect number of moves from depth=2!");
                 cout << "Expected: 400\n";
                 cout << "Received: " << num_moves << "\n";
                 // move_gen->print_cur_moves();
@@ -95,7 +95,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 8902) {
                 fail = true;
-                print_error("Failed test_perft_from_start_depth_3: generated the incorrect number of moves from depth=3!");
+                print_error("FAIL test_perft_from_start_depth_3: generated the incorrect number of moves from depth=3!");
                 cout << "Expected: 8902\n";
                 cout << "Received: " << num_moves << "\n";
                 // move_gen->print_cur_moves();
@@ -113,7 +113,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 197281) {
                 fail = true;
-                print_error("Failed test_perft_from_start_depth_4: generated the incorrect number of moves from depth=4!");
+                print_error("FAIL test_perft_from_start_depth_4: generated the incorrect number of moves from depth=4!");
                 cout << "Expected: 197281\n";
                 cout << "Received: " << num_moves << "\n";
                 // move_gen->print_cur_moves();
@@ -131,7 +131,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 4865609) {
                 fail = true;
-                print_error("Failed test_perft_from_start_depth_5: generated the incorrect number of moves from depth=5!");
+                print_error("FAIL test_perft_from_start_depth_5: generated the incorrect number of moves from depth=5!");
                 cout << "Expected: 4865609\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
@@ -166,7 +166,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 1533700) {
                 fail = true;
-                print_error("Failed test_perft_check: generated the incorrect number of moves from depth=4!");
+                print_error("FAIL test_perft_check: generated the incorrect number of moves from depth=4!");
                 cout << "Expected: 1533700\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
@@ -177,7 +177,12 @@ class PerftTest {
         }
 
         void test_perft_castle() {
-             vector<char> char_board = {
+            /*
+            Set position on StockFish:
+            position fen rnbqkb1r/ppp1ppp1/5n1p/3p4/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq - 2 2
+            go perft 4
+            */
+            vector<char> char_board = {
                 'R', 'N', 'B', 'Q', 'K', 'B', '0', 'R',
                 'P', 'P', 'P', '0', 'P', 'P', 'P', '0',
                 '0', '0', '0', '0', '0', 'N', '0', 'P',
@@ -195,7 +200,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 1088397) {
                 fail = true;
-                print_error("Failed test_perft_castle: generated the incorrect number of moves from depth=4!");
+                print_error("FAIL test_perft_castle: generated the incorrect number of moves from depth=4!");
                 cout << "Expected: 1088397\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
@@ -209,9 +214,14 @@ class PerftTest {
         }
 
         void test_perft_promotion() {
+            /*
+            Set position on StockFish:
+            position fen 1K6/ppp2P2/1q6/8/7r/8/8/1k6 w - - 2 2
+            go perft 5
+            */
              vector<char> char_board = {
-                '0', '0', '0', '0', '0', '0', '0', '0',
-                'P', 'P', 'P', '0', 'p', '0', '0', '0',
+                '0', 'k', '0', '0', '0', '0', '0', '0',
+                'P', 'P', 'P', '0', '0', 'p', '0', '0',
                 '0', 'Q', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', 'R',
@@ -220,15 +230,15 @@ class PerftTest {
                 '0', 'K', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen* move_gen = new MoveGen(init, gen, 5, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGen* move_gen = new MoveGen(init, gen, 5, color::WHITE, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             int num_moves = perft.calculate_num_moves();
 
             bool fail = false;
-            if (num_moves != 3718753) {
+            if (num_moves != 1405997) {
                 fail = true;
-                print_error("Failed test_perft_promotion: generated the incorrect number of moves from depth=5!");
-                cout << "Expected: 3718753\n";
+                print_error("FAIL test_perft_promotion: generated the incorrect number of moves from depth=5!");
+                cout << "Expected: 1405997\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
             }
@@ -238,6 +248,11 @@ class PerftTest {
         }
 
         void test_perft_checkmate() {
+        /*
+        Set position on StockFish:
+        position fen k1q1r3/8/8/8/8/8/PP6/1K6 b - - 2 2
+        go perft 4
+        */
             vector<char> char_board = {
                 'K', '0', 'Q', '0', 'R', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
@@ -256,7 +271,7 @@ class PerftTest {
             bool fail = false;
             if (num_moves != 28185) {
                 fail = true;
-                print_error("Failed test_perft_checkmate: generated the incorrect number of moves from depth=4!");
+                print_error("FAIL test_perft_checkmate: generated the incorrect number of moves from depth=4!");
                 cout << "Expected: 28185\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
@@ -267,27 +282,34 @@ class PerftTest {
         }
 
         void test_perft_stalemate() {
+            /*
+            Set position on StockFish
+            position fen k7/P7/8/8/3Q4/8/PP6/1K6 w - - 2 2
+            go perft 5
+            */
             vector<char> char_board = {
                 'K', '0', '0', '0', '0', '0', '0', '0',
                 'p', '0', '0', '0', '0', '0', '0', '0',
-                'k', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
-                '0', '0', '0', 'Q', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', 'q', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 'p', 'p', '0', '0', '0', '0', '0', '0',
                 '0', 'k', '0', '0', '0', '0', '0', '0'
             };
 
             vector<int> piece_board = char_board_to_piece_board(char_board);
+            cout << "creating move gen object\n";
             MoveGen* move_gen = new MoveGen(init, gen, 5, color::WHITE, piece_board, 0ULL, 0);
+            cout << "created move_gen object\n";
             Perft perft = Perft(move_gen);
             int num_moves = perft.calculate_num_moves();
-
+            cout << "Obtained number of moves\n";
             bool fail = false;
-            if (num_moves != 7068) {
+            if (num_moves != 174694) {
                 fail = true;
-                print_error("Failed test_perft_stalemate: generated the incorrect number of moves from depth=5!");
-                cout << "Expected: 7068\n";
+                print_error("FAIL test_perft_stalemate: generated the incorrect number of moves from depth=5!");
+                cout << "Expected: 174694\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
             }
@@ -297,37 +319,36 @@ class PerftTest {
         }
 
         void test_perft_debug() {
-             /*
+            /*
             Set position on StockFish:
-            position fen r1bqkbnr/1ppp1ppp/p1n5/4p3/2B1P3/5Q2/PPPPNPPP/RNB1K2R b KQkq - 2 2
-            go perft 4
+            position fen 8/Kp3P2/2p5/8/7r/8/1q6/1k6 w - - 2 2
+            go perft 1
             */
             vector<char> char_board = {
-                'R', '0', 'B', 'Q', 'K', 'B', 'N', 'R',
-                '0', 'P', 'P', 'P', '0', 'P', 'P', 'P',
-                'P', '0', 'N', '0', '0', '0', '0', '0',
-                '0', '0', '0', '0', 'P', '0', '0', '0',
-                '0', '0', 'b', '0', 'p', '0', '0', '0',
-                '0', '0', '0', '0', '0', 'q', '0', '0',
-                'p', 'p', 'p', 'p', 'n', 'p', 'p', 'p',
-                'r', 'n', 'b', '0', 'k', '0', '0', 'r'
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'k', 'P', '0', '0', '0', 'p', '0', '0',
+                '0', '0', 'P', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'R',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'Q', '0', '0', '0', '0', '0', '0',
+                '0', 'K', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen* move_gen = new MoveGen(init, gen, 3, color::BLACK, piece_board, 0ULL, 0xf);
-            move_gen->print_piece_board();
+            MoveGen* move_gen = new MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             int num_moves = perft.calculate_num_moves();
 
             bool fail = false;
-            if (num_moves != 41515) {
+            if (num_moves != 6) {
                 fail = true;
-                print_error("Failed test_perft_check: generated the incorrect number of moves from depth=4!");
-                cout << "Expected: 41515\n";
+                print_error("FAIL test_perft_promotion: generated the incorrect number of moves from depth=1!");
+                cout << "Expected: 6\n";
                 cout << "Received: " << num_moves << "\n";
                 move_gen->print_cur_moves();
             }
             if (!fail) {
-                print_success("PASS: test_perft_check");
+                print_success("PASS: test_perft_debug");
             }
         }
 };
