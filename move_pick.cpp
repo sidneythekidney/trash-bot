@@ -40,6 +40,57 @@ double MovePick::eval_current_pos() {
     return eval;
 }
 
+int MovePick::material_eval() {
+    // TODO: Place this all in a hash table
+    // Get the counts for white pieces
+    int num_white_pawns = count_bits(move_gen->get_white_pawns());
+    int num_white_knights = count_bits(move_gen->get_white_knights());
+    int num_white_bishops = count_bits(move_gen->get_white_bishops());
+    int num_white_rooks = count_bits(move_gen->get_white_rooks());
+    int num_white_queens = count_bits(move_gen->get_white_queens());
+
+    // Get the counts for black pieces
+    int num_black_pawns = count_bits(move_gen->get_black_pawns());
+    int num_black_knights = count_bits(move_gen->get_black_knights());
+    int num_black_bishops = count_bits(move_gen->get_black_bishops());
+    int num_black_rooks = count_bits(move_gen->get_black_rooks());
+    int num_black_queens = count_bits(move_gen->get_black_queens());
+    /*
+    For material, we use the standard values:
+    https://www.chessprogramming.org/Point_Value
+
+    p - 100
+    kn - 350
+    b - 350
+    r - 525
+    q - 1000
+    k - 10000
+    */
+    // Calculate the raw material score
+    int mat_diff = 100 * (num_white_pawns - num_black_pawns) +\
+                350 * (num_white_knights - num_black_knights) +\
+                350 * (num_white_bishops - num_black_bishops)+\
+                525 * (num_white_rooks - num_black_rooks)+\
+                1000 * (num_white_queens - num_black_queens);
+
+    // Factor in bonus piece configs:
+    /*
+
+    bishop pair - 50 (https://www.chessprogramming.org/Bishop_Pair)
+    rook pair penalty - -20 (penalty)
+    knight pair penalty - -20
+    no pawn penalty - -30 (hard to win the endgame)
+
+    */
+
+    int bonus_diff = 50 * ((num_white_bishops == 2) - (num_black_bishops == 2)) + \
+                    -20 * ((num_white_bishops == 2) - (num_black_rooks == 2)) + \
+                    -20 * ((num_white_knights == 2) - (num_black_knights == 2)) + \
+                    -30 * ((num_white_pawns  == 0) - (num_black_pawns == 0));
+
+    return mat_diff + bonus_diff;
+}
+
 Move MovePick::find_best_move() { // Find best move up to the given depth
     // Iterate through all possible moves, similar to perft implementation
     move_gen->calculate_moves();

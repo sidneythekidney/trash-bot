@@ -31,6 +31,8 @@ class MovePick {
 
         int zob_hash(const vector<int> &board);
 
+        int material_eval(); // Evaluate the current position in terms of material
+
     public:
         MovePick(MoveGen* move_gen);
 
