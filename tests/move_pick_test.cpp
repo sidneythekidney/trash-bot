@@ -35,7 +35,7 @@ class MovePickTest {
         void test_init_move_pick() {
             // Create move_gen and move_pick objects:
             MoveGen* move_gen = new MoveGen(init, gen, 3, color::WHITE);
-            MovePick move_pick = MovePick(move_gen);
+            MovePick move_pick = MovePick(init, gen, move_gen);
 
             move_pick.find_best_move();
 

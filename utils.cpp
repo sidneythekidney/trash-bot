@@ -32,9 +32,7 @@ int get_ls1b(U64 mask) {
     if (mask) {
         return count_bits((mask & -mask) - 1);
     }
-    else {
-        return -1;
-    }
+    return -1;
 }
 
 int count_bits(U64 mask) {
@@ -88,4 +86,24 @@ string algebraic_move(int from, int to) {
     ret += (rows[from % 8] + to_string((int)(from / 8)));
     ret += (rows[to % 8] + to_string((int)(to / 8)));
     return ret;
+}
+
+void flip_chess_board(vector<int> &arr) {
+    // Vertically flip the piece board
+    for (int i = 0; i < 32; ++i) {
+        int r = i / 8;
+        int c = i % 8;
+        swap(arr[i], arr[(7-r) * 8 + c]);
+    }
+}
+
+U64 flip_bitboard(U64 bitboard) {
+    // Vertically flip the bitboard
+    // https://www.chessprogramming.org/Flipping_Mirroring_and_Rotating#Flip_and_Mirror
+    const U64 k1 = U64(0x00FF00FF00FF00FF);
+    const U64 k2 = U64(0x0000FFFF0000FFFF);
+    bitboard = ((bitboard >>  8) & k1) | ((bitboard & k1) <<  8);
+    bitboard = ((bitboard >> 16) & k2) | ((bitboard & k2) << 16);
+    bitboard = ( bitboard >> 32)       | ( bitboard       << 32);
+    return bitboard;
 }

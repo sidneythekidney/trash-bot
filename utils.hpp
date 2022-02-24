@@ -20,4 +20,8 @@ U64 board_to_U64(vector<vector<int>> vis);
 
 vector<int> char_board_to_piece_board(vector<char> char_board);
 
+void flip_chess_board(vector<int> &arr);
+
+U64 flip_bitboard(U64 bitboard);
+
 #endif

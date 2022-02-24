@@ -13,6 +13,7 @@ class Move {
         double get_move_eval();
         // Used to deter,ime the color and piece moving in the move member
         enum piece_color {
+            EMPTY = 0,
             WHITE_PAWN = 1,
             WHITE_KNIGHT = 2,
             WHITE_BISHOP = 3,

@@ -1210,3 +1210,7 @@ void MoveGen::print_cur_moves() {
 U64 MoveGen::get_num_move_combs() {
     return num_move_combs;
 }
+
+color MoveGen::get_active_player() {
+    return active_player;
+}

@@ -78,6 +78,8 @@ class MoveGen {
 
         U64 get_num_move_combs();
 
+        color get_active_player();
+
         U64 last_num_move_combs = 0ULL;
 
         void add_move(
