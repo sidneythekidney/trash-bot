@@ -1184,6 +1184,14 @@ void MoveGen::undo_move() {
     }
 }
 
+void MoveGen::play_move(Move move) {
+    if (curr_depth != 1) {
+        cout << "Attempted to play move but depth != 1\n";
+        exit(1);
+    }
+    move_vec[curr_depth].emplace_back(move);
+}
+ 
 bool MoveGen::check_if_move_calculated(int piece_type, int from, int to) {
     for (int i = 0; i < (int)move_vec[curr_depth].size(); ++i) {
         if (move_vec[curr_depth][i].get_moved() == (unsigned int)piece_type && \
@@ -1194,6 +1202,18 @@ bool MoveGen::check_if_move_calculated(int piece_type, int from, int to) {
         }
     }
     return false;
+}
+
+Move MoveGen::get_move_from_pos(int from, int to) {
+    // Return the move with matching to and from squares
+    for (int i = 0; i < (int)move_vec[curr_depth].size(); ++i) {
+        if (move_vec[curr_depth][i].get_from() == (unsigned int)from && \
+            move_vec[curr_depth][i].get_to() == (unsigned int)to)
+        {
+            return move_vec[curr_depth][i];
+        }
+    }
+    return Move(0);
 }
 
 void MoveGen::print_cur_moves() {
@@ -1213,4 +1233,8 @@ U64 MoveGen::get_num_move_combs() {
 
 color MoveGen::get_active_player() {
     return active_player;
+}
+
+void MoveGen::set_max_depth(int max_depth) {
+    depth = max_depth;
 }

@@ -31,6 +31,9 @@ class MoveGen {
         bool make_move();
         void undo_move();
 
+        // Play a move when move is selected:
+        void play_move(Move move);
+
         // Obtain color masks:
         U64 get_white_pieces();
         U64 get_black_pieces();
@@ -73,12 +76,16 @@ class MoveGen {
 
         // Check if a move is a current move, used for testing
         bool check_if_move_calculated(int piece_type, int from, int to);
+        Move get_move_from_pos(int from, int to);
         // Print the moves in the cur_move vector:
         void print_cur_moves();
 
         U64 get_num_move_combs();
 
         color get_active_player();
+
+        // Used for iterative deepening:
+        void set_max_depth(int max_depth);
 
         U64 last_num_move_combs = 0ULL;
 

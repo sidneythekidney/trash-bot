@@ -11,6 +11,7 @@
 #include <limits>
 #include <stdlib.h>
 #include <unordered_map>
+#include <time.h>
 
 #include "move_gen.h"
 #include "utils.hpp"
@@ -66,7 +67,9 @@ class MovePick {
     public:
         MovePick(Initialize* init, Generate* gen, MoveGen* move_gen);
 
-        Move find_best_move(); // Finds the best move up to the desired depth
+        Move find_best_move(int max_runtime); // Finds the best move up to the desired depth
+
+        Move find_best_move_given_time(int time); // Finds the best move given a max time
 };
 
 #endif

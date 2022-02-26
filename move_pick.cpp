@@ -172,7 +172,7 @@ int MovePick::pawn_structure_eval() {
     return eval;
 }
 
-Move MovePick::find_best_move() { // Find best move up to the given depth
+Move MovePick::find_best_move(int max_runtime) { // Find best move up to the given depth
     // Iterate through all possible moves, similar to perft implementation
     move_gen->calculate_moves();
     // Set initial best move value to null move - Guaranteed to change
@@ -181,7 +181,15 @@ Move MovePick::find_best_move() { // Find best move up to the given depth
     Move played_move = Move(0);
     // Set best score to be lowest possible value
     double best_score = -numeric_limits<double>::infinity();
+    // Keep track of the time when this function started running
+    auto start_time = clock();
+
     while (move_gen->make_move()) {
+        // Check to make sure time is remaining:
+        if ((clock() - start_time) > max_runtime) {
+            // Stop searching moves if the time limit has exceeded
+            break;
+        }
         // Update the played move if we're at a depth of 2
         if (move_gen->get_curr_depth() == 2) {
             // NOTE: When at depth = 2, move_gen.curr_move is the move played from depth = 1
@@ -196,6 +204,29 @@ Move MovePick::find_best_move() { // Find best move up to the given depth
                 best_move = played_move;
             }
         }
+    }
+    return best_move;
+}
+
+Move MovePick::find_best_move_given_time(int time) {
+    // NOTE: time is the total time the program should search for a move
+    // Use iterative deepening to find the best move given the max time:
+    auto start_time = clock();
+    Move best_move = Move(0), pot_best_move = Move(0);
+    for (int depth = 1; clock() < (start_time + time); ++depth) {
+        // Set the maximum depth for the move_gen object:
+        move_gen->set_max_depth(depth);
+        // Calculate available runtime
+        int rem_time = (start_time + time) - clock();
+        // Find the potential best move for this depth:
+        pot_best_move = find_best_move(rem_time);
+        if (pot_best_move.get_move() != 0) {
+            best_move = pot_best_move;
+        }
+    }
+    if (best_move.get_move() == 0) {
+        cout << "Couldn't find best move in given time!\n";
+        exit(1);
     }
     return best_move;
 }

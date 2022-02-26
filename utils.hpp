@@ -5,6 +5,7 @@
 #include "defs.h"
 #include "move.h"
 #include <vector>
+#include <time.h>
 
 using namespace std;
 
