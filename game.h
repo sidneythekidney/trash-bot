@@ -17,11 +17,13 @@ class Game {
         MovePick* move_pick;
         MoveGen* game_move_gen;
 
-        int get_user_side();
+        int get_user_side_and_time();
 
         void play_user_move();
 
         void play_cpu_move();
+
+        int cpu_time;
 
     public:
         Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick);

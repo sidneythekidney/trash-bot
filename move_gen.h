@@ -84,8 +84,12 @@ class MoveGen {
 
         color get_active_player();
 
+        int get_move_history_length();
+
         // Used for iterative deepening:
         void set_max_depth(int max_depth);
+
+        void set_start_move(Move move);
 
         U64 last_num_move_combs = 0ULL;
 
@@ -168,6 +172,9 @@ class MoveGen {
 
         U64 num_move_combs = 0ULL; //Used for perft test calculations
         bool print_moves = false;
+
+        // Clear the calculated moves:
+        void clear_moves();
 };
 
 #endif

@@ -20,7 +20,7 @@ MoveGen::MoveGen(Initialize* init,
     for (int i = 0; i < depth+1; ++i) {
         move_vec.push_back({});
     }
-    // move_vec[0].push_back(curr_move);
+    move_vec[0].push_back(curr_move);
     vector<vector<int>> white_pawn_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -208,7 +208,7 @@ MoveGen::MoveGen(
         for (int i = 0; i < depth+1; ++i) {
             move_vec.push_back({});
         }
-        // move_vec[0].push_back(curr_move);
+        move_vec[0].push_back(curr_move);
 
         // Initialize piece masks:
         p = vector<U64>(NUM_PIECE_TYPES, 0ULL);
@@ -318,6 +318,7 @@ vector<int> MoveGen::get_piece_board() {
 
 void MoveGen::print_piece_board() {
     for (int i = 0; i < 8; ++i) {
+        cout << (8-i) << "   "; 
         for (int j = 0; j < 8; ++j) {
             if (piece_board[i*8+j] == Move::WHITE_PAWN) cout << "p ";
             else if (piece_board[i*8+j] == Move::WHITE_KNIGHT) cout << "n ";
@@ -335,6 +336,7 @@ void MoveGen::print_piece_board() {
         }
         cout << "\n";
     }
+    cout << "\n    a b c d e f g h";
     cout << "\n\n\n";
 }
 
@@ -1023,17 +1025,49 @@ int MoveGen::move_piece(
 bool MoveGen::make_move() {
     // Retrieve the next move:
     // cout << "start make_move\n";
-    while (curr_depth > depth || move_vec[curr_depth].size() == 0) {
+    // cout << "piece board before make move\n";
+    // print_piece_board();
+    // cout << "curr depth: " << curr_depth << "\n";
+    // cout << "move vec size: " << move_vec[curr_depth].size() << "\n";
+    while ((curr_depth > depth || move_vec[curr_depth].size() == 0)) {
+        // cout << "move_vec[curr_depth].size() == 0: " << (int)(move_vec[curr_depth].size() == 0) << "\n";
+        // // Print the available moves:
+        // for (int i = 0; i <= min((int)move_vec.size(), depth); ++i) {
+        //     cout << "level " << i << "\n";
+        //     cout << "level size: " << move_vec[i].size() << "\n";
+        //     for (int j = 0; j < (int)move_vec[i].size(); ++j) {
+        //        cout <<  "   move " << j << " from " << move_vec[i][j].get_from() << " to " << move_vec[i][j].get_to() << "\n";
+        //     }
+        // }
         // If we have no moves to explore or we're at max depth, we need to traverse up
         // if (curr_depth > depth) {
         //     ++num_move_combs;
         // }
-        undo_move();
-        if (curr_depth == 0) {
+        // cout << "curr depth: " << curr_depth << "\n";
+        if (curr_depth == 1) {
+            // cout << "returned here\n";
             // cout << "returned: \n";
+            // cout << "the curr_depth = 0, no need to continue removing moves\n";
+            // print_piece_board();
             return false; // No more moves to make
         }
+        // cout << "piece board before undo move\n";
+        // print_piece_board();
+        // cout << "curr move from: " << curr_move.get_from() << "curr move to: " << curr_move.get_to() << "\n";
+        // cout << "curr depth: " << curr_depth << "\n";
+        undo_move();
+        // cout << "piece board after undo move\n";
+        // print_piece_board();
+        // for (int i = 0; i <= min((int)move_vec.size(), depth); ++i) {
+        //     cout << "level " << i << "\n";
+        //     cout << "level size: " << move_vec[i].size() << "\n";
+        //     for (int j = 0; j < (int)move_vec[i].size(); ++j) {
+        //        cout <<  "   move " << j << " from " << move_vec[i][j].get_from() << " to " << move_vec[i][j].get_to() << "\n";
+        //     }
+        // }
     }
+    // cout << "piece board after while loop\n";
+    // print_piece_board();
     // cout << "found curr_depth in make_move\n";
     // Make the next available move:
     Move move = move_vec[curr_depth][0];
@@ -1138,6 +1172,8 @@ bool MoveGen::make_move() {
         cout << "after making move:\n";
         print_piece_board();
     }
+    // cout << "piece board after make move\n";
+    // print_piece_board();
     // cout << "ending make move!\n";
     return true; // We were able to make a move
 }
@@ -1149,7 +1185,7 @@ void MoveGen::undo_move() {
         print_piece_board();
         cout << "castle: " << (curr_move.get_flags() & (1 << 3)) << "\n";
     }
-
+    // Switch the active player
     (active_player == color::WHITE) ? active_player = color::BLACK : active_player = color::WHITE;
 
     move_piece(curr_move.get_from(),
@@ -1160,7 +1196,6 @@ void MoveGen::undo_move() {
                -1
     );
     // cout << "get here 1\n";
-    // Switch the active player
     --curr_depth;
     
     move_history.pop();
@@ -1168,6 +1203,8 @@ void MoveGen::undo_move() {
         return;
     }
     curr_move = move_history.top();
+    // cout << "curr_move from " << curr_move.get_from() << "\n"; 
+    // cout << "curr_move to " << curr_move.get_to() << "\n"; 
     // cout << "get here 2\n";
     // Set en passant as needed
     if (curr_move.get_flags() & (1 << 1)) {
@@ -1185,11 +1222,20 @@ void MoveGen::undo_move() {
 }
 
 void MoveGen::play_move(Move move) {
-    if (curr_depth != 1) {
-        cout << "Attempted to play move but depth != 1\n";
-        exit(1);
-    }
+    // Clear the moves and add it to the calculated moves:
+    clear_moves();
+    // if (curr_depth != 1) {
+    //     cout << "Attempted to play move but depth != 1\n";
+    //     cout << "depth: " << depth << "\n";
+    //     exit(1);
+    // }
     move_vec[curr_depth].emplace_back(move);
+    // Actually play the move:
+    if (!make_move()) {
+        cout << "Error trying to make move from play move function\n";
+    }
+    // Decrease the current depth from 2 to 1 since this is the new starting position
+    curr_depth = 1;
 }
  
 bool MoveGen::check_if_move_calculated(int piece_type, int from, int to) {
@@ -1237,4 +1283,24 @@ color MoveGen::get_active_player() {
 
 void MoveGen::set_max_depth(int max_depth) {
     depth = max_depth;
+    while ((int)move_vec.size() != max_depth + 1) {
+        move_vec.push_back({});
+    }
+}
+
+void MoveGen::clear_moves() {
+    // Clear the calculated moves:
+    for (int i = 0; i < depth+1; ++i) {
+        move_vec[i].clear();
+    }
+    curr_depth = 1;
+}
+
+int MoveGen::get_move_history_length() {
+    return move_history.size();
+}
+
+void MoveGen::set_start_move(Move move) {
+    clear_moves();
+    move_vec[0].push_back(move);
 }

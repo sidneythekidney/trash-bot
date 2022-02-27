@@ -67,6 +67,8 @@ class PerftTest {
             if (!fail) {
                 print_success("PASS: test_perft_from_start_depth_1");
             }
+            cout << "final piece config:\n";
+            move_gen->print_piece_board();
         }
 
         void test_perft_from_start_depth_2() {

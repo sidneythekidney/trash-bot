@@ -23,7 +23,8 @@ class MovePick {
     private:
         Initialize* init;
         Generate* gen;
-        MoveGen* move_gen;
+        MoveGen* move_gen; // Used to keep track of the current state
+        MoveGen* iter_move_gen; // Used to calculate branches from the current state
 
         bool endgame = false; // Keep track of whether we're in the end game
 

@@ -96,9 +96,16 @@ int main(){
     //     {0,0,0,0,0,0,0,0},
     // }; 
 
-    U64 mask = 0x00000000000000010ULL;
+    // U64 mask = 0x00000000000000010ULL;
 
-    cout << "get_ls1b(mask): " << get_ls1b(mask) << "\n";
-    cout << "get_ls1b_index(mask): " << get_ls1b_index(mask) << "\n";
+    // cout << "get_ls1b(mask): " << get_ls1b(mask) << "\n";
+    // cout << "get_ls1b_index(mask): " << get_ls1b_index(mask) << "\n";
+    auto start = clock();
+    int delay_in_seconds = 5;
+    cout << start << "\n";
+    while (clock() < (start + delay_in_seconds * CLOCKS_PER_SEC)) {
+        
+    }
+    cout << "Finished\n";
 
 }
