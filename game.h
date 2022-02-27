@@ -19,6 +19,8 @@ class Game {
 
         int get_user_side_and_time();
 
+        int get_user_promotion();
+
         void play_user_move();
 
         void play_cpu_move();

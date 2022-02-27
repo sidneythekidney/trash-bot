@@ -48,6 +48,34 @@ int Game::get_user_side_and_time() {
     return side_chosen;
 }
 
+int Game::get_user_promotion() {
+    while (true) {
+        string promote;
+        cout << "Enter piece to be promoted (q|r|b|n):\n";
+        cin >> promote;
+        if (promote == "q") {
+            cout << "Promoted to queen!\n";
+            // Since the original move considers KNIGHT as the first promoted piece, not PAWN
+            return 3;
+        }
+        else if (promote == "r") {
+            cout << "Promoted to rook!\n";
+            return 2;
+        }
+        else if (promote == "b") {
+            cout << "Promoted to bishop!\n";
+            return 1;
+        }
+        else if (promote == "n") {
+            cout << "Promoted to knight!\n";
+            return 0;
+        }
+        cout << "Invalid promotion piece entered, enter either 'q', 'r', 'b', or 'n'\n";
+    }
+    cout << "Error occured in promote function\n";
+    exit(1);
+}
+
 void Game::play_user_move() {
     // Get user move:
     bool move_selected = false;
@@ -62,7 +90,6 @@ void Game::play_user_move() {
             from = (7 - (input[1] - '1')) * 8 + (input[0] - 'a');
             to = (7 - (input[3] - '1')) * 8 + (input[2] - 'a');
             // int moved_piece = game_move_gen->get_piece_board()[from];
-            // TODO: Handle user promotion:
         }
         catch (exception& e) {
             cout << "Move input incorrectly!\n";
@@ -76,6 +103,13 @@ void Game::play_user_move() {
         if (move == 0) {
             cout << "Move input valid but not allowed in this position!\n";
             continue;
+        }
+        // Handle promotion
+        if (move.get_promotion()) {
+            // Get promotion offset and add to currently moved piece:
+            cout << "move get moved: " << move.get_moved() << "\n";
+            move = Move(move.get_move() + (get_user_promotion() << 12));
+            cout << "move get moved: " << move.get_moved() << "\n";
         }
         // Otherwise, play the move now that it is valid:
         cout << "Attempting to play user move\n";
