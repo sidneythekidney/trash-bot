@@ -26,7 +26,7 @@ debug_test : test.cpp
 	$(CXX) $(CXXFLAGS) test.cpp -o test
 
 negamax_test : negamax_test.cpp
-	$(CXX) $(CXXFLAGS) negamax_test.cpp -o negamax_test
+	$(CXX) $(CXXFLAGS) negamax_test.cpp -o negamax_test.exe
 
 
 # Remove automatically generated files

@@ -57,45 +57,28 @@ class NegaMax {
             for (int i = 0; i < depth; ++i) {
                 path_scores.push((i % 2) ? numeric_limits<int>::max() : numeric_limits<int>::min());
             }
-            // cout << "initial path socres:\n";
-            // print_path_scores(path_scores);
-            // cout << "Initial path top: " << path_scores.top() << "\n";
-            // cout << max(path_scores.top(), -1) << "\n";
-
-            // cout << "Initial path score lengths: " << path_scores.size() << "\n";
-
             while (true) {
-                // cout << "curr depth: " << curr_depth << "\n";
                 // Check if we are at max depth and return score for this
                 while (curr_depth > depth || moves[curr_depth].size() == 0) {
-                    // print_path_scores(path_scores);
-                    // cout << "Entered undo loop\n";    
                     // Eval score is defined and we can apply negamax selection:
                     if (curr_depth > depth) {
-                        // cout << "\nReached value: " << values.front() << "\n\n";
                         path_scores.push(values.front());
                         values.pop();
                     }
                     // Pop the top two element off the stack:
-                    // cout << "length of path scores:" << path_scores.size() << "\n";
                     if (path_scores.size() == 1) {
                         return path_scores.top();
                     }
-                    // cout << "path scores size: " << path_scores.size() << "\n";
                     int new_score = path_scores.top();
                     path_scores.pop();
                     int old_score = path_scores.top();
                     path_scores.pop();
                     // Add the calculated score back on the path scores stack
                     int mult = (curr_depth % 2) ? -1 : 1;
-                    // cout << "mult: " << mult << "\n";
                     path_scores.push(mult * max(mult * old_score, mult * new_score));
                     --curr_depth;
-                    // cout << "Left undo loop\n";
                 }
                 // Add remaining placeholders to path scores until filled:
-                // cout << "current depth after while: " << curr_depth << "\n";
-                // cout << "current path size: " << path_scores.size() << "\n";
                 for (int i = path_scores.size(); i < depth; ++i) {
                     path_scores.push((i % 2) ? numeric_limits<int>::max() : numeric_limits<int>::min());
                 }
@@ -105,15 +88,11 @@ class NegaMax {
                 moves[curr_depth].erase(moves[curr_depth].begin());
                 // Add the connected nodes from this node to the next level
                 ++curr_depth;
-                // cout << "curr depth before adding: " << curr_depth << "\n"; 
-                // cout << "before adding moves size = " << moves[curr_depth].size() << "\n";
                 if (curr_depth <= depth) {
                     for (int i = 0; i < (int)node_connections[next_move].size(); ++i) {
-                        // cout << "\nadding connection: " << node_connections[next_move][i] << "\n\n";
                         moves[curr_depth].push_back(node_connections[next_move][i]);
                     }
                 }
-                // cout << "after adding moves size = " << moves[curr_depth].size() << "\n";
             }
         }
 

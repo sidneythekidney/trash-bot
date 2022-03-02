@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <unordered_map>
 #include <time.h>
+#include <stack>
+#include <iostream>
 
 #include "move_gen.h"
 #include "utils.hpp"
@@ -48,6 +50,9 @@ class MovePick {
         U64 row_masks[8];
         U64 col_masks[8];
 
+        // Keep track of the current path scores
+        stack<double> path_scores;
+
         // Helper functions:
         double eval_current_pos(); // Evaluates the board at the current position
 
@@ -71,6 +76,8 @@ class MovePick {
         Move find_best_move(int max_runtime); // Finds the best move up to the desired depth
 
         Move find_best_move_given_time(int time); // Finds the best move given a max time
+
+        void print_path_scores();
 };
 
 #endif

@@ -93,6 +93,8 @@ class MoveGen {
 
         U64 last_num_move_combs = 0ULL;
 
+        int get_num_sibling_moves_left(int ply);
+
         void add_move(
             unsigned int from,
             unsigned int to,

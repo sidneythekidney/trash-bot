@@ -45,7 +45,8 @@ double MovePick::eval_current_pos() {
 
     // Remember the evaluation for this position:
     eval_pos[hash] = eval;
-    return eval;
+    // This evaluation is for when playing with white, negate if playing for black
+    return (move_gen->get_active_player() ? -1 : 1) * eval;
 }
 
 double MovePick::material_eval() {
@@ -124,10 +125,6 @@ int MovePick::pawn_structure_eval() {
     U64 black_pawns = move_gen->get_black_pawns();
     // Check to see if we evaluated this pawn struct before:
     // TODO: Add in a hash table to avoid recomputing the same vals
-    // if (eval_pawn_structs.find(pawns) != eval_pawn_structs.end()) {
-    //     return multiplier * eval_pawn_structs[pawns];
-    // }
-    // Evaluate pawn position if not seen before:
 
     /*****************
      * DOUBLED PAWNS * 
@@ -174,55 +171,71 @@ int MovePick::pawn_structure_eval() {
 
 Move MovePick::find_best_move(int max_runtime) { // Find best move up to the given depth
     // Iterate through all possible moves, similar to perft implementation
+    // Check and make sure path scores is empty:
+    if (!path_scores.empty()) {
+        cout << "path_scores should have been empty bud had size = " << path_scores.size() << "\n";
+        exit(1);
+    }
     cout << "time left: " << max_runtime << "\n";
     iter_move_gen->calculate_moves();
-    // cout << "after calculated moves\n";
-    // move_gen->print_piece_board();
     // Set initial best move value to null move - Guaranteed to change
     Move best_move = Move(0);
-    // Keep track of the actual move to be played
-    Move played_move = Move(0);
-    // Set best score to be lowest possible value
     double best_score = -numeric_limits<double>::infinity();
+    // Keep track of the actual move to be played
+    Move curr_move = Move(0);
     // Keep track of the time when this function started running
     auto start_time = clock();
 
-    cout << "curr_depth: " << iter_move_gen->get_curr_depth() << "\n";
-
-    // cout << "before make move loop:\n";
-    // iter_move_gen->print_piece_board();
+    // Initialize path_scores:
+    for (int i = 0; i < iter_move_gen->get_depth(); ++i) {
+        path_scores.push((i % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+    }
 
     while (iter_move_gen->make_move()) {
-        // cout << "piece board at beginning of loop\n";
+        // If the depth == 2 the current move is a move the CPU can play:
+        if (iter_move_gen->get_curr_depth() == 2) {
+            curr_move = iter_move_gen->get_curr_move();
+        }
 
-        // iter_move_gen->print_piece_board();
-        // Check to make sure time is remaining:
+        // Update path scores based on NegaMax algorithm
+        for (int d = iter_move_gen->get_curr_depth(); d > iter_move_gen->get_depth() || (iter_move_gen->get_num_sibling_moves_left(d) == 0); --d) {
+            // Travel up and evaluate:
+            if (d > iter_move_gen->get_depth()) {
+                // Evaluate and add position
+                double eval = eval_current_pos();
+                path_scores.push(eval);
+            }
+            if (path_scores.size() == 1) {
+                // Make final move (undo_move) and return
+                iter_move_gen->make_move();
+                // Return the best move:
+                cout << "Best score for depth = " << iter_move_gen->get_depth() << ": " << best_score << "\n";
+                return best_move;
+            }
+            int new_score = path_scores.top();
+            path_scores.pop();
+            int old_score = path_scores.top();
+            path_scores.pop();
+            int mult = (d % 2) ? -1 : 1;
+            path_scores.push(mult * max(mult * old_score, mult * new_score));
+            // Update best move as needed:
+            if (path_scores.size() == 1 && path_scores.top() != old_score) {
+                best_score = path_scores.top();
+                best_move = curr_move;
+            } 
+        }
+
+        // Add placeholder values back in to path_scores needed:
+        for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
+            path_scores.push((i % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+        }
+        
+        // Check to make sure there is time remaining:
         if ((float)((clock() - start_time) / CLOCKS_PER_SEC) > (float)max_runtime) {
             // Stop searching moves if the time limit has exceeded
-            cout << "time limit exceeded!\n";
             return Move(0);
         }
-        // Update the played move if we're at a depth of 2
-        if (iter_move_gen->get_curr_depth() == 2) {
-            // NOTE: When at depth = 2, move_gen.curr_move is the move played from depth = 1
-            played_move = iter_move_gen->get_curr_move();
-            // cout << "from: " << iter_move_gen->get_curr_move().get_from() << "\n";
-            // cout << "to: " << iter_move_gen->get_curr_move().get_to() << "\n";
-        }
-        // Evaluate current move and update best move if we exceed current depth:
-        double score = eval_current_pos();
-        // If we're at a leaf node, update the best score:
-        if (iter_move_gen->get_curr_depth() > iter_move_gen->get_depth()) {
-            if (score > best_score) {
-                best_score = score;
-                best_move = played_move;
-            }
-        }
-        // cout << "piece board at end of loop\n";
-        // iter_move_gen->print_piece_board();
     }
-    // cout << "w move loop\n";
-    // iter_move_gen->print_piece_board();
     return best_move;
 }
 
@@ -231,46 +244,27 @@ Move MovePick::find_best_move_given_time(int time) {
     // Use iterative deepening to find the best move given the max time:
     auto start_time = clock();
     Move best_move = Move(0), pot_best_move = Move(0);
-    cout << "curr_depth: " << move_gen->get_curr_depth() << "\n";
     Move curr_move = move_gen->get_curr_move();
     for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) {
-        // if (depth == 2) {
-        //     exit(1);
-        // }
-        // cout << "curr move from: " << move_gen->get_curr_move().get_from() << " to: " << move_gen->get_curr_move().get_to() << "\n";
-        // cout << "history length: " << move_gen->get_move_history_length() << "\n";
-        // if (move_gen->get_curr_depth() != 1) {
-        //     cout << "move gen not being reset correctly!\n";
-        //     cout << "curr depth: " << move_gen->get_curr_depth() << "\n";
-        //     move_gen->print_piece_board();
+        // Clear the path score stack:
+        while (!path_scores.empty()) {
+            path_scores.pop();
+        }
 
-        //     exit(1);
-        // }
         // Set iter_move_gen based on move_gen:
         delete iter_move_gen;
         
         iter_move_gen = new MoveGen(init, gen, depth, move_gen->get_active_player(), move_gen->get_piece_board(), \
                                     move_gen->get_en_passant(), curr_move.get_castles());
 
-        // cout << "exploring depth: " << depth << "\n";
-        // move_gen->print_piece_board();
         // Set the maximum depth for the move_gen object:
-        // move_gen->set_max_depth(depth);
         // Calculate available runtime
         int rem_time = ((start_time + time * CLOCKS_PER_SEC) - clock()) / CLOCKS_PER_SEC;
         // Find the potential best move for this depth:
-        // cout << "Finding best move\n";
-        // move_gen->print_piece_board();
-        // DEBUG: Board being reset in the function below:
         pot_best_move = find_best_move(rem_time);
-        // move_gen->print_piece_board();
-        // cout << "Found best move\n";
         if (pot_best_move.get_move() != 0) {
             best_move = pot_best_move;
         }
-        // if (depth == 2) {
-        //     break;
-        // }
         // NOTE: If we run out of time at a certain depth, iter_move_gen mightnot match move_gen, but will have pot_best_move = 0
         if (iter_move_gen->get_piece_board() != move_gen->get_piece_board() && pot_best_move.get_move() != 0) {
             cout << "Moves not being made unmade correctly\n";
@@ -280,7 +274,6 @@ Move MovePick::find_best_move_given_time(int time) {
             move_gen->print_piece_board();
             exit(1);
         }
-        // break;
     }
     if (best_move.get_move() == 0) {
         cout << "Couldn't find best move in given time!\n";
@@ -441,4 +434,17 @@ void MovePick::init_col_masks() {
     row_masks[5] = 0x0404040404040404ULL;
     row_masks[6] = 0x0202020202020202ULL;
     row_masks[7] = 0x0101010101010101ULL;
+}
+
+void MovePick::print_path_scores() {
+    stack<double> path_score_copy = path_scores;
+    vector<int> scores = {};
+    cout << "current path scores: ";
+    while (path_scores.size()) {
+        scores.push_back(path_scores.top());
+        cout << path_scores.top() << " ";
+        path_scores.pop();
+    }
+    cout << "\n";
+    path_scores = path_score_copy;
 }

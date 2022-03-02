@@ -1304,3 +1304,7 @@ void MoveGen::set_start_move(Move move) {
     clear_moves();
     move_vec[0].push_back(move);
 }
+
+int MoveGen::get_num_sibling_moves_left(int ply) {
+    return move_vec[ply].size();
+}
