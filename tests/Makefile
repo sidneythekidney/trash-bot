@@ -20,7 +20,7 @@ perft_test: perft_test.cpp
 
 move_pick_test: move_pick_test.cpp
 	make clean
-	$(CXX) $(CXXFLAGS) move_pick_test.cpp ../move_gen.h ../move_gen.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp ../move_pick.h ../move_pick.cpp -o move_pick_test.exe
+	$(CXX) $(CXXFLAGS) move_pick_test.cpp ../move.h ../move.cpp ../move_gen.h ../move_gen.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp ../move_pick.h ../move_pick.cpp -o move_pick_test.exe
 
 debug_test : test.cpp
 	$(CXX) $(CXXFLAGS) test.cpp -o test

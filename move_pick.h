@@ -30,6 +30,8 @@ class MovePick {
 
         bool endgame = false; // Keep track of whether we're in the end game
 
+        int iter_depth;
+
         // Keep track of evaluated positions:
         unordered_map<int, double> eval_pos;
         unordered_map<U64, int> eval_pawn_structs;
@@ -58,12 +60,6 @@ class MovePick {
 
         int zob_hash(const vector<int> &board);
 
-        double material_eval(); // Evaluate the current position in terms of material
-
-        double position_eval(); // Evaluate position based on the position of the pieces
-
-        int pawn_structure_eval();
-
         void init_piece_squares(); // Initialize the piece squares tables
 
         void init_row_masks();
@@ -78,6 +74,12 @@ class MovePick {
         Move find_best_move_given_time(int time); // Finds the best move given a max time
 
         void print_path_scores();
+
+        double material_eval(); // Evaluate the current position in terms of material
+
+        double position_eval(); // Evaluate position based on the position of the pieces
+
+        double pawn_structure_eval();
 };
 
 #endif
