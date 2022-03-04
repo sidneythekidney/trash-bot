@@ -47,7 +47,8 @@ double MovePick::eval_current_pos() {
     // Remember the evaluation for this position:
     eval_pos[hash] = eval;
     // This evaluation is for when playing with white, negate if playing for black
-    return (move_gen->get_active_player() ? -1 : 1) * eval;
+    // return (move_gen->get_active_player() ? -1 : 1) * eval;
+    return eval;
 }
 
 double MovePick::material_eval() {
@@ -182,7 +183,7 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
     iter_move_gen->calculate_moves();
     // Set initial best move value to null move - Guaranteed to change
     Move best_move = Move(0);
-    double best_score = -numeric_limits<double>::infinity();
+    // double best_score = -numeric_limits<double>::infinity();
     // Keep track of the actual move to be played
     Move curr_move = Move(0);
     // Keep track of the time when this function started running
@@ -190,7 +191,7 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
 
     // Initialize path_scores:
     for (int i = 0; i < iter_move_gen->get_depth(); ++i) {
-        path_scores.push((i % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+        path_scores.push(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
     }
 
     while (iter_move_gen->make_move()) {
@@ -212,23 +213,30 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
                 // Return the best move:
                 return best_move;
             }
-            int new_score = path_scores.top();
+            double new_score = path_scores.top();
             path_scores.pop();
-            int old_score = path_scores.top();
+            double old_score = path_scores.top();
             path_scores.pop();
-            int mult = (d % 2) ? -1 : 1;
+            
+            double mult = ((d + move_gen->get_active_player()) % 2) ? -1 : 1;
             path_scores.push(mult * max(mult * old_score, mult * new_score));
             // Update best move as needed:
+            if (path_scores.size() == 1) {
+                // cout << "d: " << d << "\n";
+                // cout << "mult: " << mult << "\n";
+                // cout << "\nbest score for this move: " << new_score << "\n";
+                // cout << "best score overall: " << path_scores.top() << "\n";
+            }
             if (path_scores.size() == 1 && path_scores.top() != old_score) {
-                best_score = path_scores.top();
+                // best_score = path_scores.top();
                 best_move = curr_move;
-                cout << "new best score: " << best_score << "\n";
+                // cout << "new best score: " << best_score << "\n";
             }
         }
 
         // Add placeholder values back in to path_scores needed:
         for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
-            path_scores.push((i % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+            path_scores.push(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
         }
         
         // Check to make sure there is time remaining:
@@ -247,9 +255,9 @@ Move MovePick::find_best_move_given_time(int time) {
     Move best_move = Move(0), pot_best_move = Move(0);
     Move curr_move = move_gen->get_curr_move();
     for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) {
-        if (depth == 4) {
-            break;
-        }
+        // if (depth == 4) {
+        //     break;
+        // }
         iter_depth = depth;
         // Clear the path score stack:
         while (!path_scores.empty()) {
@@ -283,6 +291,7 @@ Move MovePick::find_best_move_given_time(int time) {
         }
     }
     if (best_move.get_move() == 0) {
+        cout << "Returning invalid best move\n";
         exit(1);
     }
     return best_move;

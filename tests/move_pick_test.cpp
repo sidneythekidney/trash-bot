@@ -14,11 +14,13 @@ class MovePickTest {
         
         void test_all() {
             // Run all test functions inside this function:
-            test_init();
-            test_init_move_pick();
-            test_material_eval();
-            test_position_eval();
-            test_pawn_strucuture_eval();
+            // test_init();
+            // test_init_move_pick();
+            // test_material_eval();
+            // test_position_eval();
+            // test_pawn_strucuture_eval();
+            test_find_best_move1();
+            test_find_best_move2();
         }
    
    private:
@@ -151,6 +153,77 @@ class MovePickTest {
 
             if (!fail) {
                 print_success("PASS: test pawn structure evaluation test!\n");
+            }
+        }
+
+        void test_find_best_move1() {
+            vector<char> char_board1 = {
+                'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
+                '0', 'P', 'P', 'P', '0', 'P', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'P',
+                'P', '0', '0', '0', 'P', '0', 'n', '0',
+                '0', '0', 'b', '0', 'p', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', 'b', '0', 'r'
+            };
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            Move to_play = move_pick1.find_best_move_given_time(60);
+            // move_gen1->play_move(to_play);
+            // move_gen1->print_piece_board();
+
+            bool fail = false;
+            if (!(to_play.get_from() == 30) || !(to_play.get_to() == 13)) {
+                print_error("FAIL: find best move 1!");
+                cout << "Received to: " << to_play.get_to() << "\n";
+                cout << "Expected to: 13" << "\n";
+                cout << "Received from: " << to_play.get_to() << "\n";
+                cout << "Expected from: 13" << "\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: find best move 1!\n");
+            }
+        }
+
+        void test_find_best_move2() {
+            vector<char> char_board1 = {
+                'R', 'N', 'B', 'Q', 'K', '0', '0', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', 'P',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                'p', '0', 'B', '0', 'P', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', 'N', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'p',
+                '0', 'p', 'p', 'p', '0', 'p', 'p', '0',
+                'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
+            };
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::BLACK, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            Move to_play = move_pick1.find_best_move_given_time(60);
+            move_gen1->print_piece_board();
+            move_gen1->play_move(to_play);
+            move_gen1->print_piece_board();
+
+            bool fail = false;
+            if (!(to_play.get_from() == 38) || !(to_play.get_to() == 53)) {
+                print_error("FAIL: find best move 2!");
+                cout << "Received to: " << to_play.get_to() << "\n";
+                cout << "Expected to: 53" << "\n";
+                cout << "Received from: " << to_play.get_from() << "\n";
+                cout << "Expected from: 38" << "\n";
+                fail = true;
+            }
+
+            if (!fail) {
+                print_success("PASS: find best move 2!\n");
             }
         }
 };
