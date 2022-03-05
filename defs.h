@@ -27,8 +27,9 @@ enum castle {
 
 enum checkmate {
     NO_CHECKMATE = 0,
-    WHITE_CHECKMATE = 1,
-    BLACK_CHECKMATE = 2,
+    STALEMATE = 1,
+    WHITE_CHECKMATE = 2,
+    BLACK_CHECKMATE = 3,
 };
 
 #endif

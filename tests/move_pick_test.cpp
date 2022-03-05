@@ -14,15 +14,16 @@ class MovePickTest {
         
         void test_all() {
             // Run all test functions inside this function:
-            // test_init();
-            // test_init_move_pick();
-            // test_material_eval();
-            // test_position_eval();
-            // test_pawn_strucuture_eval();
-            // test_find_best_move1();
-            // test_find_best_move2();
-            // test_find_best_move_checkmate_depth_1();
+            test_init();
+            test_init_move_pick();
+            test_material_eval();
+            test_position_eval();
+            test_pawn_strucuture_eval();
+            test_find_best_move1();
+            test_find_best_move2();
+            test_find_best_move_checkmate_depth_1();
             test_find_best_move_checkmate_depth_2();
+            test_avoid_stalemate();
         }
    
    private:
@@ -332,6 +333,42 @@ class MovePickTest {
             if (!fail) {
                 print_success("PASS: find best move checkmate from a depth of 2!\n");
             }
+        }
+
+        void test_avoid_stalemate() {
+            vector<char> char_board1 = {
+                'K', '0', '0', '0', '0', '0', '0', '0',
+                'p', '0', '0', '0', '0', 'R', '0', '0',
+                'b', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', 'n', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'b', '0', '0', '0',
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0'
+            };
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            Move to_play1 = move_pick1.find_best_move_given_time(60);
+            move_gen1->print_piece_board();
+            move_gen1->play_move(to_play1);
+            move_gen1->print_piece_board();
+
+            bool fail = false;
+            // We need to make sure we don't take the black rook leading to stalemate
+            if ((to_play1.get_from() == 30) && (to_play1.get_to() == 13)) {
+                print_error("FAIL: test avoid stalemate!");
+                cout << "Received to: " << to_play1.get_to() << "\n";
+                cout << "Expected to: not 13" << "\n";
+                cout << "Received from: " << to_play1.get_from() << "\n";
+                cout << "Expected from: not 30" << "\n";
+                fail = true;
+            }         
+            if (!fail) {
+                print_success("PASS: test avoid stalemate!\n");
+            }   
         }
 };
 

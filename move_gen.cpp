@@ -1160,7 +1160,13 @@ bool MoveGen::make_move() {
         calculate_moves();
         if (move_vec[curr_depth].size() == 0) {
             // Set checkmate status as needed
-            checkmate_status = (curr_depth % 2) ? checkmate::BLACK_CHECKMATE : checkmate::WHITE_CHECKMATE;
+            if (in_check(castle::NONE)) {
+                checkmate_status = (curr_depth % 2) ? checkmate::BLACK_CHECKMATE : checkmate::WHITE_CHECKMATE;
+            }
+            else {
+                // cout << "Stalemate found!\n";
+                checkmate_status = checkmate::STALEMATE;
+            }
         }
         // cout << "finished calculating moves\n";
         // if (print_moves) {

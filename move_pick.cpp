@@ -215,8 +215,9 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
         // Update path scores based on NegaMax algorithm
         for (int d = iter_move_gen->get_curr_depth(); d > iter_move_gen->get_depth() || (iter_move_gen->get_num_sibling_moves_left(d) == 0); --d) {
             // Travel up and evaluate:
-            if (iter_move_gen->get_checkmate_status() != checkmate::NO_CHECKMATE) {
+            if (iter_move_gen->get_checkmate_status() > checkmate::STALEMATE) {
                 // cout << "Found checkmate lol\n";
+
                 double eval = (iter_move_gen->get_checkmate_status() == checkmate::WHITE_CHECKMATE ? 1 : -1) * numeric_limits<double>::infinity();
                 // cout << "eval: " << eval << "\n";
                 // Inject the evaluation up a level since the checkmate indication occurs after making the move:
@@ -229,6 +230,19 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
                 }
                 // cout << "depth: " << iter_move_gen->get_curr_depth() << "\n";
                 // print_path_scores();
+            }
+            if (iter_move_gen->get_checkmate_status() == checkmate::STALEMATE) {
+                // Handle stalemate evaluation
+                // print_path_scores();
+                double old_score = path_scores[iter_move_gen->get_curr_depth()-2];
+                double mult = (iter_move_gen->get_active_player() == color::WHITE) ? -1.0 : 1.0;
+                path_scores[iter_move_gen->get_curr_depth()-2] = mult * max(0.0, mult * old_score);
+                // Update best score if needed
+                if (iter_move_gen->get_curr_depth()-2 == 0 && path_scores[iter_move_gen->get_curr_depth()-2] == 0.0) {
+                    best_move = curr_move;
+                }
+                // print_path_scores();
+                continue;
             }
             if (d > iter_move_gen->get_depth()) {
                 // Evaluate and add position
@@ -255,7 +269,7 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
             if (path_scores.size() == 1 && path_scores.back() != old_score) {
                 // best_score = path_scores.top();
                 best_move = curr_move;
-                // cout << "new best score: " << best_score << "\n";
+                // cout << "new best score: " << path_scores.back() << "\n\n\n\n";
             }
         }
 
@@ -280,7 +294,8 @@ Move MovePick::find_best_move_given_time(int time) {
     Move best_move = Move(0), pot_best_move = Move(0);
     Move curr_move = move_gen->get_curr_move();
     for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) {
-        // if (depth == 4) {
+        cout << "calculating at depth = " << depth << "\n";
+        // if (depth == 3) {
         //     break;
         // }
         iter_depth = depth;
