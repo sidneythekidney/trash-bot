@@ -86,6 +86,8 @@ class MoveGen {
 
         int get_move_history_length();
 
+        unsigned int get_castles();
+
         // Used for iterative deepening:
         void set_max_depth(int max_depth);
 
@@ -94,6 +96,10 @@ class MoveGen {
         U64 last_num_move_combs = 0ULL;
 
         int get_num_sibling_moves_left(int ply);
+
+        bool in_check(int castle);
+
+        int get_checkmate_status();
 
         void add_move(
             unsigned int from,
@@ -142,6 +148,7 @@ class MoveGen {
         int depth;
         int curr_depth = 1;
         color active_player;
+        checkmate checkmate_status;
 
         // Piece board holds all of positions of all of the pieces by type in one variable
         vector<int> piece_board;
@@ -160,8 +167,6 @@ class MoveGen {
         // Constant castle masks:
         int black_castles = 0b1100;
         int white_castles = 0b0011;
-
-        bool in_check(int castle);
 
         int move_piece(
             unsigned int from,

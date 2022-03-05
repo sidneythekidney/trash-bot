@@ -25,4 +25,10 @@ enum castle {
     QUEEN_SIDE = 2
 };
 
+enum checkmate {
+    NO_CHECKMATE = 0,
+    WHITE_CHECKMATE = 1,
+    BLACK_CHECKMATE = 2,
+};
+
 #endif

@@ -167,6 +167,7 @@ MoveGen::MoveGen(Initialize* init,
     p[Move::BLACK_KING] = board_to_U64(black_king_vec);
 
     en_passant = 0ULL;
+    checkmate_status = checkmate::NO_CHECKMATE;
 
     // Using the default constructor, set initial position
     piece_board = {
@@ -209,6 +210,7 @@ MoveGen::MoveGen(
             move_vec.push_back({});
         }
         move_vec[0].push_back(curr_move);
+        checkmate_status = checkmate::NO_CHECKMATE;
 
         // Initialize piece masks:
         p = vector<U64>(NUM_PIECE_TYPES, 0ULL);
@@ -1156,6 +1158,10 @@ bool MoveGen::make_move() {
     if (!(curr_depth > depth)) {
         // cout << "calculating moves\n";
         calculate_moves();
+        if (move_vec[curr_depth].size() == 0) {
+            // Set checkmate status as needed
+            checkmate_status = (curr_depth % 2) ? checkmate::BLACK_CHECKMATE : checkmate::WHITE_CHECKMATE;
+        }
         // cout << "finished calculating moves\n";
         // if (print_moves) {
         //     cout << "after calculating moves:\n";
@@ -1197,6 +1203,9 @@ void MoveGen::undo_move() {
     );
     // cout << "get here 1\n";
     --curr_depth;
+
+    // Undo checkmate status
+    checkmate_status = checkmate::NO_CHECKMATE;
     
     move_history.pop();
     if (move_history.size() == 0) {
@@ -1307,4 +1316,12 @@ void MoveGen::set_start_move(Move move) {
 
 int MoveGen::get_num_sibling_moves_left(int ply) {
     return move_vec[ply].size();
+}
+
+unsigned int MoveGen::get_castles() {
+    return curr_move.get_castles();
+}
+
+int MoveGen::get_checkmate_status() {
+    return checkmate_status;
 }

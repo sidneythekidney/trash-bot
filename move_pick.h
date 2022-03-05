@@ -14,6 +14,7 @@
 #include <time.h>
 #include <stack>
 #include <iostream>
+#include <deque>
 
 #include "move_gen.h"
 #include "utils.hpp"
@@ -53,7 +54,7 @@ class MovePick {
         U64 col_masks[8];
 
         // Keep track of the current path scores
-        stack<double> path_scores;
+        deque<double> path_scores;
 
         // Helper functions:
         double eval_current_pos(); // Evaluates the board at the current position
@@ -74,6 +75,8 @@ class MovePick {
         Move find_best_move_given_time(int time); // Finds the best move given a max time
 
         void print_path_scores();
+
+        double checkmate_eval(); // Determine if side is in checkmate and evaluate accordingly
 
         double material_eval(); // Evaluate the current position in terms of material
 

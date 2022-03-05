@@ -30,6 +30,19 @@ int MovePick::zob_hash(const vector<int> &board) {
     return z_hash;
 }
 
+// double MovePick::checkmate_eval() {
+//     // Determine if a side is in checkmate and evaluate accordingly:
+//     if (iter_move_gen->in_check(castle::NONE)) {
+//         // Create new MoveGen object and calculate to depth = 1:
+//         MoveGen* temp_move_gen = new MoveGen(init, gen, 1, iter_move_gen->get_active_player(), iter_move_gen->get_piece_board(), 
+//                                             iter_move_gen->get_en_passant(), iter_move_gen->get_castles());
+
+//         temp_move_gen->calculate_moves();
+        
+//     }
+//     return 0.0;
+// }
+
 double MovePick::eval_current_pos() {
     // Check if this position has been evaluated before:
     int hash = zob_hash(iter_move_gen->get_piece_board());
@@ -191,7 +204,7 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
 
     // Initialize path_scores:
     for (int i = 0; i < iter_move_gen->get_depth(); ++i) {
-        path_scores.push(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+        path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
     }
 
     while (iter_move_gen->make_move()) {
@@ -202,10 +215,25 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
         // Update path scores based on NegaMax algorithm
         for (int d = iter_move_gen->get_curr_depth(); d > iter_move_gen->get_depth() || (iter_move_gen->get_num_sibling_moves_left(d) == 0); --d) {
             // Travel up and evaluate:
+            if (iter_move_gen->get_checkmate_status() != checkmate::NO_CHECKMATE) {
+                // cout << "Found checkmate lol\n";
+                double eval = (iter_move_gen->get_checkmate_status() == checkmate::WHITE_CHECKMATE ? 1 : -1) * numeric_limits<double>::infinity();
+                // cout << "eval: " << eval << "\n";
+                // Inject the evaluation up a level since the checkmate indication occurs after making the move:
+                // ISSUE: Checkmates cannot be identified at a depth = 1
+                // print_path_scores();
+                path_scores[iter_move_gen->get_curr_depth()-2] = eval;
+                // update best move if we are at a depth of 1
+                if (iter_move_gen->get_curr_depth()-2 == 0) {
+                    best_move = curr_move;
+                }
+                // cout << "depth: " << iter_move_gen->get_curr_depth() << "\n";
+                // print_path_scores();
+            }
             if (d > iter_move_gen->get_depth()) {
                 // Evaluate and add position
                 double eval = eval_current_pos();
-                path_scores.push(eval);
+                path_scores.push_back(eval);
             }
             if (path_scores.size() == 1) {
                 // Make final move (undo_move) and return
@@ -213,21 +241,18 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
                 // Return the best move:
                 return best_move;
             }
-            double new_score = path_scores.top();
-            path_scores.pop();
-            double old_score = path_scores.top();
-            path_scores.pop();
+            double new_score = path_scores.back();
+            path_scores.pop_back();
+            double old_score = path_scores.back();
+            path_scores.pop_back();
+
+            // cout << "calculated score: " << new_score << "\n";
+            // cout << "best score: " << old_score << "\n";
             
             double mult = ((d + move_gen->get_active_player()) % 2) ? -1 : 1;
-            path_scores.push(mult * max(mult * old_score, mult * new_score));
+            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
             // Update best move as needed:
-            if (path_scores.size() == 1) {
-                // cout << "d: " << d << "\n";
-                // cout << "mult: " << mult << "\n";
-                // cout << "\nbest score for this move: " << new_score << "\n";
-                // cout << "best score overall: " << path_scores.top() << "\n";
-            }
-            if (path_scores.size() == 1 && path_scores.top() != old_score) {
+            if (path_scores.size() == 1 && path_scores.back() != old_score) {
                 // best_score = path_scores.top();
                 best_move = curr_move;
                 // cout << "new best score: " << best_score << "\n";
@@ -236,7 +261,7 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
 
         // Add placeholder values back in to path_scores needed:
         for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
-            path_scores.push(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
+            path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
         }
         
         // Check to make sure there is time remaining:
@@ -261,7 +286,7 @@ Move MovePick::find_best_move_given_time(int time) {
         iter_depth = depth;
         // Clear the path score stack:
         while (!path_scores.empty()) {
-            path_scores.pop();
+            path_scores.pop_back();
         }
 
         // Set iter_move_gen based on move_gen:
@@ -452,13 +477,13 @@ void MovePick::init_col_masks() {
 }
 
 void MovePick::print_path_scores() {
-    stack<double> path_score_copy = path_scores;
+    deque<double> path_score_copy = path_scores;
     vector<int> scores = {};
     cout << "current path scores: ";
     while (path_scores.size()) {
-        scores.push_back(path_scores.top());
-        cout << path_scores.top() << " ";
-        path_scores.pop();
+        scores.push_back(path_scores.back());
+        cout << path_scores.back() << " ";
+        path_scores.pop_back();
     }
     cout << "\n";
     path_scores = path_score_copy;
