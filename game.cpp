@@ -80,7 +80,8 @@ void Game::play_user_move() {
     // Get user move:
     bool move_selected = false;
     Move move = Move(0);
-    string input;
+    string input;        
+    game_move_gen->calculate_moves();
     while (!move_selected) {
         cout << "select move (ex. e2e4): ";
         cin >> input;
@@ -98,10 +99,9 @@ void Game::play_user_move() {
         cout << "from: " << from << "\n";
         cout << "to: " << to << "\n";
         // Validate move:
-        game_move_gen->calculate_moves();
         move = game_move_gen->get_move_from_pos(from, to);
         if (move == 0) {
-            cout << "Move input valid but not allowed in this position!\n";
+            game_move_gen->print_cur_moves();
             continue;
         }
         // Handle promotion
@@ -143,6 +143,17 @@ void Game::play_game() {
     while (!game_over) {
         cout << "\ncurrent board\n";
         game_move_gen->print_piece_board();
+        // Check for checkmate/stalemate:
+        if (game_move_gen->get_checkmate_status() == checkmate::STALEMATE) {
+            // Print stalemate message and return
+            cout << "STALEMATE: the game resulted in a draw!\n";
+            return;
+        }
+        else if (game_move_gen->get_checkmate_status() > checkmate::STALEMATE) {
+            // Print checkmate message and return
+            cout << "CHECKMATE: " << (game_move_gen->get_active_player() ? "white " : "black ") << "wins!\n";
+            return;
+        }
         if (game_move_gen->get_active_player() == side_chosen) {
             play_user_move();
         }
