@@ -48,10 +48,13 @@ class MovePick {
             64 squares
         */
         int piece_square[13][2][64];
+        vector<U64> w_passed_pawn_mask;
+        vector<U64> b_passed_pawn_mask;
+
         void set_piece_arr(int piece, int game, vector<int> squares);
 
-        U64 row_masks[8];
-        U64 col_masks[8];
+        vector<U64> row_masks;
+        vector<U64> col_masks;
 
         // Keep track of the current path scores
         deque<double> path_scores;
@@ -66,6 +69,9 @@ class MovePick {
         void init_row_masks();
 
         void init_col_masks();
+        
+        void init_passed_pawn_masks();
+
 
     public:
         MovePick(Initialize* init, Generate* gen, MoveGen* move_gen);
@@ -83,6 +89,14 @@ class MovePick {
         double position_eval(); // Evaluate position based on the position of the pieces
 
         double pawn_structure_eval();
+
+        double doubled_pawns_eval();
+        
+        double pawn_chain_eval();
+
+        double isolated_pawns_eval();
+
+        double passed_pawns_eval();
 };
 
 #endif

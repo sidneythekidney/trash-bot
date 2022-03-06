@@ -14,7 +14,12 @@ MovePick::MovePick(Initialize* init, Generate* gen, MoveGen* move_gen) : init(in
     iter_move_gen = new MoveGen(init, gen, 1, color::WHITE, move_gen->get_piece_board(), 0, 0);
     // Initialize piece-square tables used by position_eval:
     // https://www.chessprogramming.org/Simplified_Evaluation_Function
+
+    // Initialize masks as needed:
     init_piece_squares();
+    init_col_masks();
+    init_row_masks();
+    init_passed_pawn_masks();
 }
 
 int MovePick::zob_hash(const vector<int> &board) {
@@ -136,27 +141,43 @@ double MovePick::position_eval() {
 
 double MovePick::pawn_structure_eval() {
     double eval = 0;
-    U64 white_pawns = iter_move_gen->get_white_pawns();
-    U64 black_pawns = iter_move_gen->get_black_pawns();
-    // Check to see if we evaluated this pawn struct before:
-    // TODO: Add in a hash table to avoid recomputing the same vals
 
+    eval += doubled_pawns_eval();
+    eval += pawn_chain_eval();
+    eval += isolated_pawns_eval();
+    eval += passed_pawns_eval();
+
+    return eval;
+}
+
+double MovePick::doubled_pawns_eval() {
     /*****************
      * DOUBLED PAWNS * 
      ****************/
     // Doubled pawns are bad, even worse in the endgame
     // Having two pawns still usually better than having just one pawn 
+    double eval = 0;
+    U64 white_pawns = iter_move_gen->get_white_pawns();
+    U64 black_pawns = iter_move_gen->get_black_pawns();
+
     for (int i = 0; i < 8; ++i) {
         eval -= (endgame ? 75 : 50) * (count_bits(white_pawns & col_masks[i]) > 1);
         eval += (endgame ? 75 : 50) * (count_bits(black_pawns & col_masks[i]) > 1);
     }
 
+    return eval;
+}
+        
+double MovePick::pawn_chain_eval() {
     /***************
      * PAWN CHAINS * 
      **************/
     /*
         - Pawns are stronger when they support each other
     */
+    double eval = 0;
+    U64 white_pawns = iter_move_gen->get_white_pawns();
+    U64 black_pawns = iter_move_gen->get_black_pawns();
     double w_protects = 0, w_attacks = 0; 
     int sq;
     double b_protects = 0, b_attacks = 0;
@@ -182,6 +203,85 @@ double MovePick::pawn_structure_eval() {
     // protected pawns more important in endgame:
     eval += (endgame ? 125 : 100) * (w_protects / w_attacks);
     eval -= (endgame ? 125 : 100) * (b_protects / b_attacks);
+    return eval;
+}
+
+double MovePick::isolated_pawns_eval() {
+    /******************
+     * ISOLATED PAWNS *
+     *****************/
+
+    /*
+     - Isolated pawns are pawns that have no friendly pawns on adjacent ranks
+     - Isolated pawns are generally bad as they can be hard to defend
+    */
+    U64 white_pawns = iter_move_gen->get_white_pawns();
+    U64 black_pawns = iter_move_gen->get_black_pawns();
+    vector<int> w_pawns_per_col;
+    vector<int> b_pawns_per_col;
+    for (int i = 0; i < 8; ++i) {
+        w_pawns_per_col.push_back(count_bits(white_pawns & col_masks[i]));
+        b_pawns_per_col.push_back(count_bits(black_pawns & col_masks[i]));
+    }
+    int num_w_isolated = 0;
+    int num_b_isolated = 0;
+    for (int i = 0; i < 8; ++i) {
+        bool w_isolated  = true;
+        bool b_isolated = true;
+        
+        if (i != 0) {
+            // check left:
+            if (w_pawns_per_col[i-1]) {
+                w_isolated = false;
+            }
+            if (b_pawns_per_col[i-1]) {
+                b_isolated = false;
+            }
+        }
+        if (i != 7) {
+            // check right:
+            if (w_pawns_per_col[i+1]) {
+                w_isolated = false;
+            }
+            if (b_pawns_per_col[i+1]) {
+                b_isolated = false;
+            }
+        }
+        if (w_isolated) {
+            num_w_isolated += w_pawns_per_col[i];
+        }
+        if (b_isolated) {
+            num_b_isolated += b_pawns_per_col[i];
+        }
+        // Assume isolated pawns to be slightly bad, slightly worse in the endgame
+    }
+    return (num_w_isolated - num_b_isolated) * (endgame ? -30.0 : -25.0);
+}
+
+double MovePick::passed_pawns_eval() {
+    /****************
+     * PASSED PAWNS *
+     ***************/
+    /* 
+     - Passed pawns are pawns that make it past the opponents pawns of same and adjacent col
+    */
+    double eval = 0;
+    U64 white_pawns = iter_move_gen->get_white_pawns();
+    U64 black_pawns = iter_move_gen->get_black_pawns();
+
+    U64 white_pawns_cp = white_pawns;
+    U64 black_pawns_cp = black_pawns;
+    while (white_pawns_cp) {
+        int pos = get_ls1b(white_pawns_cp);
+        eval += (black_pawns & w_passed_pawn_mask[pos]) ? 0 : 75;
+        white_pawns_cp = pop_bit(white_pawns_cp, pos);
+    }
+    while (black_pawns_cp) {
+        int pos = get_ls1b(black_pawns_cp);
+        eval -= (white_pawns & b_passed_pawn_mask[pos]) ? 0 : 75;
+        black_pawns_cp = pop_bit(black_pawns_cp, pos);
+    }
+
     return eval;
 }
 
@@ -470,25 +570,53 @@ void MovePick::init_piece_squares() {
 }
 
 void MovePick::init_row_masks() {
-    row_masks[0] = 0xff00000000000000ULL;
-    row_masks[1] = 0x00ff000000000000ULL;
-    row_masks[2] = 0x0000ff0000000000ULL;
-    row_masks[3] = 0x000000ff00000000ULL;
-    row_masks[4] = 0x00000000ff000000ULL;
-    row_masks[5] = 0x0000000000ff0000ULL;
-    row_masks[6] = 0x000000000000ff00ULL;
-    row_masks[7] = 0x00000000000000ffULL;
+    row_masks = {
+        0x00000000000000ffULL,
+        0x000000000000ff00ULL,
+        0x0000000000ff0000ULL,
+        0x00000000ff000000ULL,
+        0x000000ff00000000ULL,
+        0x0000ff0000000000ULL,
+        0x00ff000000000000ULL,
+        0xff00000000000000ULL
+    };
 }
 
 void MovePick::init_col_masks() {
-    row_masks[0] = 0x8080808080808080ULL;
-    row_masks[1] = 0x4040404040404040ULL;
-    row_masks[2] = 0x2020202020202020ULL;
-    row_masks[3] = 0x1010101010101010ULL;
-    row_masks[4] = 0x0808080808080808ULL;
-    row_masks[5] = 0x0404040404040404ULL;
-    row_masks[6] = 0x0202020202020202ULL;
-    row_masks[7] = 0x0101010101010101ULL;
+    col_masks = {
+        0x0101010101010101ULL,
+        0x0202020202020202ULL,
+        0x0404040404040404ULL,
+        0x0808080808080808ULL,
+        0x1010101010101010ULL,
+        0x2020202020202020ULL,
+        0x4040404040404040ULL,
+        0x8080808080808080ULL
+    };
+}
+
+void MovePick::init_passed_pawn_masks() {
+    b_passed_pawn_mask = {
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
+        0x0303030303030000ULL, 0x0707070707070000ULL, 0x0e0e0e0e0e0e0000ULL, 0x1c1c1c1c1c1c0000ULL, 0x3838383838380000ULL, 0x7070707070700000ULL, 0xe0e0e0e0e0e00000ULL, 0xc0c0c0c0c0c00000ULL,
+        0x0303030303000000ULL, 0x0707070707000000ULL, 0x0e0e0e0e0e000000ULL, 0x1c1c1c1c1c000000ULL, 0x3838383838000000ULL, 0x7070707070000000ULL, 0xe0e0e0e0e0000000ULL, 0xc0c0c0c0c0000000ULL,
+        0x0303030300000000ULL, 0x0707070700000000ULL, 0x0e0e0e0e00000000ULL, 0x1c1c1c1c00000000ULL, 0x3838383800000000ULL, 0x7070707000000000ULL, 0xe0e0e0e000000000ULL, 0xc0c0c0c000000000ULL,
+        0x0303030000000000ULL, 0x0707070000000000ULL, 0x0e0e0e0000000000ULL, 0x1c1c1c0000000000ULL, 0x3838380000000000ULL, 0x7070700000000000ULL, 0xe0e0e00000000000ULL, 0xc0c0c00000000000ULL,
+        0x0303000000000000ULL, 0x0707000000000000ULL, 0x0e0e000000000000ULL, 0x1c1c000000000000ULL, 0x3838000000000000ULL, 0x7070000000000000ULL, 0xe0e0000000000000ULL, 0xc0c0000000000000ULL,
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
+    };
+
+    w_passed_pawn_mask = {
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
+        0x0000000000000303ULL, 0x0000000000000707ULL, 0x0000000000000e0eULL, 0x0000000000001c1cULL, 0x0000000000003838ULL, 0x0000000000007070ULL, 0x000000000000e0e0ULL, 0x000000000000c0c0ULL,
+        0x0000000000030303ULL, 0x0000000000070707ULL, 0x00000000000e0e0eULL, 0x00000000001c1c1cULL, 0x0000000000383838ULL, 0x0000000000707070ULL, 0x0000000000e0e0e0ULL, 0x0000000000c0c0c0ULL,
+        0x0000000003030303ULL, 0x0000000007070707ULL, 0x000000000e0e0e0eULL, 0x000000001c1c1c1cULL, 0x0000000038383838ULL, 0x0000000070707070ULL, 0x00000000e0e0e0e0ULL, 0x00000000c0c0c0c0ULL,
+        0x0000000303030303ULL, 0x0000000707070707ULL, 0x0000000e0e0e0e0eULL, 0x0000001c1c1c1c1cULL, 0x0000003838383838ULL, 0x0000007070707070ULL, 0x000000e0e0e0e0e0ULL, 0x000000c0c0c0c0c0ULL,
+        0x0000030303030303ULL, 0x0000070707070707ULL, 0x00000e0e0e0e0e0eULL, 0x00001c1c1c1c1c1cULL, 0x0000383838383838ULL, 0x0000707070707070ULL, 0x0000e0e0e0e0e0e0ULL, 0x0000c0c0c0c0c0c0ULL,
+        0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL
+    };
 }
 
 void MovePick::print_path_scores() {

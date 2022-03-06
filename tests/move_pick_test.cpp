@@ -18,7 +18,10 @@ class MovePickTest {
             test_init_move_pick();
             test_material_eval();
             test_position_eval();
-            test_pawn_strucuture_eval();
+            test_doubled_pawns_eval();
+            test_pawn_chain_eval();
+            test_isolated_pawns_eval();
+            test_passed_pawns_eval();
             test_find_best_move1();
             test_find_best_move2();
             test_find_best_move_checkmate_depth_1();
@@ -50,8 +53,6 @@ class MovePickTest {
             // Create move_gen and move_pick objects:
             MoveGen* move_gen = new MoveGen(init, gen, 3, color::WHITE);
             MovePick move_pick = MovePick(init, gen, move_gen);
-
-            move_pick.find_best_move_given_time(10);
 
             print_success("PASS: test_init_move_pick passed successfully");
         }
@@ -124,7 +125,36 @@ class MovePickTest {
             }
         }
 
-        void test_pawn_strucuture_eval() {
+        void test_doubled_pawns_eval() {
+            vector<char> char_board1 = {
+                '0', '0', '0', '0', '0', 'K', '0', '0',
+                'P', 'P', '0', '0', '0', '0', 'P', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', '0', '0',
+                '0', 'p', '0', '0', 'p', '0', '0', '0',
+                '0', 'k', '0', '0', '0', '0', '0', '0'
+            };
+            // Black has 2 doubled pawn structures, white has 1
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            bool fail = false;
+            if (move_pick1.doubled_pawns_eval() != 50) {
+                print_error("FAIL: incorrect doubled pawns eval!");
+                cout << "Received doubled pawns eval: " << move_pick1.doubled_pawns_eval() << "\n";
+                cout << "Expected doubled pawns eval: 50" << "\n";
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test doubled pawns eval!\n");
+            }
+        }
+
+        void test_pawn_chain_eval() {
             vector<char> char_board1 = {
                 '0', '0', '0', '0', 'K', '0', '0', '0',
                 'P', '0', 'P', 'P', 'P', 'P', 'P', 'P',
@@ -144,18 +174,74 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 1, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            move_gen1->print_piece_board();
-
             bool fail = false;
-            if (!almost_equals(move_pick1.pawn_structure_eval(), 28.5714285714,  0.001)) {
-                print_error("FAIL: Failed pawn structure evaluation test!");
-                cout << "Received: " << move_pick1.pawn_structure_eval() << "\n";
+            if (!almost_equals(move_pick1.pawn_chain_eval(), 28.5714285714,  0.001)) {
+                print_error("FAIL: Failed pawn chain evaluation test!");
+                cout << "Received: " << move_pick1.pawn_chain_eval() << "\n";
                 cout << "Expected: 28.5714285714...\n";
                 fail = true;
             }
 
             if (!fail) {
-                print_success("PASS: test pawn structure evaluation test!\n");
+                print_success("PASS: test pawn chains evaluation test!\n");
+            }
+        }
+
+        void test_isolated_pawns_eval() {
+            vector<char> char_board1 = {
+                '0', '0', '0', '0', '0', 'K', '0', '0',
+                'P', 'P', '0', '0', '0', '0', 'P', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', '0', '0',
+                '0', 'p', '0', '0', 'p', '0', '0', 'p',
+                '0', 'k', '0', '0', '0', '0', '0', '0'
+            };
+            // Black has 3 isolated pawns, white has 4
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            bool fail = false;
+            if (move_pick1.isolated_pawns_eval() != -25) {
+                print_error("FAIL: incorrect isolated pawns eval!");
+                cout << "Received isolated pawns eval: " << move_pick1.isolated_pawns_eval() << "\n";
+                cout << "Expected isolated pawns eval: -25" << "\n";
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test isolated pawns eval!\n");
+            }
+        }
+
+        void test_passed_pawns_eval() {
+            vector<char> char_board1 = {
+                '0', '0', '0', '0', '0', 'K', '0', '0',
+                'P', 'P', '0', '0', '0', '0', 'P', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', 'P', '0', 'P', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', 'p', '0', '0', '0',
+                '0', 'p', '0', '0', 'p', '0', '0', '0',
+                '0', 'k', '0', '0', '0', '0', '0', '0'
+            };
+            // Black has 1 passed pawn, white has none
+
+            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+
+            bool fail = false;
+            if (move_pick1.passed_pawns_eval() != -75) {
+                print_error("FAIL: incorrect passed pawns eval!");
+                cout << "Received passed pawns eval: " << move_pick1.passed_pawns_eval() << "\n";
+                cout << "Expected passed pawns eval: -75" << "\n";
+                fail = true;
+            }
+            if (!fail) {
+                print_success("PASS: test passed pawns eval!\n");
             }
         }
 
