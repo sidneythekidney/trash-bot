@@ -56,6 +56,9 @@ class MovePick {
         vector<U64> row_masks;
         vector<U64> col_masks;
 
+        vector<U64> w_king_safety_masks;
+        vector<U64> b_king_safety_masks;
+
         // Keep track of the current path scores
         deque<double> path_scores;
 
@@ -71,6 +74,8 @@ class MovePick {
         void init_col_masks();
         
         void init_passed_pawn_masks();
+
+        void init_king_safety_masks();
 
 
     public:
@@ -97,6 +102,8 @@ class MovePick {
         double isolated_pawns_eval();
 
         double passed_pawns_eval();
+
+        double king_safety_eval();
 };
 
 #endif

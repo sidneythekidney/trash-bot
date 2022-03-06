@@ -20,6 +20,7 @@ MovePick::MovePick(Initialize* init, Generate* gen, MoveGen* move_gen) : init(in
     init_col_masks();
     init_row_masks();
     init_passed_pawn_masks();
+    init_king_safety_masks();
 }
 
 int MovePick::zob_hash(const vector<int> &board) {
@@ -49,6 +50,8 @@ int MovePick::zob_hash(const vector<int> &board) {
 // }
 
 double MovePick::eval_current_pos() {
+    // Static position evaluator
+
     // Check if this position has been evaluated before:
     int hash = zob_hash(iter_move_gen->get_piece_board());
     if (eval_pos.find(hash) != eval_pos.end()) {
@@ -61,6 +64,7 @@ double MovePick::eval_current_pos() {
     eval += material_eval();
     eval += position_eval();
     eval += pawn_structure_eval();
+    eval += king_safety_eval();
 
     // Remember the evaluation for this position:
     eval_pos[hash] = eval;
@@ -283,6 +287,20 @@ double MovePick::passed_pawns_eval() {
     }
 
     return eval;
+}
+
+double MovePick::king_safety_eval() {
+    // Get king position and piece masks
+    int w_king_pos = get_ls1b(iter_move_gen->get_white_king());
+    int b_king_pos = get_ls1b(iter_move_gen->get_black_king());
+    U64 white_pieces = iter_move_gen->get_white_pieces();
+    U64 black_pieces = iter_move_gen->get_black_pieces();
+
+    // Perform evaluation
+    int num_w_protectors = count_bits(white_pieces & w_king_safety_masks[w_king_pos]);
+    int num_b_protectors = count_bits(black_pieces & b_king_safety_masks[b_king_pos]);
+
+    return (double)(num_w_protectors - num_b_protectors) * 30.0;
 }
 
 Move MovePick::find_best_move(int max_runtime) { // Find best move up to the given depth
@@ -630,4 +648,57 @@ void MovePick::print_path_scores() {
     }
     cout << "\n";
     path_scores = path_score_copy;
+}
+
+void MovePick::init_king_safety_masks() {
+    // Initialize white king safety masks:
+    for (int i = 0; i < 64; ++i) {
+        U64 mask = 0ULL;
+        if (i % 8) {
+            // Add left square:
+            mask |= 1ULL << (i-1);
+            if (i / 8) {
+                // Add upper left square
+                mask |= 1ULL << (i-9);
+            }
+        }
+        if (i / 8) {
+            // Add upper square:
+            mask |= 1ULL << (i-8);
+        }
+        if (i % 8 != 7) {
+            // Add right square:
+            mask |= 1ULL << (i+1);
+            if (i / 8) {
+                // Add upper right square
+                mask |= 1ULL << (i-7);
+            }
+        }
+        w_king_safety_masks.push_back(mask);
+    }   
+    // Initialize black king safety masks:
+    for (int i = 0; i < 64; ++i) {
+        U64 mask = 0ULL;
+        if (i % 8) {
+            // Add left square:
+            mask |= 1ULL << (i-1);
+            if (i / 8 != 7) {
+                // Add lower left square
+                mask |= 1ULL << (i+7);
+            }
+        }
+        if (i / 8 != 7) {
+            // Add lower square:
+            mask |= 1ULL << (i+8);
+        }
+        if (i % 8 != 7) {
+            // Add right square:
+            mask |= 1ULL << (i+1);
+            if (i / 8 != 7) {
+                // Add upper right square
+                mask |= 1ULL << (i+9);
+            }
+        }
+        b_king_safety_masks.push_back(mask);
+    }
 }
