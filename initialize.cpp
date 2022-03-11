@@ -1,7 +1,4 @@
 #include "initialize.h"
-#include "utils.hpp"
-#include <cmath>
-#include <iostream>
 
 using namespace std;
 

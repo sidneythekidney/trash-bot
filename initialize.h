@@ -1,6 +1,8 @@
 #ifndef INITIALIZE_H
 #define INITIALIZE_H
 
+#include <cmath>
+#include <iostream>
 #include "utils.hpp"
 
 using namespace std;

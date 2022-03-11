@@ -1084,10 +1084,7 @@ bool MoveGen::make_move() {
             cout << "num_move_combs: " << get_num_move_combs() - last_num_move_combs << "\n";
         }
         // cout << "move: " << move.get_moved() << " " << move.get_from() << " " << move.get_to() << "\n";
-        string algebraic = "";
-        vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-        algebraic += (rows[move.get_from() % 8] + to_string(8-(int)(move.get_from() / 8)));
-        algebraic += (rows[move.get_to() % 8] + to_string(8-(int)(move.get_to() / 8)));
+        string algebraic = get_algebraic_from_square(move.get_from(), move.get_to());
         
         cout << "move: " << algebraic << "  " << move.get_moved() << "\n";
         // cout << "double pawn push: " << (move.get_flags() & (1 << 1)) << "\n";

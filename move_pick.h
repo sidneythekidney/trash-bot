@@ -104,6 +104,8 @@ class MovePick {
         double passed_pawns_eval();
 
         double king_safety_eval();
+
+        void set_iter_move_gen(int depth);
 };
 
 #endif

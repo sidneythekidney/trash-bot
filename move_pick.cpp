@@ -410,7 +410,6 @@ Move MovePick::find_best_move_given_time(int time) {
     // Use iterative deepening to find the best move given the max time:
     auto start_time = clock();
     Move best_move = Move(0), pot_best_move = Move(0);
-    Move curr_move = move_gen->get_curr_move();
     for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) {
         cout << "calculating at depth = " << depth << "\n";
         // if (depth == 3) {
@@ -427,8 +426,7 @@ Move MovePick::find_best_move_given_time(int time) {
             delete iter_move_gen;
         }
         
-        iter_move_gen = new MoveGen(init, gen, depth, move_gen->get_active_player(), move_gen->get_piece_board(), \
-                                    move_gen->get_en_passant(), curr_move.get_castles());
+        set_iter_move_gen(depth);
 
         // Set the maximum depth for the move_gen object:
         // Calculate available runtime
@@ -701,4 +699,12 @@ void MovePick::init_king_safety_masks() {
         }
         b_king_safety_masks.push_back(mask);
     }
+}
+
+void MovePick::set_iter_move_gen(int depth) {
+    if (iter_move_gen) {
+        delete iter_move_gen;
+    }
+    iter_move_gen = new MoveGen(init, gen, depth, move_gen->get_active_player(), move_gen->get_piece_board(), \
+                                    move_gen->get_en_passant(), move_gen->get_curr_move().get_castles());
 }

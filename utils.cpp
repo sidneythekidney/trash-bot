@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include "utils.hpp"
 
 using namespace std;
@@ -107,3 +108,32 @@ U64 flip_bitboard(U64 bitboard) {
     bitboard = ( bitboard >> 32)       | ( bitboard       << 32);
     return bitboard;
 }
+
+
+int get_square_from_algebraic(string alg) {
+    if (alg.length() != 2) {
+        cout << "Incorrect algebraic string length\n";
+        return -1;
+    }
+    if (alg[0] < 'a' || alg[0] > 'h') {
+        cout << "Incorrect letter!\n";
+        return -1;
+    }
+    if (alg[1] < '1' || alg[1] > '8') {
+        cout << "Incorrect number!\n";
+        return -1;
+    }
+    int row, col;
+    row = ('8' - alg[1]);
+    col = (alg[0] - 'a');
+    return row * 8 + col;
+}
+
+string get_algebraic_from_square(int from, int to) {
+    string algebraic = "";
+    vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
+    algebraic += (rows[from % 8] + to_string(8-(int)(from / 8)));
+    algebraic += (rows[to % 8] + to_string(8-(int)(to / 8)));
+    return algebraic;
+}
+

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <stack>
+#include <string>
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"

@@ -1,6 +1,4 @@
-#include "defs.h"
 #include "generate.h"
-#include "utils.hpp"
 
 // Function to get the bishop mask given blockers
 U64 Generate::get_bishop_mask(U64 blockers, int sq) {

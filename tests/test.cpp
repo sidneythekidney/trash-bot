@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <thread>
 // #include "../utils.hpp"
 #include "../defs.h"
 
@@ -71,6 +72,28 @@ int get_ls1b(U64 mask) {
     return -1;
 }
 
+void test_task() {
+    cout << "Hello world!\n";
+}
+
+
+
+class myObject {
+    private:
+        int myVar = 10;
+    public:
+        void setMyVar(int val) {
+            myVar = val;
+        }
+        int getMyVar() {
+            return myVar;
+        }
+};
+
+void modifyObject(myObject* myObj) {
+    myObj->setMyVar(20);
+}
+
 int main(){
     // vector<vector<int>> var = {
     //     {0,1,1,0,1,0,0,0},
@@ -100,12 +123,19 @@ int main(){
 
     // cout << "get_ls1b(mask): " << get_ls1b(mask) << "\n";
     // cout << "get_ls1b_index(mask): " << get_ls1b_index(mask) << "\n";
-    auto start = clock();
-    int delay_in_seconds = 5;
-    cout << start << "\n";
-    while (clock() < (start + delay_in_seconds * CLOCKS_PER_SEC)) {
+    // auto start = clock();
+    // int delay_in_seconds = 5;
+    // cout << start << "\n";
+    // while (clock() < (start + delay_in_seconds * CLOCKS_PER_SEC)) {
         
-    }
-    cout << "Finished\n";
+    // }
+    // cout << "Finished\n";
 
+    // Threading test:
+    myObject* myObj = new myObject();
+    thread task(modifyObject, myObj);
+    myObj->setMyVar(30);
+    task.join();
+    cout << "Value: " << myObj->getMyVar() << "\n";
+    return 0;
 }

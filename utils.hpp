@@ -25,4 +25,8 @@ void flip_chess_board(vector<int> &arr);
 
 U64 flip_bitboard(U64 bitboard);
 
+int get_square_from_algebraic(string alg);
+
+string get_algebraic_from_square(int from, int to);
+
 #endif

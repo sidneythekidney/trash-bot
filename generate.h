@@ -1,9 +1,11 @@
 #ifndef GENERATE_H
 #define GENERATE_H
 
+#include <vector>
 #include "defs.h"
 #include "initialize.h"
-#include <vector>
+#include "utils.hpp"
+#include "defs.h"
 
 using namespace std;
 
