@@ -14,13 +14,18 @@ MoveGen::MoveGen(Initialize* init,
         active_player(active_player) {
     // Set the initial board position:
     // Initialize the white pos masks:
-    p.reserve(NUM_PIECE_TYPES);
+    cout << "Begin move_gen ctor!!\n";
+    p.resize(NUM_PIECE_TYPES + 1);
+
     curr_move = 0b1111 << 20;
     move_history.push(curr_move);
     for (int i = 0; i < depth+1; ++i) {
         move_vec.push_back({});
     }
+    cout << "Initialized move_vec!!\n";
+    cout << "attemtping to add move to move_vec\n";
     move_vec[0].push_back(curr_move);
+    cout << "added move to move vec\n";
     vector<vector<int>> white_pawn_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -31,8 +36,10 @@ MoveGen::MoveGen(Initialize* init,
         {1,1,1,1,1,1,1,1},
         {0,0,0,0,0,0,0,0},
     };
+    cout << "created white pawn vec\n";
+    cout << "size of p: " << p.size() << "\n";
     p[Move::WHITE_PAWN] = board_to_U64(white_pawn_vec);
-    
+    cout << "Initialized white pawn vec\n";
     vector<vector<int>> white_knight_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -44,7 +51,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,1,0,0,0,0,1,0},
     };
     p[Move::WHITE_KNIGHT] = board_to_U64(white_knight_vec);
-    
+    cout << "Initialized white knight vec\n";
     vector<vector<int>> white_bishop_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -56,7 +63,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,1,0,0,1,0,0},
     };
     p[Move::WHITE_BISHOP] = board_to_U64(white_bishop_vec);
-    
+    cout << "Initialized white bishop vec\n";
     vector<vector<int>> white_rook_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -68,7 +75,7 @@ MoveGen::MoveGen(Initialize* init,
         {1,0,0,0,0,0,0,1},
     };
     p[Move::WHITE_ROOK] = board_to_U64(white_rook_vec);
-
+    cout << "Initialized white rook vec\n";
     vector<vector<int>> white_queen_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -80,7 +87,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,1,0,0,0,0},
     };
     p[Move::WHITE_QUEEN] = board_to_U64(white_queen_vec);
-
+    cout << "Initialized white queen vec\n";
     vector<vector<int>> white_king_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -92,8 +99,10 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,1,0,0,0},
     };
     p[Move::WHITE_KING] = board_to_U64(white_king_vec);
-
+    cout << "Initialized white king vec\n";
     // Initialize the black pos masks:
+    cout << "Initializing black pieces\n";
+    cout << "Initializing black pawn\n";
     vector<vector<int>> black_pawn_vec = {
         {0,0,0,0,0,0,0,0},
         {1,1,1,1,1,1,1,1},
@@ -105,7 +114,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_PAWN] = board_to_U64(black_pawn_vec);
-    
+    cout << "Initializing black knight\n";
     vector<vector<int>> black_knight_vec = {
         {0,1,0,0,0,0,1,0},
         {0,0,0,0,0,0,0,0},
@@ -117,7 +126,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_KNIGHT] = board_to_U64(black_knight_vec);
-    
+    cout << "Initializing black bishop\n";
     vector<vector<int>> black_bishop_vec = {
         {0,0,1,0,0,1,0,0},
         {0,0,0,0,0,0,0,0},
@@ -129,7 +138,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_BISHOP] = board_to_U64(black_bishop_vec);
-    
+    cout << "Initializing black rook\n";
     vector<vector<int>> black_rook_vec = {
         {1,0,0,0,0,0,0,1},
         {0,0,0,0,0,0,0,0},
@@ -141,7 +150,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_ROOK] = board_to_U64(black_rook_vec);
-
+    cout << "Initializing black queen\n";
     vector<vector<int>> black_queen_vec = {
         {0,0,0,1,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -153,7 +162,7 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_QUEEN] = board_to_U64(black_queen_vec);
-
+    cout << "Initializing black king\n";
     vector<vector<int>> black_king_vec = {
         {0,0,0,0,1,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -165,7 +174,8 @@ MoveGen::MoveGen(Initialize* init,
         {0,0,0,0,0,0,0,0},
     };
     p[Move::BLACK_KING] = board_to_U64(black_king_vec);
-
+    
+    cout << "added piece vecs!!\n";
     en_passant = 0ULL;
     checkmate_status = checkmate::NO_CHECKMATE;
 
@@ -184,8 +194,8 @@ MoveGen::MoveGen(Initialize* init,
         Move::WHITE_ROOK, Move::WHITE_KNIGHT, Move::WHITE_BISHOP, Move::WHITE_QUEEN, 
         Move::WHITE_KING, Move::WHITE_BISHOP, Move::WHITE_KNIGHT, Move::WHITE_ROOK
     };
-    // cout << "init piece board:\n";
-    // print_piece_board();
+    cout << "created piece board:\n";
+    print_piece_board();
 }
 
 // Secondary constructor used for testing
@@ -213,7 +223,7 @@ MoveGen::MoveGen(
         checkmate_status = checkmate::NO_CHECKMATE;
 
         // Initialize piece masks:
-        p = vector<U64>(NUM_PIECE_TYPES, 0ULL);
+        p = vector<U64>(NUM_PIECE_TYPES+1, 0ULL);
 
         for (int i = 0; i < (int)piece_board.size(); ++i) {
             if (piece_board[i] == Move::WHITE_PAWN) p[Move::WHITE_PAWN] |= 1ULL << i;

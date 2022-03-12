@@ -1,4 +1,5 @@
 CXX ?= g++
+CXX_WINDOWS ?= x86_64-w64-mingw32-g++ -static-libgcc -static-libstdc++
 CXXFLAGS ?= -Wall -Werror -pedantic -g --std=c++14
 
 # Compile the main executable
@@ -14,6 +15,12 @@ test : ./tests/test.cpp
 
 game: main.cpp
 	$(CXX) $(CXXFLAGS) main.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp -o game.exe
+
+trash_bot_linux: uci.cpp
+	$(CXX) $(CXXFLAGS) uci.cpp uci.h utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp -o trash_bot_linux.exe
+
+trash_bot_windows: uci.cpp
+	$(CXX_WINDOWS) $(CXXFLAGS) uci.h uci.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp -o trash_bot_w64.exe
 
 # Remove automatically generated files
 clean :

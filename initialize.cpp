@@ -254,6 +254,10 @@ void Initialize::init_pawn_attacks() {
 }
 
 void Initialize::init_all() {
+    // Initialize the size of the bishop and rook vectors
+    bishop_attacks.resize(64, vector<U64>(512, 0ULL));
+    rook_attacks.resize(64, vector<U64>(4096, 0ULL));
+
     cout << "init slider attack tables\n";
     init_slider_attack_tables();
     cout << "init knight attack tables\n";

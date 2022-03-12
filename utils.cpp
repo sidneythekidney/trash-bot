@@ -31,7 +31,7 @@ U64 pop_bit(U64 bitboard, int sq) {
 
 int get_ls1b(U64 mask) {
     if (mask) {
-        return count_bits((mask & -mask) - 1);
+        return count_bits((mask & -(long long)mask) - 1);
     }
     return -1;
 }

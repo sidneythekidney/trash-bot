@@ -306,10 +306,11 @@ double MovePick::king_safety_eval() {
 Move MovePick::find_best_move(int max_runtime) { // Find best move up to the given depth
     // Iterate through all possible moves, similar to perft implementation
     // Check and make sure path scores is empty:
-    if (!path_scores.empty()) {
+    /*if (!path_scores.empty()) {
         cout << "path_scores should have been empty but had size = " << path_scores.size() << "\n";
         exit(1);
-    }
+    }*/
+    path_scores.clear();
     cout << "time left: " << max_runtime << "\n";
     iter_move_gen->calculate_moves();
     // Set initial best move value to null move - Guaranteed to change

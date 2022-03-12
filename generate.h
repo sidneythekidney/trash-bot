@@ -5,7 +5,6 @@
 #include "defs.h"
 #include "initialize.h"
 #include "utils.hpp"
-#include "defs.h"
 
 using namespace std;
 

@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <vector>
 #include "utils.hpp"
 
 using namespace std;
@@ -16,8 +17,8 @@ class Initialize {
     U64 king_attacks[64];
     U64 bishop_masks[64];
     U64 rook_masks[64]; 
-    U64 bishop_attacks[64][512];
-    U64 rook_attacks[64][4096];
+    vector<vector< U64 >> bishop_attacks;
+    vector<vector< U64 >> rook_attacks;
 
     const U64 RookMagic[64] = {
         0xa8002c000108020ULL,

@@ -8,7 +8,7 @@ UCI::UCI() {
     init = new Initialize();
     init->init_all();
     gen = new Generate(*init);
-    // init_starting_pos();
+    init_starting_pos();
 }
 
 void UCI::init_starting_pos() {
@@ -24,10 +24,6 @@ void UCI::set_options(stringstream &ss) {
     string key, val;
     ss >> key >> val;
     options[key] = val;
-}
-
-void UCI::uci_new_game() {
-    init_starting_pos();
 }
 
 void UCI::set_position(stringstream &ss) {
@@ -51,6 +47,7 @@ void UCI::set_position(stringstream &ss) {
                 move_gen->play_move(to_play);
             }
         }
+        move_gen->print_piece_board();
     }
     else if (type == "fen") {
         cout << "Updating position based on fen not currently supported\n";
@@ -86,45 +83,38 @@ int main() {
     string cmd;
     UCI* uci = new UCI();
     uci->print_info();
-    // while (getline(cin, line)) {
-    //     // Accept UCI input:
-    //     stringstream in(line);
-    //     in >> cmd;
-    //     if (cmd == "uci") {
-    //         uci->print_info();
-    //         cout << "uciok" << "\n";
-    //     }
-    //     else if (cmd == "isready") {
-    //         cout << "readyok\n";
-    //     }
-    //     else if (cmd == "setoption") {
-    //         // Set options as required:
-    //         uci->set_options(in);
-    //     }
-    //     else if (cmd == "ucinewgame") {
-    //         // Reset the board
-    //         uci->uci_new_game();
-    //     }
-    //     else if (cmd == "position") {
-    //         uci->set_position(in);
-    //     }
-    //     else if (cmd == "go") {
-    //         uci->get_best_move(in);
-    //     }
-    //     else if (cmd == "stop") {
-    //         cout << "Stop command not currently supported!!!\n";
-    //     }
-    //     else if (cmd == "quit") {
-    //         // Quit the program
-    //         exit(0);
-    //     }
-    //     else {
-    //         cout << "Inavlid command: " << cmd << "\n";
-    //     }
-    // }
-    // delete uci;
     while (getline(cin, line)) {
-        cout << "enter input:\n";
-        cout << "input: " << line << "\n";
+        // Accept UCI input:
+        stringstream in(line);
+        in >> cmd;
+        if (cmd == "uci") {
+            uci->print_info();
+            cout << "uciok" << "\n";
+        }
+        else if (cmd == "isready") {
+            cout << "readyok\n";
+        }
+        else if (cmd == "setoption") {
+            // Set options as required:
+            uci->set_options(in);
+        }
+        else if (cmd == "ucinewgame") {
+            // Reset the board
+            uci->init_starting_pos();
+        }
+        else if (cmd == "position") {
+            uci->set_position(in);
+        }
+        else if (cmd == "go") {
+            uci->get_best_move(in);
+        }
+        else if (cmd == "stop") {
+            cout << "Stop command not currently supported!!!\n";
+        }
+        else if (cmd == "quit") {
+            // Quit the program
+            exit(0);
+        }
     }
+    delete uci;
 }

@@ -24,7 +24,6 @@ class UCI {
         void init_starting_pos();
         void print_info();
         void set_options(stringstream &ss);
-        void uci_new_game();
         void set_position(stringstream &ss);
         void get_best_move(stringstream &ss);
 };
