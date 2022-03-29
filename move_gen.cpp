@@ -11,7 +11,8 @@ MoveGen::MoveGen(Initialize* init,
         init(init),
         gen(gen),
         depth(depth), 
-        active_player(active_player) {
+        active_player(active_player),
+        starting_player(active_player) {
     // Set the initial board position:
     // Initialize the white pos masks:
     cout << "Begin move_gen ctor!!\n";
@@ -212,6 +213,7 @@ MoveGen::MoveGen(
     en_passant(en_passant),
     depth(depth),
     active_player(active_player),
+    starting_player(active_player),
     piece_board(piece_board) {
         // Initialize whatever the most recent castles are
         curr_move = castles << 20;
@@ -1095,7 +1097,6 @@ bool MoveGen::make_move() {
         }
         // cout << "move: " << move.get_moved() << " " << move.get_from() << " " << move.get_to() << "\n";
         string algebraic = get_algebraic_from_square(move.get_from(), move.get_to());
-        
         cout << "move: " << algebraic << "  " << move.get_moved() << "\n";
         // cout << "double pawn push: " << (move.get_flags() & (1 << 1)) << "\n";
         // cout << "en passant: " << (move.get_flags() & 1) << "\n";
@@ -1285,13 +1286,16 @@ Move MoveGen::get_move_from_pos(int from, int to) {
 }
 
 void MoveGen::print_cur_moves() {
-    for (int i = 0; i < (int)move_vec[curr_depth].size(); ++i) {
-        cout << "Move #" << i << ": \n";
-        cout << " piece type: " << move_vec[curr_depth][i].get_moved();
-        cout << " from: [" << (move_vec[curr_depth][i].get_from() / 8) << ", " \
-            << (move_vec[curr_depth][i].get_from() % 8) << "] ";
-        cout << " to: [" << (move_vec[curr_depth][i].get_to() / 8) << ", " \
-        << (move_vec[curr_depth][i].get_to() % 8) << "] \n";
+    for (int i = 0; i < (int)move_vec.size(); ++i) {
+        cout << "Move level: " << i << "\n";
+        for (int j = 0; j < (int)move_vec[i].size(); ++j) {
+            cout << "\tMove #" << j << ": \n";
+            cout << " piece type: " << move_vec[i][j].get_moved();
+            cout << " from: [" << (move_vec[i][j].get_from() / 8) << ", " \
+                << (move_vec[i][j].get_from() % 8) << "] ";
+            cout << " to: [" << (move_vec[i][j].get_to() / 8) << ", " \
+            << (move_vec[i][j].get_to() % 8) << "] \n";
+        }
     }
 }
 
@@ -1301,6 +1305,10 @@ U64 MoveGen::get_num_move_combs() {
 
 color MoveGen::get_active_player() {
     return active_player;
+}
+
+color MoveGen::get_starting_player() {
+    return starting_player;
 }
 
 void MoveGen::set_max_depth(int max_depth) {
@@ -1337,4 +1345,9 @@ unsigned int MoveGen::get_castles() {
 
 int MoveGen::get_checkmate_status() {
     return checkmate_status;
+}
+
+void MoveGen::clear_move_level(int level) {
+    // Clear the calculated moves:
+    move_vec[level].clear();
 }

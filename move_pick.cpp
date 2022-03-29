@@ -1,6 +1,5 @@
 #include "move_pick.h"
 
-
 using namespace std;
 
 MovePick::MovePick(Initialize* init, Generate* gen, MoveGen* move_gen) : init(init), gen(gen), move_gen(move_gen) {
@@ -35,19 +34,6 @@ int MovePick::zob_hash(const vector<int> &board) {
     }
     return z_hash;
 }
-
-// double MovePick::checkmate_eval() {
-//     // Determine if a side is in checkmate and evaluate accordingly:
-//     if (iter_move_gen->in_check(castle::NONE)) {
-//         // Create new MoveGen object and calculate to depth = 1:
-//         MoveGen* temp_move_gen = new MoveGen(init, gen, 1, iter_move_gen->get_active_player(), iter_move_gen->get_piece_board(), 
-//                                             iter_move_gen->get_en_passant(), iter_move_gen->get_castles());
-
-//         temp_move_gen->calculate_moves();
-        
-//     }
-//     return 0.0;
-// }
 
 double MovePick::eval_current_pos() {
     // Static position evaluator
@@ -303,13 +289,8 @@ double MovePick::king_safety_eval() {
     return (double)(num_w_protectors - num_b_protectors) * 30.0;
 }
 
-Move MovePick::find_best_move(int max_runtime) { // Find best move up to the given depth
-    // Iterate through all possible moves, similar to perft implementation
-    // Check and make sure path scores is empty:
-    /*if (!path_scores.empty()) {
-        cout << "path_scores should have been empty but had size = " << path_scores.size() << "\n";
-        exit(1);
-    }*/
+Move MovePick::find_best_move(int max_runtime) { 
+
     path_scores.clear();
     cout << "time left: " << max_runtime << "\n";
     iter_move_gen->calculate_moves();
@@ -320,12 +301,12 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
     Move curr_move = Move(0);
     // Keep track of the time when this function started running
     auto start_time = clock();
-
+    
     // Initialize path_scores:
-    for (int i = 0; i < iter_move_gen->get_depth(); ++i) {
+    for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
         path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
     }
-
+    // int count = 0;
     while (iter_move_gen->make_move()) {
         // If the depth == 2 the current move is a move the CPU can play:
         if (iter_move_gen->get_curr_depth() == 2) {
@@ -335,24 +316,18 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
         for (int d = iter_move_gen->get_curr_depth(); d > iter_move_gen->get_depth() || (iter_move_gen->get_num_sibling_moves_left(d) == 0); --d) {
             // Travel up and evaluate:
             if (iter_move_gen->get_checkmate_status() > checkmate::STALEMATE) {
-                // cout << "Found checkmate lol\n";
 
                 double eval = (iter_move_gen->get_checkmate_status() == checkmate::WHITE_CHECKMATE ? 1 : -1) * numeric_limits<double>::infinity();
-                // cout << "eval: " << eval << "\n";
+                
                 // Inject the evaluation up a level since the checkmate indication occurs after making the move:
-                // ISSUE: Checkmates cannot be identified at a depth = 1
-                // print_path_scores();
                 path_scores[iter_move_gen->get_curr_depth()-2] = eval;
                 // update best move if we are at a depth of 1
                 if (iter_move_gen->get_curr_depth()-2 == 0) {
                     best_move = curr_move;
                 }
-                // cout << "depth: " << iter_move_gen->get_curr_depth() << "\n";
-                // print_path_scores();
             }
             if (iter_move_gen->get_checkmate_status() == checkmate::STALEMATE) {
                 // Handle stalemate evaluation
-                // print_path_scores();
                 double old_score = path_scores[iter_move_gen->get_curr_depth()-2];
                 double mult = (iter_move_gen->get_active_player() == color::WHITE) ? -1.0 : 1.0;
                 path_scores[iter_move_gen->get_curr_depth()-2] = mult * max(0.0, mult * old_score);
@@ -360,7 +335,6 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
                 if (iter_move_gen->get_curr_depth()-2 == 0 && path_scores[iter_move_gen->get_curr_depth()-2] == 0.0) {
                     best_move = curr_move;
                 }
-                // print_path_scores();
                 continue;
             }
             if (d > iter_move_gen->get_depth()) {
@@ -378,29 +352,74 @@ Move MovePick::find_best_move(int max_runtime) { // Find best move up to the giv
             path_scores.pop_back();
             double old_score = path_scores.back();
             path_scores.pop_back();
-
-            // cout << "calculated score: " << new_score << "\n";
-            // cout << "best score: " << old_score << "\n";
             
             double mult = ((d + move_gen->get_active_player()) % 2) ? -1 : 1;
             path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-            // Update best move as needed:
+            
+            // Update bast move as needed
             if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                // best_score = path_scores.top();
                 best_move = curr_move;
-                // cout << "new best score: " << path_scores.back() << "\n\n\n\n";
             }
-        }
-
-        // Add placeholder values back in to path_scores needed:
-        for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
-            path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
         }
         
         // Check to make sure there is time remaining:
         if ((float)((clock() - start_time) / CLOCKS_PER_SEC) > (float)max_runtime) {
             // Stop searching moves if the time limit has exceeded
             return Move(0);
+        }
+      
+        int index = path_scores.size() - 1;
+        if (index >= 1) {
+            if ((iter_move_gen->get_starting_player() + path_scores.size()) % 2) {
+                // If black is the active player, we remove the branch if it evaluates higher than the currently selected branch
+                if (path_scores[index] > path_scores[index-1]) {
+                    
+                    // Perform the pruning:
+                    iter_move_gen->clear_move_level(path_scores.size());
+                    path_scores.pop_back();
+
+                    while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
+                        double new_score = path_scores.back();
+                        path_scores.pop_back();
+                        double old_score = path_scores.back();
+                        path_scores.pop_back();
+
+                        double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
+                        path_scores.push_back(mult * max(mult * old_score, mult * new_score));
+                    
+                        if (path_scores.size() == 1 && path_scores.back() != old_score) {
+                            best_move = curr_move;
+                        }
+                    }
+                }
+            }
+            else {
+                // If white is the active player, we remove the branch if it evaluates lower than the currently selected branch
+                if (path_scores[index] < path_scores[index-1]) {
+                    
+                    // Perform the pruning
+                    iter_move_gen->clear_move_level(path_scores.size());
+                    // Remove the path score as we traverse up a level:
+                    path_scores.pop_back();
+                    while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
+                        double new_score = path_scores.back();
+                        path_scores.pop_back();
+                        double old_score = path_scores.back();
+                        path_scores.pop_back();
+
+                        double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
+                        path_scores.push_back(mult * max(mult * old_score, mult * new_score));
+                        if (path_scores.size() == 1 && path_scores.back() != old_score) {
+                            best_move = curr_move;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add placeholder values back in to path_scores as needed
+        for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
+            path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
         }
     }
     return best_move;
@@ -411,20 +430,18 @@ Move MovePick::find_best_move_given_time(int time) {
     // Use iterative deepening to find the best move given the max time:
     auto start_time = clock();
     Move best_move = Move(0), pot_best_move = Move(0);
-    for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) {
+    for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) { // TODO: CHANGE THE STARTING DEPTH BACK TO 1
         cout << "calculating at depth = " << depth << "\n";
-        // if (depth == 3) {
-        //     break;
-        // }
         iter_depth = depth;
         // Clear the path score stack:
         while (!path_scores.empty()) {
             path_scores.pop_back();
         }
-
         // Set iter_move_gen based on move_gen:
         if (iter_move_gen) {
+            cout << "attemting to delete iter_move_gen\n";
             delete iter_move_gen;
+            iter_move_gen = NULL;
         }
         
         set_iter_move_gen(depth);
@@ -637,16 +654,11 @@ void MovePick::init_passed_pawn_masks() {
 }
 
 void MovePick::print_path_scores() {
-    deque<double> path_score_copy = path_scores;
-    vector<int> scores = {};
-    cout << "current path scores: ";
-    while (path_scores.size()) {
-        scores.push_back(path_scores.back());
-        cout << path_scores.back() << " ";
-        path_scores.pop_back();
+    cout << "path scores: (top) ";
+    for (size_t i = 0; i < path_scores.size(); ++i) {
+        cout << path_scores[i] << " ";
     }
-    cout << "\n";
-    path_scores = path_score_copy;
+    cout << "(bottom)\n";
 }
 
 void MovePick::init_king_safety_masks() {

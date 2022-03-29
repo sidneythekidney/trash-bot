@@ -291,7 +291,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_given_time(60);
+            Move to_play = move_pick1.find_best_move_given_time(30);
             // move_gen1->play_move(to_play);
             // move_gen1->print_piece_board();
 
@@ -300,8 +300,8 @@ class MovePickTest {
                 print_error("FAIL: find best move 1!");
                 cout << "Received to: " << to_play.get_to() << "\n";
                 cout << "Expected to: 13" << "\n";
-                cout << "Received from: " << to_play.get_to() << "\n";
-                cout << "Expected from: 13" << "\n";
+                cout << "Received from: " << to_play.get_from() << "\n";
+                cout << "Expected from: 30" << "\n";
                 fail = true;
             }
 

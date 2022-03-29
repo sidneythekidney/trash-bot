@@ -85,6 +85,8 @@ class MoveGen {
 
         color get_active_player();
 
+        color get_starting_player();
+
         int get_move_history_length();
 
         unsigned int get_castles();
@@ -101,6 +103,8 @@ class MoveGen {
         bool in_check(int castle);
 
         int get_checkmate_status();
+
+        void clear_move_level(int level); // Used for iterative negamax pruning
 
         void add_move(
             unsigned int from,
@@ -149,6 +153,7 @@ class MoveGen {
         int depth;
         int curr_depth = 1;
         color active_player;
+        color starting_player;
         checkmate checkmate_status;
 
         // Piece board holds all of positions of all of the pieces by type in one variable
