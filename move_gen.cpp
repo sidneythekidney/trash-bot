@@ -3,6 +3,26 @@
 #include "utils.hpp"
 #include "move.h"
 #include <vector>
+#include <algorithm>
+
+// Sort moves to help with pruning
+struct moveOrder {
+    bool operator()( Move a, Move b ) const {
+        // Captures are more important than non-captures:
+        if (a.get_captured() && !b.get_captured()) {
+            return true;
+        }
+        if (!a.get_captured() && b.get_captured()) {
+            return false;
+        }
+        else {
+            // Tiebreak capture comparisons using least valuable attacker:
+            return a.get_moved() < b.get_moved();
+        }
+        // Otherwise make no change to the ordering
+        return true;
+    }
+};
 
 MoveGen::MoveGen(Initialize* init,
         Generate* gen,
@@ -888,6 +908,14 @@ void MoveGen::calculate_moves() {
     // calculate king moves:
     get_gen_king_moves(active_player, friend_bl, enemy_bl);
     // cout << "finishing calculating moves\n";
+
+    // TODO: Sort moves to help pruning:
+    sort_moves();
+}
+
+void MoveGen::sort_moves() {
+    // Sort all moves at current depth
+    sort(move_vec[curr_depth].begin(), move_vec[curr_depth].end(), moveOrder());
 }
 
 int MoveGen::move_piece(

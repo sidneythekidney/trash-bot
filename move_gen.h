@@ -72,8 +72,9 @@ class MoveGen {
         // Used for testing move/undo moves:
         int num_moves_in_moves_vec();
 
-        // Calculate all moves for the give position
+        // Calculate and sort all moves for the give position
         void calculate_moves();
+        void sort_moves();
 
         // Check if a move is a current move, used for testing
         bool check_if_move_calculated(int piece_type, int from, int to);

@@ -367,55 +367,68 @@ Move MovePick::find_best_move(int max_runtime) {
             // Stop searching moves if the time limit has exceeded
             return Move(0);
         }
-      
-        int index = path_scores.size() - 1;
-        if (index >= 1) {
-            if ((iter_move_gen->get_starting_player() + path_scores.size()) % 2) {
-                // If black is the active player, we remove the branch if it evaluates higher than the currently selected branch
-                if (path_scores[index] > path_scores[index-1]) {
-                    
-                    // Perform the pruning:
-                    iter_move_gen->clear_move_level(path_scores.size());
-                    path_scores.pop_back();
 
-                    while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
-                        double new_score = path_scores.back();
-                        path_scores.pop_back();
-                        double old_score = path_scores.back();
+        while (true) {
+            int index = path_scores.size() - 1;
+
+            if (index >= 1) {
+                if ((iter_move_gen->get_starting_player() + path_scores.size()) % 2) {
+                    // If black is the active player, we remove the branch if it evaluates higher than the currently selected branch
+                    if (path_scores[index] > path_scores[index-1]) {
+                        
+                        // Perform the pruning:
+                        iter_move_gen->clear_move_level(path_scores.size());
                         path_scores.pop_back();
 
-                        double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
-                        path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-                    
-                        if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                            best_move = curr_move;
+                        while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
+                            double new_score = path_scores.back();
+                            path_scores.pop_back();
+                            double old_score = path_scores.back();
+                            path_scores.pop_back();
+
+                            double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
+                            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
+                        
+                            if (path_scores.size() == 1 && path_scores.back() != old_score) {
+                                best_move = curr_move;
+                            }
                         }
+                    }
+                    else {
+                        break;
+                    }
+                }
+                else {
+                    // If white is the active player, we remove the branch if it evaluates lower than the currently selected branch
+                    if (path_scores[index] < path_scores[index-1]) {
+                        
+                        // Perform the pruning
+                        iter_move_gen->clear_move_level(path_scores.size());
+                        // Remove the path score as we traverse up a level:
+                        path_scores.pop_back();
+                        while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
+                            double new_score = path_scores.back();
+                            path_scores.pop_back();
+                            double old_score = path_scores.back();
+                            path_scores.pop_back();
+
+                            double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
+                            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
+                            if (path_scores.size() == 1 && path_scores.back() != old_score) {
+                                best_move = curr_move;
+                            }
+                        }
+                    }
+                    else {
+                        break;
                     }
                 }
             }
             else {
-                // If white is the active player, we remove the branch if it evaluates lower than the currently selected branch
-                if (path_scores[index] < path_scores[index-1]) {
-                    
-                    // Perform the pruning
-                    iter_move_gen->clear_move_level(path_scores.size());
-                    // Remove the path score as we traverse up a level:
-                    path_scores.pop_back();
-                    while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
-                        double new_score = path_scores.back();
-                        path_scores.pop_back();
-                        double old_score = path_scores.back();
-                        path_scores.pop_back();
-
-                        double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
-                        path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-                        if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                            best_move = curr_move;
-                        }
-                    }
-                }
+                break;
             }
         }
+        
 
         // Add placeholder values back in to path_scores as needed
         for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
