@@ -11,6 +11,7 @@ class Opening {
     private:
         void init();
     public:
+        Opening();
         Move get_next();
 };
 
