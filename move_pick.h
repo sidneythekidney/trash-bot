@@ -85,6 +85,8 @@ class MovePick {
 
         Move find_best_move_given_time(int time); // Finds the best move given a max time
 
+        Move find_best_move_at_depth(int d); // Find the best move at a certain depth
+
         void print_path_scores();
 
         double checkmate_eval(); // Determine if side is in checkmate and evaluate accordingly

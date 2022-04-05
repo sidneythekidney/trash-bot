@@ -14,20 +14,20 @@ class MovePickTest {
         
         void test_all() {
             // Run all test functions inside this function:
-            test_init();
-            test_init_move_pick();
-            test_material_eval();
-            test_position_eval();
-            test_doubled_pawns_eval();
-            test_pawn_chain_eval();
-            test_isolated_pawns_eval();
-            test_passed_pawns_eval();
-            test_king_safety_eval();
+            // test_init();
+            // test_init_move_pick();
+            // test_material_eval();
+            // test_position_eval();
+            // test_doubled_pawns_eval();
+            // test_pawn_chain_eval();
+            // test_isolated_pawns_eval();
+            // test_passed_pawns_eval();
+            // test_king_safety_eval();
             test_find_best_move1();
-            test_find_best_move2();
-            test_find_best_move_checkmate_depth_1();
-            test_find_best_move_checkmate_depth_2();
-            test_avoid_stalemate();
+            // test_find_best_move2();
+            // test_find_best_move_checkmate_depth_1();
+            // test_find_best_move_checkmate_depth_2();
+            // test_avoid_stalemate();
         }
    
    private:
@@ -291,7 +291,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_given_time(30);
+            Move to_play = move_pick1.find_best_move_at_depth(6);
             // move_gen1->play_move(to_play);
             // move_gen1->print_piece_board();
 
@@ -326,7 +326,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::BLACK, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_given_time(60);
+            Move to_play = move_pick1.find_best_move_at_depth(6);
             move_gen1->print_piece_board();
             move_gen1->play_move(to_play);
             move_gen1->print_piece_board();
@@ -363,7 +363,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_given_time(60);
+            Move to_play = move_pick1.find_best_move_at_depth(6);
             move_gen1->print_piece_board();
             move_gen1->play_move(to_play);
             move_gen1->print_piece_board();
@@ -401,7 +401,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play1 = move_pick1.find_best_move_given_time(60);
+            Move to_play1 = move_pick1.find_best_move_at_depth(6);
             move_gen1->print_piece_board();
             move_gen1->play_move(to_play1);
             move_gen1->print_piece_board();
@@ -432,7 +432,7 @@ class MovePickTest {
             MoveGen* move_gen2 = new MoveGen(init, gen, 5, color::WHITE, piece_board2, 0ULL, 0xf);
             MovePick move_pick2 = MovePick(init, gen, move_gen2);
 
-            Move to_play2 = move_pick2.find_best_move_given_time(60);
+            Move to_play2 = move_pick2.find_best_move_at_depth(6);
             move_gen2->print_piece_board();
             move_gen2->play_move(to_play2);
             move_gen2->print_piece_board();
@@ -467,7 +467,7 @@ class MovePickTest {
             MoveGen* move_gen1 = new MoveGen(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePick move_pick1 = MovePick(init, gen, move_gen1);
 
-            Move to_play1 = move_pick1.find_best_move_given_time(60);
+            Move to_play1 = move_pick1.find_best_move_at_depth(6);
             move_gen1->print_piece_board();
             move_gen1->play_move(to_play1);
             move_gen1->print_piece_board();

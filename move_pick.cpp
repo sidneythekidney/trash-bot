@@ -368,6 +368,7 @@ Move MovePick::find_best_move(int max_runtime) {
             return Move(0);
         }
 
+        // Perform iterative negamax pruning:
         while (true) {
             int index = path_scores.size() - 1;
 
@@ -481,6 +482,44 @@ Move MovePick::find_best_move_given_time(int time) {
         cout << "Returning invalid best move\n";
         exit(1);
     }
+    return best_move;
+}
+
+Move MovePick::find_best_move_at_depth(int d) {
+    Move best_move = Move(0), pot_best_move = Move(0);
+    for (int depth = 1; depth <= d; ++depth) { // TODO: CHANGE THE STARTING DEPTH BACK TO 1
+        cout << "calculating at depth = " << depth << "\n";
+        iter_depth = depth;
+        // Clear the path score stack:
+        while (!path_scores.empty()) {
+            path_scores.pop_back();
+        }
+        // Set iter_move_gen based on move_gen:
+        if (iter_move_gen) {
+            cout << "attemting to delete iter_move_gen\n";
+            delete iter_move_gen;
+            iter_move_gen = NULL;
+        }
+        
+        set_iter_move_gen(depth);
+        best_move = find_best_move(1874919420);
+
+        // Set the maximum depth for the move_gen object:
+        // Calculate available runtime
+        // Find the potential best move for this depth:
+
+        // NOTE: If we run out of time at a certain depth, iter_move_gen mightnot match move_gen, but will have pot_best_move = 0
+        if (iter_move_gen->get_piece_board() != move_gen->get_piece_board() && pot_best_move.get_move() != 0) {
+            cout << "Moves not being made unmade correctly\n";
+            cout << "Iterated: \n";
+            iter_move_gen->print_piece_board();
+            cout << "Correct: \n";
+            move_gen->print_piece_board();
+            exit(1);
+        }
+    }
+    cout << "total nodes explored at depth " << d << ": " << iter_move_gen->get_num_move_combs() << "\n";
+
     return best_move;
 }
 

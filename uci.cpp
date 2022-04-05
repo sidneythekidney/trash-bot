@@ -74,7 +74,7 @@ void UCI::get_best_move(stringstream &ss) {
     move_gen->set_max_depth(depth_val);
     move_pick->set_iter_move_gen(depth_val);
     // Find best move
-    Move best_move = move_pick->find_best_move(3600); // limit search to 1 hour, game should be playable
+    Move best_move = move_pick->find_best_move_at_depth(6);
     cout << "bestmove " << get_algebraic_from_square(best_move.get_from(), best_move.get_to()) << "\n";
 }
 
