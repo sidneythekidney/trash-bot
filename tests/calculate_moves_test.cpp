@@ -50,7 +50,7 @@ class MoveTest {
             // promotion tests:
             test_white_basic_promotion();
             test_black_basic_promotion();
-            // additional perft debudding tests:
+            // additional perft debugging tests:
             test_rook_does_not_move_through_pieces();
             test_white_pawn_cant_go_left_on_col_0();
             test_white_pawn_cant_go_right_on_col_7();

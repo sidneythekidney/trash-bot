@@ -1313,6 +1313,28 @@ Move MoveGen::get_move_from_pos(int from, int to) {
     return Move(0);
 }
 
+Move MoveGen::get_from_square_from_move(int piece_type, int to, int col) {
+    // Iterate through the calculated moves to find correct from square
+    for (int i = 0; i < (int)move_vec[curr_depth].size(); ++i) {
+        if (col != -1) {
+            if (move_vec[curr_depth][i].get_to() == (unsigned int)to && \
+                move_vec[curr_depth][i].get_moved() == (unsigned int)piece_type && \
+                (move_vec[curr_depth][i].get_from() % 8) == (unsigned int)col) 
+            {
+                return move_vec[curr_depth][i];
+            }
+        }
+        else {
+            if (move_vec[curr_depth][i].get_to() == (unsigned int)to && \
+                move_vec[curr_depth][i].get_moved() == (unsigned int)piece_type) 
+            {
+                return move_vec[curr_depth][i];
+            }
+        }
+    }
+    return Move(0);
+}
+
 void MoveGen::print_cur_moves() {
     for (int i = 0; i < (int)move_vec.size(); ++i) {
         cout << "Move level: " << i << "\n";

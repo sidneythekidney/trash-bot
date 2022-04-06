@@ -79,6 +79,7 @@ class MoveGen {
         // Check if a move is a current move, used for testing
         bool check_if_move_calculated(int piece_type, int from, int to);
         Move get_move_from_pos(int from, int to);
+        Move get_from_square_from_move(int piece_type, int to, int col);
         // Print the moves in the cur_move vector:
         void print_cur_moves();
 

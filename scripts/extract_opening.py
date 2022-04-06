@@ -54,8 +54,19 @@ if __name__ == "__main__":
     for open_name in rem_openings:
         del final_openings[open_name]
 
+    # Modify the openings to only contain the moves:
+    for name, line in final_openings.items():
+        # Remove all move position items
+        text = line.strip().split(' ')
+        text = [word for word in text if '.' not in word]
+        text = ' '.join(text)
+        final_openings[name] = text
+
     # Print the final openings:
     for name, line in final_openings.items():
+        # Handle last move error:
+        if len(line.split(' ')[-1]) == 1:
+            line = ' '.join(line.split(' ')[:-1])
         print(name + ': ' + line)
 
     # print("Example opening strings: Scotch opening")
