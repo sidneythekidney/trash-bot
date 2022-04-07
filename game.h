@@ -7,6 +7,7 @@
 #include "initialize.h"
 #include "generate.h"
 #include "move_pick.h"
+#include "opening.h"
 
 
 class Game {
@@ -16,6 +17,7 @@ class Game {
         MoveGen* cpu_move_gen;
         MovePick* move_pick;
         MoveGen* game_move_gen;
+        OpeningTree* opening;
 
         int get_user_side_and_time();
 
@@ -27,8 +29,10 @@ class Game {
 
         int cpu_time;
 
+        bool in_opening;
+
     public:
-        Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick);
+        Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick, OpeningTree* opening);
 
         void play_game();
 };

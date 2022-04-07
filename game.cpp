@@ -4,9 +4,10 @@
 
 using namespace std;
 
-Game::Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick) : 
-            init(init), gen(gen), cpu_move_gen(move_gen), move_pick(move_pick), game_move_gen(move_gen) {
+Game::Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick, OpeningTree* opening) : 
+            init(init), gen(gen), cpu_move_gen(move_gen), move_pick(move_pick), game_move_gen(move_gen), opening(opening) {
                 cpu_time = 0;
+                in_opening = true;
             }
 
 int Game::get_user_side_and_time() {
@@ -118,9 +119,25 @@ void Game::play_user_move() {
         // Remove the first move to reset depth:
         game_move_gen->set_start_move(game_move_gen->get_curr_move());
     }
+    // Update the opening based on what the user selects
+    if (in_opening) {
+        // Check if move follows opening and update:
+        in_opening = opening->move_to_next_node(move);
+        cout << "playing opening move: from: " << move.get_from() << " to: " << move.get_to() << "\n";
+    }
 }
 
 void Game::play_cpu_move() {
+    if (in_opening) {
+        // Check if move follows opening and update:
+        int opening_move = opening->get_random_move();
+        in_opening = opening->move_to_next_node(Move(opening_move));
+        if (in_opening) {
+            // Play the move and return:
+            game_move_gen->play_move(opening_move);
+            return;
+        }
+    }
     cout << "Thinking of cpu move...\n";
     // Select and play the best move for the given position using iterative deepening:
     cout << "curr move from: " << game_move_gen->get_curr_move().get_from() << " to: " << game_move_gen->get_curr_move().get_to() << "\n";

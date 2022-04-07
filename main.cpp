@@ -7,6 +7,7 @@
 #include "generate.h"
 #include "move_pick.h"
 #include "game.h"
+#include "opening.h"
 
 using namespace std;
 
@@ -19,7 +20,9 @@ int main() {
     MoveGen* move_gen = new MoveGen(init, gen, 1, color::WHITE);
     MovePick* move_pick = new MovePick(init, gen, move_gen);
 
-    Game* new_game = new Game(init, gen, move_gen, move_pick);
+    OpeningTree* opening = new OpeningTree(move_gen);
+
+    Game* new_game = new Game(init, gen, move_gen, move_pick, opening);
     
     new_game->play_game();
 

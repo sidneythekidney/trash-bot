@@ -11,6 +11,7 @@ using namespace std;
 int main() {
     ifstream infile("../data/openings.txt");
     ofstream outfile("../data/openings_coordinates.txt");
+    ofstream move_outfile("../data/opening_moves.txt");
     string line;
     while (getline(infile, line)) {
         // Obtain move sequence for each opening:
@@ -131,16 +132,18 @@ int main() {
             Move move = move_gen.get_from_square_from_move(piece_type, get_square_from_algebraic(square), col);
             if (move.get_move() == 0) {
                 move_gen.print_cur_moves();
+                cout << "An error occured\n";
                 exit(1);
             }
             // Add the from and to the output file:
             outfile << get_algebraic_from_square(move.get_from(), get_square_from_algebraic(square)) << " ";
-
+            move_outfile << move.get_move() << " ";
             // Play move:
             move_gen.play_move(move);
             move_gen.calculate_moves();
         }
         outfile << "\n";
+        move_outfile << "\n";
     }
     infile.close();
     outfile.close();

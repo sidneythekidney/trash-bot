@@ -6,7 +6,6 @@ convert_openings : convert_openings.cpp
 	make clean
 	$(CXX) $(CXXFLAGS) convert_openings.cpp ../move.h ../move.cpp ../move_gen.h ../move_gen.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp -o convert_openings.exe
 
-
 # Remove automatically generated files
 clean :
 	rm -rvf *.exe *~ *.out *.dSYM *.stackdump
