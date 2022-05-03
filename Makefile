@@ -14,13 +14,13 @@ test : ./tests/test.cpp
 	$(CXX) $(CXXFLAGS) ./tests/test.cpp -o ./test.exe
 
 game: main.cpp
-	$(CXX) $(CXXFLAGS) main.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o game.exe
+	$(CXX) $(CXXFLAGS) main.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen_rec.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o game.exe
 
 trash_bot_linux: uci.cpp
-	$(CXX) $(CXXFLAGS) uci.cpp uci.h utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o trash_bot_linux.exe
+	$(CXX) $(CXXFLAGS) uci.cpp uci.h utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen_rec.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o trash_bot_linux.exe
 
 trash_bot_windows: uci.cpp
-	$(CXX_WINDOWS) $(CXXFLAGS) uci.h uci.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o trash_bot_w64.exe
+	$(CXX_WINDOWS) $(CXXFLAGS) uci.h uci.cpp utils.hpp utils.cpp move.h move.cpp game.h game.cpp move_gen_rec.h move_gen.cpp generate.h generate.cpp initialize.h initialize.cpp move_pick.h move_pick.cpp opening.h opening.cpp -o trash_bot_w64.exe
 
 # Remove automatically generated files
 clean :

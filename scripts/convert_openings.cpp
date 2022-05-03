@@ -3,7 +3,7 @@
 #include <string>
 #include "../initialize.h"
 #include "../generate.h"
-#include "../move_gen.h"
+#include "../move_gen_rec.h"
 #include "../move.h"
 
 using namespace std;

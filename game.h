@@ -2,7 +2,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"

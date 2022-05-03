@@ -1,7 +1,7 @@
 // Driver for chess engine
 
 #include <iostream>
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"

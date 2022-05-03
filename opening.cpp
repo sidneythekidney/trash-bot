@@ -1,5 +1,5 @@
 #include "opening.h"
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>

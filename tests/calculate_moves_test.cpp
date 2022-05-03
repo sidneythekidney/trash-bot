@@ -2,7 +2,7 @@
 #include "../defs.h"
 #include "../move.h"
 #include "../generate.h"
-#include "../move_gen.h"
+#include "../move_gen_rec.h"
 
 using namespace std;
 
@@ -50,9 +50,7 @@ class MoveTest {
             // promotion tests:
             test_white_basic_promotion();
             test_black_basic_promotion();
-            // additional perft debugging tests:
-            test_rook_does_not_move_through_pieces();
-            test_white_pawn_cant_go_left_on_col_0();
+            // additional tests
             test_white_pawn_cant_go_right_on_col_7();
             test_black_pawn_cant_go_right_on_col_0();
             test_black_pawn_cant_go_right_on_col_7();
@@ -63,6 +61,7 @@ class MoveTest {
             test_castle_on_second_rank();
             white_king_moves_into_black_pawn();
             black_king_moves_into_white_pawn();
+            white_king_behind_black_pawns();
         }
 
     private:
@@ -78,23 +77,28 @@ class MoveTest {
             cout << "\033[31;40m" + error_msg + "\033[0m\n";
         }
 
+        bool check_if_move_calculated(const vector<Move> &legal_moves, unsigned int piece, unsigned int from, unsigned int to) {
+            for (auto move : legal_moves) {
+                // cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
+                if (move.get_moved() == piece && move.get_from() == from && move.get_to() == to) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
         void test_first_moves_depth_1_white() {
-            // Create the MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE);
+            // Create the MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE);
             // Now move_en contains the start position:
             bool fail = false;
-            if (move_gen.num_calculated_moves() != 0) {
-                print_error("Failed test_first_move_depth_1: number of initial moves != 0\n");
-                cout << "Expected: 0, Received: " << move_gen.num_calculated_moves() << "\n"; 
-                fail = true;
-            }
             // Calculate starting moves for white:
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if 20 moves is calculated for opening white moves
-            if (move_gen.num_calculated_moves() != 20) {
+            if (legal_moves.size() != 20) {
                 print_error("Failed test_first_move_depth_1: number of opening white moves != 20\n");
-                cout << "Expected: 20, Received: " << move_gen.num_calculated_moves() << "\n"; 
+                cout << "Expected: 20, Received: " << legal_moves.size() << "\n"; 
                 fail = true;
             }
             if (!fail) {
@@ -103,20 +107,15 @@ class MoveTest {
         }
 
         void test_first_moves_depth_1_black() {
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK);
             bool fail = false;
-            if (move_gen.num_calculated_moves() != 0) {
-                print_error("Failed test_first_move_depth_1: number of initial moves != 0\n");
-                cout << "Expected: 0, Received: " << move_gen.num_calculated_moves() << "\n"; 
-                fail = true;
-            }
             // Calculate starting moves for white:
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if 20 moves is calculated for opening white moves
-            if (move_gen.num_calculated_moves() != 20) {
+            if (legal_moves.size() != 20) {
                 print_error("Failed test_first_moves_depth_1_black: number of opening black moves != 20\n");
-                cout << "Expected: 20, Received: " << move_gen.num_calculated_moves() << "\n"; 
+                cout << "Expected: 20, Received: " << legal_moves.size() << "\n"; 
                 fail = true;
             }
             if (!fail) {
@@ -139,13 +138,13 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castles is generated
-            if (!move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 62)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 62)) {
                 print_error("Failed test_castle_white_ks_no_check_no_blockers: did not generate castle!\n");
                 fail = true;
             }
@@ -167,12 +166,12 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', 'n', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is generated
-            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 62)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 62)) {
                 print_error("Failed test_castle_white_ks_no_check_with_blockers: incorrectly generated castle!\n");
                 fail = true;
             }
@@ -195,17 +194,17 @@ class MoveTest {
             };
 
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is generated
-            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 62)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 62)) {
                 print_error("Failed test_castle_white_ks_with_check_no_blockers: incorrectly generated castle!\n");
                 fail = true;
             }
-            else if (move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 52) || \
-                     move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 61)) 
+            else if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 52) || \
+                     check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 61)) 
                 {
                     print_error("Failed test_castle_white_ks_with_check_no_blockers: incorrectly generated king moves!\n");
                     fail = true;
@@ -231,13 +230,13 @@ class MoveTest {
             };
             // NOTE: White bishop shouldn't prevent white king from castling qs
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is not generated
-            if (!move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 58)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 58)) {
                 print_error("Failed test_castle_white_qs_no_check_no_blockers: did not generate castle!\n");
                 fail = true;
             }
@@ -261,13 +260,13 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is not generated
-            if (!move_gen.check_if_move_calculated(Move::BLACK_KING, 4, 6)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_KING, 4, 6)) {
                 print_error("Failed test_black_castle_ks_no_check_no_blockers: did not generate castle!\n");
                 fail = true;
             }
@@ -291,13 +290,13 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            // Create MoveGen object:
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            // Create MoveGenRec object:
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is not generated
-            if (!move_gen.check_if_move_calculated(Move::BLACK_KING, 4, 2)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_KING, 4, 2)) {
                 print_error("Failed test_castle_black_qs_no_check_no_blockers: did not generate castle!\n");
                 fail = true;
             }
@@ -321,12 +320,12 @@ class MoveTest {
             };
             // NOTE: The knight prevents the castle of the king
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is not generated
-            if (move_gen.check_if_move_calculated(Move::BLACK_KING, 4, 6)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_KING, 4, 6)) {
                 print_error("Failed test_castle_black_ks_with_check_no_blockers: generate castle through check!\n");
                 fail = true;
             }
@@ -349,13 +348,13 @@ class MoveTest {
             // NOTE: The black queen prevents the white king from castling qs
 
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             
             // Check if the castle is not generated
-            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 60, 58)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 60, 58)) {
                 print_error("Failed test_castle_white_qs_with_check_no_blockers: generate castle through check!\n");
                 fail = true;
             }
@@ -377,12 +376,12 @@ class MoveTest {
             };
             // NOTE: The white rook prevents the black king from castling qs
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the castle is not generated
-            if (move_gen.check_if_move_calculated(Move::BLACK_KING, 4, 2)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_KING, 4, 2)) {
                 print_error("Failed test_castle_black_qs_with_check_no_blockers: generate castle through check!\n");
                 fail = true;
             }
@@ -404,12 +403,12 @@ class MoveTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, en_passant, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, en_passant, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if the en passant is not generated
-            if (!move_gen.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_PAWN, 28, 19)) {
                 print_error("Failed test_basic_white_en_passant: did not generate en passant!\n");
                 fail = true;
             }
@@ -431,12 +430,12 @@ class MoveTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 36; // the square with the pawn that can be en passanted
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if the en passant is not generated
-            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 35, 44)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_PAWN, 35, 44)) {
                 print_error("Failed test_basic_black_en_passant: did not generate en passant!\n");
                 fail = true;
             }
@@ -458,13 +457,13 @@ class MoveTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted (captured)
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, en_passant, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, en_passant, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if either en passant is not generated
-            if (!move_gen.check_if_move_calculated(Move::WHITE_PAWN, 28, 19) || 
-                !move_gen.check_if_move_calculated(Move::WHITE_PAWN, 26, 19)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_PAWN, 28, 19) || 
+                !check_if_move_calculated(legal_moves, Move::WHITE_PAWN, 26, 19)) {
                 // Missing one or both of the en_passants
                 print_error("Failed test_double_white_en_passant: did not generate en passant!\n");
                 fail = true;
@@ -487,13 +486,13 @@ class MoveTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted (captured)
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if either en passant is not generated
-            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 34, 43) || 
-                !move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 43)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_PAWN, 34, 43) || 
+                !check_if_move_calculated(legal_moves, Move::BLACK_PAWN, 36, 43)) {
                 // Missing one or both of the en_passants
                 print_error("Failed test_double_black_en_passant: did not generate en passant!\n");
                 fail = true;
@@ -518,11 +517,11 @@ class MoveTest {
             // NOTE: taking en passant exposes the white king to the black rook
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
-            MoveGen move_gen1 = MoveGen(init, gen, 1, color::WHITE, piece_board1, en_passant, 0xf);
+            MoveGenRec move_gen1 = MoveGenRec(init, gen, color::WHITE, piece_board1, en_passant, 0xf);
             bool fail = false;
-            move_gen1.calculate_moves();
+            vector<Move> legal_moves1 = move_gen1.get_legal_moves();
             // Check if the en passant is not generated
-            if (move_gen1.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
+            if (check_if_move_calculated(legal_moves1, Move::WHITE_PAWN, 28, 19)) {
                 print_error("Failed test_white_en_passant_does_not_induce_check: generated en passant induces check (black rook)!\n");
                 return;
             }
@@ -539,10 +538,10 @@ class MoveTest {
             };
             // NOTE: taking en passant exposes the white king to the black queen
             vector<int> piece_board2 = char_board_to_piece_board(char_board2);
-            MoveGen move_gen2 = MoveGen(init, gen, 1, color::WHITE, piece_board2, en_passant, 0xf);
-            move_gen2.calculate_moves();
+            MoveGenRec move_gen2 = MoveGenRec(init, gen, color::WHITE, piece_board2, en_passant, 0xf);
+            vector<Move> legal_moves2 = move_gen2.get_legal_moves();
             // Check if the en passant is not generated
-            if (move_gen2.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
+            if (check_if_move_calculated(legal_moves2, Move::WHITE_PAWN, 28, 19)) {
                 print_error("Failed test_white_en_passant_does_not_induce_check: generated en passant induces check (black queen)!\n");
                 fail = true;
             }
@@ -565,12 +564,12 @@ class MoveTest {
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant1 = 1ULL << 36; // the square with the pawn that can be en passanted
-            MoveGen move_gen1 = MoveGen(init, gen, 1, color::BLACK, piece_board1, en_passant1, 0xf);
+            MoveGenRec move_gen1 = MoveGenRec(init, gen, color::BLACK, piece_board1, en_passant1, 0xf);
             bool fail = false;
-            move_gen1.calculate_moves();
+            vector<Move> legal_moves1 = move_gen1.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if the en passant is not generated
-            if (move_gen1.check_if_move_calculated(Move::BLACK_PAWN, 35, 44)) {
+            if (check_if_move_calculated(legal_moves1, Move::BLACK_PAWN, 35, 44)) {
                 print_error("Failed test_black_en_passant_does_not_induce_check: generated en passant induces check (white bishop)!\n");
                 return;
             }
@@ -588,11 +587,11 @@ class MoveTest {
             };
             vector<int> piece_board2 = char_board_to_piece_board(char_board2);
             U64 en_passant2 = 1ULL << 35; // the square with the pawn that can be en passanted
-            MoveGen move_gen2 = MoveGen(init, gen, 1, color::BLACK, piece_board2, en_passant2, 0xf);
-            move_gen2.calculate_moves();
+            MoveGenRec move_gen2 = MoveGenRec(init, gen, color::BLACK, piece_board2, en_passant2, 0xf);
+            vector<Move> legal_moves2 = move_gen2.get_legal_moves();
             // move_gen.print_cur_moves();
             // Check if the en passant is not generated
-            if (move_gen2.check_if_move_calculated(Move::BLACK_PAWN, 36, 43)) {
+            if (check_if_move_calculated(legal_moves2, Move::BLACK_PAWN, 36, 43)) {
                 print_error("Failed test_black_en_passant_does_not_induce_check: generated en passant induces check (white queen)!\n");
                 fail = true;
             }
@@ -615,15 +614,15 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
-            if (move_gen.check_if_move_calculated(Move::WHITE_KNIGHT, 10, 0)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KNIGHT, 10, 0)) {
                 print_error("Failed test_standard_white_pin: white knight can move when pinned!\n");
                 fail = true;
             }
             // Make sure the only moves generated are king moves:
-            if (!(move_gen.num_calculated_moves() == 8)) {
+            if (!(legal_moves.size() == 8)) {
                 print_error("Failed test_standard_white_pin: incorrect number of moves generated!\n");
                 fail = true;
             }
@@ -644,10 +643,10 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
-            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 30, 22)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_ROOK, 30, 22)) {
                 print_error("Failed test_standard_black_pin: black rook can move when pinned!\n");
                 fail = true;
             }
@@ -668,15 +667,15 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
-            if (!move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 44, 42)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_QUEEN, 44, 42)) {
                 print_error("Failed test_standard_white_block: not generating white queen!\n");
                 fail = true;
             }
             // Make sure white queen can't move elsewhere (randomly selected square)
-            if (move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 44, 36)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_QUEEN, 44, 36)) {
                 print_error("Failed test_standard_white_block: generating incorrect queen move!\n");
                 fail = true;
             }
@@ -698,11 +697,11 @@ class MoveTest {
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
-            MoveGen move_gen1 = MoveGen(init, gen, 1, color::WHITE, piece_board1, en_passant, 0xf);
+            MoveGenRec move_gen1 = MoveGenRec(init, gen, color::WHITE, piece_board1, en_passant, 0xf);
             bool fail = false;
-            move_gen1.calculate_moves();
+            vector<Move> legal_moves = move_gen1.get_legal_moves();
             // Check if the en passant is not generated
-            if (!move_gen1.check_if_move_calculated(Move::WHITE_PAWN, 28, 19)) {
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_PAWN, 28, 19)) {
                 print_error("Failed test_white_en_passant_does_not_induce_check: generated en passant induces check (black rook)!\n");
                 return;
             }
@@ -723,15 +722,15 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
-            if (!move_gen.check_if_move_calculated(Move::BLACK_ROOK, 6, 30)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_ROOK, 6, 30)) {
                 print_error("Failed test_standard_black_block: not generating black rook move!\n");
                 fail = true;
             }
             // Make sure white queen can't move elsewhere (randomly selected square)
-            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 6, 7)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_ROOK, 6, 7)) {
                 print_error("Failed test_standard_black_block: generating incorrect rook move!\n");
                 fail = true;
             }
@@ -741,7 +740,6 @@ class MoveTest {
         }
         void test_en_passant_black_block() {
             // Test en passant to block check
-            cout << "testing en passant black block\n";
             vector<char> char_board = {
                 '0', '0', '0', '0', 'R', '0', '0', 'R',
                 '0', '0', '0', '0', '0', 'P', 'P', '0',
@@ -754,16 +752,16 @@ class MoveTest {
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, en_passant, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Check if the en passant is not generated
-            if (!move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 43)) {
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_PAWN, 36, 43)) {
                 print_error("Failed test_en_passant_black_block: not generating en passant block!\n");
                 return;
             }
             // Make sure a non-blocking pawn move isn't generated
-            if (move_gen.check_if_move_calculated(Move::BLACK_PAWN, 36, 44)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_PAWN, 36, 44)) {
                 print_error("Failed test_en_passant_black_block: move induces check!\n");
                 return;
             }
@@ -786,10 +784,10 @@ class MoveTest {
             };
             // NOTE: The above is a scholar's move for white
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_standard_white_checkmate: found moves for black in checkmate!\n");
                 return;
             }
@@ -810,10 +808,10 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', 'k', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_white_checkmate_suffocation: found moves for black in suffocation checkmate!\n");
                 return;
             }
@@ -834,10 +832,10 @@ class MoveTest {
                 '0', 'k', '0', '0', 'R', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_standard_black_checkmate: found moves for white in back-rank checkmate!\n");
                 return;
             }
@@ -857,10 +855,10 @@ class MoveTest {
                 '0', 'r', '0', '0', '0', '0', 'r', 'k'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_black_checkmate_suffocation: found moves for white in suffocation checkmate!\n");
                 return;
             }
@@ -881,10 +879,10 @@ class MoveTest {
                 'k', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_white_standard_stalemate: found moves for white in stalemate position!\n");
                 return;
             }
@@ -904,11 +902,10 @@ class MoveTest {
                 '0', '0', 'r', '0', '0', '0', '0', 'k'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            move_gen.print_cur_moves();
-            if (move_gen.num_calculated_moves() != 0) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (legal_moves.size() != 0) {
                 print_error("Failed test_black_standard_stalemate: found moves for black in stalemate position!\n");
                 return;
             }
@@ -930,14 +927,14 @@ class MoveTest {
                 '0', '0', '0', '0', 'k', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::WHITE_BISHOP, 34, 52)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (check_if_move_calculated(legal_moves, Move::WHITE_BISHOP, 34, 52)) {
                 print_error("Failed test_white_double_check: found non-blocking moves for white in check!\n");
                 return;
             }
-            if (move_gen.num_calculated_moves() != 3) {
+            if (legal_moves.size() != 3) {
                 print_error("Failed test_white_double_check: incorrect number of moves generated!\n");
                 return;
             }
@@ -957,15 +954,14 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            move_gen.print_cur_moves();
-            if (move_gen.check_if_move_calculated(Move::BLACK_ROOK, 44, 41)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (check_if_move_calculated(legal_moves, Move::BLACK_ROOK, 44, 41)) {
                 print_error("Failed test_black_double_check: found non-blocking moves for black in check!\n");
                 return;
             }
-            if (move_gen.num_calculated_moves() != 4) {
+            if (legal_moves.size() != 4) {
                 print_error("Failed test_black_double_check: incorrect number of moves generated!\n");
                 return;
             }
@@ -986,10 +982,10 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (!move_gen.check_if_move_calculated(Move::WHITE_QUEEN, 12, 4)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_QUEEN, 12, 4)) {
                 print_error("Failed test_white_basic_promotion: did not generate white pawn promotion to queen!\n");
                 return;
             }
@@ -1010,10 +1006,10 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (!move_gen.check_if_move_calculated(Move::BLACK_KNIGHT, 51, 59)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (!check_if_move_calculated(legal_moves, Move::BLACK_KNIGHT, 51, 59)) {
                 print_error("Failed test_knight_basic_promotion: did not generate black pawn promotion to knight!\n");
                 return;
             }
@@ -1034,10 +1030,10 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', 'b', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::WHITE_ROOK, 56, 62)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (check_if_move_calculated(legal_moves, Move::WHITE_ROOK, 56, 62)) {
                 print_error("Failed test_rook_does_not_move_through_pieces: generated rook move through friendly pieces!\n");
                 return;
             }
@@ -1059,10 +1055,10 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::WHITE_PAWN, 40, 31)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (check_if_move_calculated(legal_moves, Move::WHITE_PAWN, 40, 31)) {
                 print_error("Failed test_white_pawn_cant_go_left_on_col_0: white pawn can move through board edge!\n");
                 return;
             }
@@ -1111,10 +1107,10 @@ class MoveTest {
                 'r', 'n', 'b', 'q', '0', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0b1100);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0b1100);
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 52, 54)) {
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 52, 54)) {
                 print_error("Failed test_castle_on_second_rank: white king can castle on 2nd rank!\n");
                 return;
             }
@@ -1135,14 +1131,13 @@ class MoveTest {
                 '0', 'K', '0', '0', '0', '0', '0', '0'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
 
             // move_gen.print_piece_board();
 
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::WHITE_KING, 8, 16)) {
+            if (check_if_move_calculated(legal_moves, Move::WHITE_KING, 8, 16)) {
                 print_error("Failed white_king_moves_into_black_pawn: white king can move into check!\n");
                 return;
             }
@@ -1164,17 +1159,42 @@ class MoveTest {
             };
 
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
 
             bool fail = false;
-            move_gen.calculate_moves();
-            if (move_gen.check_if_move_calculated(Move::BLACK_KING, 0, 1)) {
+            if (check_if_move_calculated(legal_moves, Move::BLACK_KING, 0, 1)) {
                 print_error("FAILED: black_king_moves_into_white_pawn - white king can move into check!\n");
                 return;
             }
             if (!fail) {
                 print_success("PASS: black_king_moves_into_white_pawn");
+            }
+        }
+
+        void white_king_behind_black_pawns() {
+            vector<char> char_board = {
+                '0', '0', 'k', '0', '0', '0', '0', '0',
+                'P', 'P', 'P', '0', '0', 'p', '0', '0',
+                '0', 'Q', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', 'R',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', '0', '0', '0', '0', '0', '0', '0',
+                '0', 'K', '0', '0', '0', '0', '0', '0'
+            };
+
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
+
+            bool fail = false;
+            if (!check_if_move_calculated(legal_moves, Move::WHITE_KING, 2, 1)) {
+                print_error("FAILED: white_king_behind_black_pawns - white king can't move behind black pawns!\n");
+                return;
+            }
+            if (!fail) {
+                print_success("PASS: white_king_behind_black_pawns");
             }
         }
 };

@@ -4,7 +4,7 @@
 #include "initialize.h"
 #include "generate.h"
 #include "move.h"
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include <string>
 #include <map>
 

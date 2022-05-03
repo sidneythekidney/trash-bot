@@ -2,7 +2,7 @@
 #include <sstream>
 #include <map>
 
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"

@@ -137,3 +137,15 @@ string get_algebraic_from_square(int from, int to) {
     return algebraic;
 }
 
+Move create_move(
+    unsigned int from,
+    unsigned int to,
+    unsigned int moved_piece,
+    unsigned int captured_piece,
+    unsigned int legal_castles,
+    unsigned int flags
+) {
+    return Move(from | (to << 6) | (moved_piece << 12) | (captured_piece << 16) | \
+                            (legal_castles << 20) | (flags << 24));
+}
+

@@ -16,7 +16,7 @@
 #include <iostream>
 #include <deque>
 
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include "utils.hpp"
 #include "move.h"
 #include "initialize.h"

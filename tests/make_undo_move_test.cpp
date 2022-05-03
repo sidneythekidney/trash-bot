@@ -2,7 +2,7 @@
 #include "../defs.h"
 #include "../move.h"
 #include "../generate.h"
-#include "../move_gen.h" 
+#include "../move_gen_rec.h" 
 
 using namespace std;
 
@@ -10,7 +10,6 @@ class MoveTest {
     public:
         MoveTest(Initialize* init, Generate* gen) : init(init), gen(gen) {}
         void test_all() {
-            test_init();
             test_make_move_basic();
             test_white_castle_ks();
             test_black_castle_ks();
@@ -31,16 +30,12 @@ class MoveTest {
             cout << "\033[31;40m" + error_msg + "\033[0m\n";
         }
 
-        void test_init() {
-            cout << "init passing\n";
-        }
-
         void test_make_move_basic() {
             // Start from the opening and make the first pawn move
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE);
-            move_gen.calculate_moves();
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE);
+            vector<Move> legal_moves = move_gen.get_legal_moves();
             // Make the first available pawn move:
-            move_gen.make_move();
+            move_gen.make_move(legal_moves[0]);
             vector<vector<int>> correct_white_pawns = {
                 {0,0,0,0,0,0,0,0},
                 {0,0,0,0,0,0,0,0},
@@ -79,16 +74,12 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            cout << "initializing move_gen\n";
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // Add only the castle move:
-            cout << "adding move\n";
-            move_gen.add_move(60, 62, Move::WHITE_KING, 0, 0b0011, 0b1000);
+            Move move = create_move(60, 62, Move::WHITE_KING, 0, 0b0011, 0b1000);
             // Make and undo castling move
-            cout << "making move\n";
-            move_gen.make_move();
-            cout << "undoing move\n";
-            move_gen.undo_move();
+            move_gen.make_move(move);
+            move_gen.undo_move(move);
 
             // Make sure piece board is correct:
             bool fail = false;
@@ -153,12 +144,12 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // Add only the castle move:
-            move_gen.add_move(4, 6, Move::BLACK_KING, 0, 0b1100, 0b1000);
+            Move move = create_move(4, 6, Move::BLACK_KING, 0, 0b1100, 0b1000);
             // Make and undo castling move
-            move_gen.make_move();
-            move_gen.undo_move();
+            move_gen.make_move(move);
+            move_gen.undo_move(move);
 
             // Make sure piece board is correct:
             bool fail = false;
@@ -223,12 +214,12 @@ class MoveTest {
                 'r', '0', '0', '0', 'k', 'b', 'n', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // Add only the castle move:
-            move_gen.add_move(60, 58, Move::WHITE_KING, 0, 0b0011, 0b1000);
+            Move move = create_move(60, 58, Move::WHITE_KING, 0, 0b0011, 0b1000);
             // Make and undo castling move
-            move_gen.make_move();
-            move_gen.undo_move();
+            move_gen.make_move(move);
+            move_gen.undo_move(move);
 
             // Make sure piece board is correct:
             bool fail = false;
@@ -293,12 +284,12 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGen move_gen = MoveGen(init, gen, 1, color::BLACK, piece_board, 0ULL, 0xf);
+            MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // Add only the castle move:
-            move_gen.add_move(4, 2, Move::BLACK_KING, 0, 0b1100, 0b1000);
+            Move move = create_move(4, 2, Move::BLACK_KING, 0, 0b1100, 0b1000);
             // Make and undo castling move
-            move_gen.make_move();
-            move_gen.undo_move();
+            move_gen.make_move(move);
+            move_gen.undo_move(move);
 
             // Make sure piece board is correct:
             bool fail = false;

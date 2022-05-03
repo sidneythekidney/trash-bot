@@ -29,4 +29,13 @@ int get_square_from_algebraic(string alg);
 
 string get_algebraic_from_square(int from, int to);
 
+Move create_move(
+    unsigned int from,
+    unsigned int to,
+    unsigned int moved_piece,
+    unsigned int captured_piece,
+    unsigned int legal_castles,
+    unsigned int flags
+);
+
 #endif
