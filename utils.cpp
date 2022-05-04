@@ -137,6 +137,13 @@ string get_algebraic_from_square(int from, int to) {
     return algebraic;
 }
 
+bool cmp_floats_eq(double a, double b, double eps) {
+    if (abs(a-b) < eps) {
+        return true;
+    }
+    return false;
+}
+
 Move create_move(
     unsigned int from,
     unsigned int to,

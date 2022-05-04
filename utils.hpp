@@ -29,6 +29,8 @@ int get_square_from_algebraic(string alg);
 
 string get_algebraic_from_square(int from, int to);
 
+bool cmp_floats_eq(double a, double b, double eps);
+
 Move create_move(
     unsigned int from,
     unsigned int to,

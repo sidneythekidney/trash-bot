@@ -1,18 +1,15 @@
-#include "move_pick.h"
+#include "move_pick_rec.h"
 
-using namespace std;
-
-MovePick::MovePick(Initialize* init, Generate* gen, MoveGen* move_gen) : init(init), gen(gen), move_gen(move_gen) {
-    // Generate a 64x12 table of random numbers used for Zobrist hashing:
+MovePickRec::MovePickRec(Generate* gen, MoveGenRec* move_gen) : gen(gen), move_gen(move_gen) {
+    starting_player = move_gen->get_active_player();
+    
+    // Initialize random numbers for zobrist hashing
     for (int i = 0; i < 64; ++i) {
         for (int j = 0; j < 12; ++j) {
             // Initialize random value:
             zob_rand_nums[i][j] = rand();
         }
     }
-    iter_move_gen = new MoveGen(init, gen, 1, color::WHITE, move_gen->get_piece_board(), 0, 0);
-    // Initialize piece-square tables used by position_eval:
-    // https://www.chessprogramming.org/Simplified_Evaluation_Function
 
     // Initialize masks as needed:
     init_piece_squares();
@@ -22,7 +19,72 @@ MovePick::MovePick(Initialize* init, Generate* gen, MoveGen* move_gen) : init(in
     init_king_safety_masks();
 }
 
-int MovePick::zob_hash(const vector<int> &board) {
+Move MovePickRec::get_best_move(int depth) {
+    get_best_move_helper(depth, depth);
+    return best_move;
+}
+
+double MovePickRec::get_best_move_helper(int depth, int starting_depth) {
+    // If depth == 0, return static evaluation
+    if (depth == 0) {
+        ++leaf_nodes_explored;
+        return eval_current_pos();
+    }
+    // Get legal moves
+    vector<Move> legal_moves = move_gen->get_legal_moves();
+    // Calculate multiplier and initial best score
+    double mult = ((starting_player + starting_depth - depth) % 2 == color::WHITE) ? 1.0 : -1.0;
+    // Check for stalemate
+    if (legal_moves.size() == 0) {
+        if (!move_gen->checked()) {
+            return 0.0;
+        }
+        // Return checkmate score, ensuring checkmate occurs as fast as possible
+        return -1.0 * mult * 1000000.0 / (1.0 + ((double)starting_depth - (double)depth));
+    }
+    double best_score = -1 * mult * 1000000.0;
+    for (auto move : legal_moves) {
+        move_gen->make_move(move);
+        double old_best_score = best_score;
+        // Use the negamax algorithm to compute the best move
+        best_score = mult * max(mult * best_score, mult * get_best_move_helper(depth-1, starting_depth));
+        // Set best move if we are at original depth and we have improved score
+        if (depth == starting_depth && !cmp_floats_eq(best_score, old_best_score, 0.000001)) {
+            best_move = move;
+        }
+        move_gen->undo_move(move);
+        if (depth == starting_depth) {
+            cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
+            cout << "num_moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+            last_leaf_nodes_explored = leaf_nodes_explored;
+        }
+    }
+    return best_score;
+}
+
+double MovePickRec::eval_current_pos() {
+    // Static position evaluator
+
+    // Check if this position has been evaluated before:
+    int hash = zob_hash(move_gen->get_piece_board());
+    if (eval_pos.find(hash) != eval_pos.end()) {
+        return eval_pos[hash];
+    }
+
+    // If the position has not been evaluated, evaluate the position:
+    double eval = 0;
+    eval += material_eval();
+    eval += position_eval();
+    eval += pawn_structure_eval();
+    eval += king_safety_eval();
+
+    // Remember the evaluation for this position:
+    eval_pos[hash] = eval;
+    // This evaluation is for when playing with white, negate if playing for black
+    return eval;
+}
+
+int MovePickRec::zob_hash(const vector<int> &board) {
     // Compute the zobrist hash for the given board:
     // Algorithm described here: https://en.wikipedia.org/wiki/Zobrist_hashing
     // TODO: Consider adding some collision avoidance, since this is not a perfect hash
@@ -35,45 +97,21 @@ int MovePick::zob_hash(const vector<int> &board) {
     return z_hash;
 }
 
-double MovePick::eval_current_pos() {
-    // Static position evaluator
-
-    // Check if this position has been evaluated before:
-    int hash = zob_hash(iter_move_gen->get_piece_board());
-    if (eval_pos.find(hash) != eval_pos.end()) {
-        return eval_pos[hash];
-    }
-
-    // If the position has not been evaluated, evaluate the position:
-    // TODO: change this so scores are normalized
-    double eval = 0;
-    eval += material_eval();
-    eval += position_eval();
-    eval += pawn_structure_eval();
-    eval += king_safety_eval();
-
-    // Remember the evaluation for this position:
-    eval_pos[hash] = eval;
-    // This evaluation is for when playing with white, negate if playing for black
-    // return (move_gen->get_active_player() ? -1 : 1) * eval;
-    return eval;
-}
-
-double MovePick::material_eval() {
+double MovePickRec::material_eval() {
     // TODO: Place this all in a hash table, add data structure to quickly determine if a game is a draw by insufficient material
     // Get the counts for white pieces
-    int num_white_pawns = count_bits(iter_move_gen->get_white_pawns());
-    int num_white_knights = count_bits(iter_move_gen->get_white_knights());
-    int num_white_bishops = count_bits(iter_move_gen->get_white_bishops());
-    int num_white_rooks = count_bits(iter_move_gen->get_white_rooks());
-    int num_white_queens = count_bits(iter_move_gen->get_white_queens());
+    int num_white_pawns = count_bits(move_gen->get_white_pawns());
+    int num_white_knights = count_bits(move_gen->get_white_knights());
+    int num_white_bishops = count_bits(move_gen->get_white_bishops());
+    int num_white_rooks = count_bits(move_gen->get_white_rooks());
+    int num_white_queens = count_bits(move_gen->get_white_queens());
 
     // Get the counts for black pieces
-    int num_black_pawns = count_bits(iter_move_gen->get_black_pawns());
-    int num_black_knights = count_bits(iter_move_gen->get_black_knights());
-    int num_black_bishops = count_bits(iter_move_gen->get_black_bishops());
-    int num_black_rooks = count_bits(iter_move_gen->get_black_rooks());
-    int num_black_queens = count_bits(iter_move_gen->get_black_queens());
+    int num_black_pawns = count_bits(move_gen->get_black_pawns());
+    int num_black_knights = count_bits(move_gen->get_black_knights());
+    int num_black_bishops = count_bits(move_gen->get_black_bishops());
+    int num_black_rooks = count_bits(move_gen->get_black_rooks());
+    int num_black_queens = count_bits(move_gen->get_black_queens());
 
     // TODO: Determine the endgame based on this material (both sides have < 13 points of material)
     
@@ -114,9 +152,9 @@ double MovePick::material_eval() {
     return mat_diff + bonus_diff;
 }
 
-double MovePick::position_eval() {
+double MovePickRec::position_eval() {
     double position_score = 0;
-    vector<int> piece_board = iter_move_gen->get_piece_board();
+    vector<int> piece_board = move_gen->get_piece_board();
     for (int i = 0; i < 64; ++i) {
         int piece = piece_board[i];
         if (piece != Move::EMPTY) {
@@ -129,7 +167,7 @@ double MovePick::position_eval() {
     return position_score;
 }
 
-double MovePick::pawn_structure_eval() {
+double MovePickRec::pawn_structure_eval() {
     double eval = 0;
 
     eval += doubled_pawns_eval();
@@ -140,15 +178,15 @@ double MovePick::pawn_structure_eval() {
     return eval;
 }
 
-double MovePick::doubled_pawns_eval() {
+double MovePickRec::doubled_pawns_eval() {
     /*****************
      * DOUBLED PAWNS * 
      ****************/
     // Doubled pawns are bad, even worse in the endgame
     // Having two pawns still usually better than having just one pawn 
     double eval = 0;
-    U64 white_pawns = iter_move_gen->get_white_pawns();
-    U64 black_pawns = iter_move_gen->get_black_pawns();
+    U64 white_pawns = move_gen->get_white_pawns();
+    U64 black_pawns = move_gen->get_black_pawns();
 
     for (int i = 0; i < 8; ++i) {
         eval -= (endgame ? 75 : 50) * (count_bits(white_pawns & col_masks[i]) > 1);
@@ -158,7 +196,7 @@ double MovePick::doubled_pawns_eval() {
     return eval;
 }
         
-double MovePick::pawn_chain_eval() {
+double MovePickRec::pawn_chain_eval() {
     /***************
      * PAWN CHAINS * 
      **************/
@@ -166,8 +204,8 @@ double MovePick::pawn_chain_eval() {
         - Pawns are stronger when they support each other
     */
     double eval = 0;
-    U64 white_pawns = iter_move_gen->get_white_pawns();
-    U64 black_pawns = iter_move_gen->get_black_pawns();
+    U64 white_pawns = move_gen->get_white_pawns();
+    U64 black_pawns = move_gen->get_black_pawns();
     double w_protects = 0, w_attacks = 0; 
     int sq;
     double b_protects = 0, b_attacks = 0;
@@ -196,7 +234,7 @@ double MovePick::pawn_chain_eval() {
     return eval;
 }
 
-double MovePick::isolated_pawns_eval() {
+double MovePickRec::isolated_pawns_eval() {
     /******************
      * ISOLATED PAWNS *
      *****************/
@@ -205,8 +243,8 @@ double MovePick::isolated_pawns_eval() {
      - Isolated pawns are pawns that have no friendly pawns on adjacent ranks
      - Isolated pawns are generally bad as they can be hard to defend
     */
-    U64 white_pawns = iter_move_gen->get_white_pawns();
-    U64 black_pawns = iter_move_gen->get_black_pawns();
+    U64 white_pawns = move_gen->get_white_pawns();
+    U64 black_pawns = move_gen->get_black_pawns();
     vector<int> w_pawns_per_col;
     vector<int> b_pawns_per_col;
     for (int i = 0; i < 8; ++i) {
@@ -248,7 +286,7 @@ double MovePick::isolated_pawns_eval() {
     return (num_w_isolated - num_b_isolated) * (endgame ? -30.0 : -25.0);
 }
 
-double MovePick::passed_pawns_eval() {
+double MovePickRec::passed_pawns_eval() {
     /****************
      * PASSED PAWNS *
      ***************/
@@ -256,8 +294,8 @@ double MovePick::passed_pawns_eval() {
      - Passed pawns are pawns that make it past the opponents pawns of same and adjacent col
     */
     double eval = 0;
-    U64 white_pawns = iter_move_gen->get_white_pawns();
-    U64 black_pawns = iter_move_gen->get_black_pawns();
+    U64 white_pawns = move_gen->get_white_pawns();
+    U64 black_pawns = move_gen->get_black_pawns();
 
     U64 white_pawns_cp = white_pawns;
     U64 black_pawns_cp = black_pawns;
@@ -275,12 +313,12 @@ double MovePick::passed_pawns_eval() {
     return eval;
 }
 
-double MovePick::king_safety_eval() {
+double MovePickRec::king_safety_eval() {
     // Get king position and piece masks
-    int w_king_pos = get_ls1b(iter_move_gen->get_white_king());
-    int b_king_pos = get_ls1b(iter_move_gen->get_black_king());
-    U64 white_pieces = iter_move_gen->get_white_pieces();
-    U64 black_pieces = iter_move_gen->get_black_pieces();
+    int w_king_pos = get_ls1b(move_gen->get_white_king());
+    int b_king_pos = get_ls1b(move_gen->get_black_king());
+    U64 white_pieces = move_gen->get_white_pieces();
+    U64 black_pieces = move_gen->get_black_pieces();
 
     // Perform evaluation
     int num_w_protectors = count_bits(white_pieces & w_king_safety_masks[w_king_pos]);
@@ -289,247 +327,13 @@ double MovePick::king_safety_eval() {
     return (double)(num_w_protectors - num_b_protectors) * 30.0;
 }
 
-Move MovePick::find_best_move(int max_runtime) { 
-
-    path_scores.clear();
-    cout << "time left: " << max_runtime << "\n";
-    iter_move_gen->calculate_moves();
-    // Set initial best move value to null move - Guaranteed to change
-    Move best_move = Move(0);
-    // double best_score = -numeric_limits<double>::infinity();
-    // Keep track of the actual move to be played
-    Move curr_move = Move(0);
-    // Keep track of the time when this function started running
-    auto start_time = clock();
-    
-    // Initialize path_scores:
-    for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
-        path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
-    }
-    // int count = 0;
-    while (iter_move_gen->make_move()) {
-        // If the depth == 2 the current move is a move the CPU can play:
-        if (iter_move_gen->get_curr_depth() == 2) {
-            curr_move = iter_move_gen->get_curr_move();
-        }
-        // Update path scores based on NegaMax algorithm
-        for (int d = iter_move_gen->get_curr_depth(); d > iter_move_gen->get_depth() || (iter_move_gen->get_num_sibling_moves_left(d) == 0); --d) {
-            // Travel up and evaluate:
-            if (iter_move_gen->get_checkmate_status() > checkmate::STALEMATE) {
-
-                double eval = (iter_move_gen->get_checkmate_status() == checkmate::WHITE_CHECKMATE ? 1 : -1) * numeric_limits<double>::infinity();
-                
-                // Inject the evaluation up a level since the checkmate indication occurs after making the move:
-                path_scores[iter_move_gen->get_curr_depth()-2] = eval;
-                // update best move if we are at a depth of 1
-                if (iter_move_gen->get_curr_depth()-2 == 0) {
-                    best_move = curr_move;
-                }
-            }
-            if (iter_move_gen->get_checkmate_status() == checkmate::STALEMATE) {
-                // Handle stalemate evaluation
-                double old_score = path_scores[iter_move_gen->get_curr_depth()-2];
-                double mult = (iter_move_gen->get_active_player() == color::WHITE) ? -1.0 : 1.0;
-                path_scores[iter_move_gen->get_curr_depth()-2] = mult * max(0.0, mult * old_score);
-                // Update best score if needed
-                if (iter_move_gen->get_curr_depth()-2 == 0 && path_scores[iter_move_gen->get_curr_depth()-2] == 0.0) {
-                    best_move = curr_move;
-                }
-                continue;
-            }
-            if (d > iter_move_gen->get_depth()) {
-                // Evaluate and add position
-                double eval = eval_current_pos();
-                path_scores.push_back(eval);
-            }
-            if (path_scores.size() == 1) {
-                // Make final move (undo_move) and return
-                iter_move_gen->make_move();
-                // Return the best move:
-                return best_move;
-            }
-            double new_score = path_scores.back();
-            path_scores.pop_back();
-            double old_score = path_scores.back();
-            path_scores.pop_back();
-            
-            double mult = ((d + move_gen->get_active_player()) % 2) ? -1 : 1;
-            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-            
-            // Update bast move as needed
-            if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                best_move = curr_move;
-            }
-        }
-        
-        // Check to make sure there is time remaining:
-        if ((float)((clock() - start_time) / CLOCKS_PER_SEC) > (float)max_runtime) {
-            // Stop searching moves if the time limit has exceeded
-            return Move(0);
-        }
-
-        // Perform iterative negamax pruning:
-        while (true) {
-            int index = path_scores.size() - 1;
-
-            if (index >= 1) {
-                if ((iter_move_gen->get_starting_player() + path_scores.size()) % 2) {
-                    // If black is the active player, we remove the branch if it evaluates higher than the currently selected branch
-                    if (path_scores[index] > path_scores[index-1]) {
-                        
-                        // Perform the pruning:
-                        iter_move_gen->clear_move_level(path_scores.size());
-                        path_scores.pop_back();
-
-                        while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
-                            double new_score = path_scores.back();
-                            path_scores.pop_back();
-                            double old_score = path_scores.back();
-                            path_scores.pop_back();
-
-                            double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
-                            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-                        
-                            if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                                best_move = curr_move;
-                            }
-                        }
-                    }
-                    else {
-                        break;
-                    }
-                }
-                else {
-                    // If white is the active player, we remove the branch if it evaluates lower than the currently selected branch
-                    if (path_scores[index] < path_scores[index-1]) {
-                        
-                        // Perform the pruning
-                        iter_move_gen->clear_move_level(path_scores.size());
-                        // Remove the path score as we traverse up a level:
-                        path_scores.pop_back();
-                        while (iter_move_gen->get_num_sibling_moves_left(path_scores.size()) == 0 && path_scores.size() > 1) {
-                            double new_score = path_scores.back();
-                            path_scores.pop_back();
-                            double old_score = path_scores.back();
-                            path_scores.pop_back();
-
-                            double mult = ((path_scores.size() + move_gen->get_starting_player()) % 2) ? -1 : 1;
-                            path_scores.push_back(mult * max(mult * old_score, mult * new_score));
-                            if (path_scores.size() == 1 && path_scores.back() != old_score) {
-                                best_move = curr_move;
-                            }
-                        }
-                    }
-                    else {
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
-        }
-        
-
-        // Add placeholder values back in to path_scores as needed
-        for (int i = path_scores.size(); i < iter_move_gen->get_depth(); ++i) {
-            path_scores.push_back(((i + move_gen->get_active_player()) % 2) ? numeric_limits<double>::infinity() : -numeric_limits<double>::infinity());
-        }
-    }
-    return best_move;
-}
-
-Move MovePick::find_best_move_given_time(int time) {
-    // NOTE: time is the total time the program should search for a move
-    // Use iterative deepening to find the best move given the max time:
-    auto start_time = clock();
-    Move best_move = Move(0), pot_best_move = Move(0);
-    for (int depth = 1; clock() < (start_time + time * CLOCKS_PER_SEC); ++depth) { // TODO: CHANGE THE STARTING DEPTH BACK TO 1
-        cout << "calculating at depth = " << depth << "\n";
-        iter_depth = depth;
-        // Clear the path score stack:
-        while (!path_scores.empty()) {
-            path_scores.pop_back();
-        }
-        // Set iter_move_gen based on move_gen:
-        if (iter_move_gen) {
-            cout << "attemting to delete iter_move_gen\n";
-            delete iter_move_gen;
-            iter_move_gen = NULL;
-        }
-        
-        set_iter_move_gen(depth);
-
-        // Set the maximum depth for the move_gen object:
-        // Calculate available runtime
-        int rem_time = ((start_time + time * CLOCKS_PER_SEC) - clock()) / CLOCKS_PER_SEC;
-        // Find the potential best move for this depth:
-        pot_best_move = find_best_move(rem_time);
-        if (pot_best_move.get_move() != 0) {
-            best_move = pot_best_move;
-        }
-        // NOTE: If we run out of time at a certain depth, iter_move_gen mightnot match move_gen, but will have pot_best_move = 0
-        if (iter_move_gen->get_piece_board() != move_gen->get_piece_board() && pot_best_move.get_move() != 0) {
-            cout << "Moves not being made unmade correctly\n";
-            cout << "Iterated: \n";
-            iter_move_gen->print_piece_board();
-            cout << "Correct: \n";
-            move_gen->print_piece_board();
-            exit(1);
-        }
-    }
-    if (best_move.get_move() == 0) {
-        cout << "Returning invalid best move\n";
-        exit(1);
-    }
-    return best_move;
-}
-
-Move MovePick::find_best_move_at_depth(int d) {
-    Move best_move = Move(0), pot_best_move = Move(0);
-    for (int depth = 1; depth <= d; ++depth) { // TODO: CHANGE THE STARTING DEPTH BACK TO 1
-        cout << "calculating at depth = " << depth << "\n";
-        iter_depth = depth;
-        // Clear the path score stack:
-        while (!path_scores.empty()) {
-            path_scores.pop_back();
-        }
-        // Set iter_move_gen based on move_gen:
-        if (iter_move_gen) {
-            cout << "attemting to delete iter_move_gen\n";
-            delete iter_move_gen;
-            iter_move_gen = NULL;
-        }
-        
-        set_iter_move_gen(depth);
-        best_move = find_best_move(1874919420);
-
-        // Set the maximum depth for the move_gen object:
-        // Calculate available runtime
-        // Find the potential best move for this depth:
-
-        // NOTE: If we run out of time at a certain depth, iter_move_gen mightnot match move_gen, but will have pot_best_move = 0
-        if (iter_move_gen->get_piece_board() != move_gen->get_piece_board() && pot_best_move.get_move() != 0) {
-            cout << "Moves not being made unmade correctly\n";
-            cout << "Iterated: \n";
-            iter_move_gen->print_piece_board();
-            cout << "Correct: \n";
-            move_gen->print_piece_board();
-            exit(1);
-        }
-    }
-    cout << "total nodes explored at depth " << d << ": " << iter_move_gen->get_num_move_combs() << "\n";
-
-    return best_move;
-}
-
-void MovePick::set_piece_arr(int piece, int game, vector<int> squares) {
+void MovePickRec::set_piece_arr(int piece, int game, vector<int> squares) {
     for (int i = 0; i < 64; ++i) {
         piece_square[piece][game][i] = squares[i];
     }
 }
 
-void MovePick::init_piece_squares() {
+void MovePickRec::init_piece_squares() {
     // TODO: Add in end game position evaluations
     // Initialize pawn moves:
     vector<int> pawn_pos_eval = {
@@ -655,7 +459,7 @@ void MovePick::init_piece_squares() {
     set_piece_arr(Move::BLACK_KING, 1, king_pos_eval_end);
 }
 
-void MovePick::init_row_masks() {
+void MovePickRec::init_row_masks() {
     row_masks = {
         0x00000000000000ffULL,
         0x000000000000ff00ULL,
@@ -668,7 +472,7 @@ void MovePick::init_row_masks() {
     };
 }
 
-void MovePick::init_col_masks() {
+void MovePickRec::init_col_masks() {
     col_masks = {
         0x0101010101010101ULL,
         0x0202020202020202ULL,
@@ -681,7 +485,7 @@ void MovePick::init_col_masks() {
     };
 }
 
-void MovePick::init_passed_pawn_masks() {
+void MovePickRec::init_passed_pawn_masks() {
     b_passed_pawn_mask = {
         0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL, 0x0000000000000000ULL,
         0x0303030303030000ULL, 0x0707070707070000ULL, 0x0e0e0e0e0e0e0000ULL, 0x1c1c1c1c1c1c0000ULL, 0x3838383838380000ULL, 0x7070707070700000ULL, 0xe0e0e0e0e0e00000ULL, 0xc0c0c0c0c0c00000ULL,
@@ -705,15 +509,7 @@ void MovePick::init_passed_pawn_masks() {
     };
 }
 
-void MovePick::print_path_scores() {
-    cout << "path scores: (top) ";
-    for (size_t i = 0; i < path_scores.size(); ++i) {
-        cout << path_scores[i] << " ";
-    }
-    cout << "(bottom)\n";
-}
-
-void MovePick::init_king_safety_masks() {
+void MovePickRec::init_king_safety_masks() {
     // Initialize white king safety masks:
     for (int i = 0; i < 64; ++i) {
         U64 mask = 0ULL;
@@ -764,12 +560,4 @@ void MovePick::init_king_safety_masks() {
         }
         b_king_safety_masks.push_back(mask);
     }
-}
-
-void MovePick::set_iter_move_gen(int depth) {
-    if (iter_move_gen) {
-        delete iter_move_gen;
-    }
-    iter_move_gen = new MoveGen(init, gen, depth, move_gen->get_active_player(), move_gen->get_piece_board(), \
-                                    move_gen->get_en_passant(), move_gen->get_curr_move().get_castles());
 }

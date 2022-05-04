@@ -24,6 +24,5 @@ void Perft::calculate_num_moves_helper(int depth, MoveGenRec* move_gen) {
         move_gen->make_move(move);
         calculate_num_moves_helper(depth-1, move_gen);
         move_gen->undo_move(move);
-        move_gen->print_out = false;
     }
 }

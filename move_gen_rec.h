@@ -31,8 +31,7 @@ class MoveGenRec {
         void undo_move(Move move);
         vector<Move> get_legal_moves();
         void print_piece_board();
-
-        bool print_out;
+        bool checked();
 
         // getters
         U64 get_white_pawns();
@@ -47,6 +46,9 @@ class MoveGenRec {
         U64 get_black_rooks();
         U64 get_black_queens();
         U64 get_black_king();
+        U64 get_white_pieces();
+        U64 get_black_pieces();
+        color get_active_player();
 
         vector<int> get_piece_board();
 
@@ -75,8 +77,6 @@ class MoveGenRec {
         );
 
         // Private helper functions
-        U64 get_white_pieces();
-        U64 get_black_pieces();
         void get_gen_pawn_moves(color active_player, U64 friend_bl, U64 enemy_bl);
         void get_gen_knight_moves(color active_player, U64 friend_bl);
         void get_gen_bishop_moves(color active_player, U64 friend_bl, U64 enemy_bl);

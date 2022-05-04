@@ -22,8 +22,6 @@ MoveGenRec::MoveGenRec(
 
     en_passant = 0ULL;
 
-    print_out = false;
-
     vector<vector<int>> white_pawn_vec = {
         {0,0,0,0,0,0,0,0},
         {0,0,0,0,0,0,0,0},
@@ -193,8 +191,6 @@ MoveGenRec::MoveGenRec(
     move_history.push(last_move);
 
     move_list = {};
-
-    print_out = false;
 
     // Initialize piece masks:
     p = vector<U64>(NUM_PIECE_TYPES+1, 0ULL);
@@ -478,6 +474,32 @@ void MoveGenRec::move_piece(Move move, int undo){
             p[move.get_captured()] -= undo * 1ULL << move.get_to();
         }
     }
+}
+
+bool MoveGenRec::checked() {
+    // Determine if a piece is in check given the current position
+    int pos = get_ls1b((active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING]);
+    // Get attacking pieces
+    U64 pawns = (active_player == color::WHITE) ? p[Move::BLACK_PAWN] : p[Move::WHITE_PAWN];
+    U64 knights = (active_player == color::WHITE) ? p[Move::BLACK_KNIGHT] : p[Move::WHITE_KNIGHT];
+    U64 bishops = (active_player == color::WHITE) ? p[Move::BLACK_BISHOP] : p[Move::WHITE_BISHOP];
+    U64 rooks = (active_player == color::WHITE) ? p[Move::BLACK_ROOK] : p[Move::WHITE_ROOK];
+    U64 queens = (active_player == color::WHITE) ? p[Move::BLACK_QUEEN] : p[Move::WHITE_QUEEN];
+    U64 king = (active_player == color::WHITE) ? p[Move::BLACK_KING] : p[Move::WHITE_KING];
+
+    if (
+        (gen->get_pawn_mask(active_player, pos) & pawns) || \
+        (gen->get_knight_mask(0ULL, pos) & knights) || \
+        (gen->get_bishop_mask(get_white_pieces() | get_black_pieces(), pos) & (bishops | queens)) || \
+        (gen->get_rook_mask(get_white_pieces() | get_black_pieces(), pos) & (rooks | queens)) || \
+        (gen->get_king_mask(0ULL, pos) & king)
+    ) {
+        // Enemy piece can attack the king
+        return true;
+    }
+
+    // No enemy piece can attack the king, move is valid
+    return false;
 }
 
 bool MoveGenRec::in_check(Move move){
@@ -915,4 +937,7 @@ U64 MoveGenRec::get_black_king() {
 }
 vector<int> MoveGenRec::get_piece_board() {
     return piece_board;
+}
+color MoveGenRec::get_active_player() {
+    return active_player;
 }

@@ -6,7 +6,7 @@
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"
-#include "move_pick.h"
+#include "move_pick_rec.h"
 
 string NULL_MOVE_STRING = "0000";
 

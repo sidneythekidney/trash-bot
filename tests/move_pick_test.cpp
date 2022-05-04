@@ -1,33 +1,33 @@
-// Unit tests for the MovePick class
+// Unit tests for the MovePickRec class
 
 #include <iostream>
 #include "../generate.h"
 #include "../utils.hpp"
 #include "../move_gen_rec.h"
-#include "../move_pick.h"
+#include "../move_pick_rec.h"
 
 using namespace std;
 
-class MovePickTest {
+class MovePickRecTest {
     public:
-        MovePickTest(Initialize* init, Generate* gen) : init(init), gen(gen) {}
+        MovePickRecTest(Initialize* init, Generate* gen) : init(init), gen(gen) {}
         
         void test_all() {
             // Run all test functions inside this function:
-            // test_init();
-            // test_init_move_pick();
-            // test_material_eval();
-            // test_position_eval();
-            // test_doubled_pawns_eval();
-            // test_pawn_chain_eval();
-            // test_isolated_pawns_eval();
-            // test_passed_pawns_eval();
-            // test_king_safety_eval();
-            test_find_best_move1();
-            // test_find_best_move2();
-            // test_find_best_move_checkmate_depth_1();
-            // test_find_best_move_checkmate_depth_2();
-            // test_avoid_stalemate();
+            test_init();
+            test_init_move_pick();
+            test_material_eval();
+            test_position_eval();
+            test_doubled_pawns_eval();
+            test_pawn_chain_eval();
+            test_isolated_pawns_eval();
+            test_passed_pawns_eval();
+            test_king_safety_eval();
+            test_get_best_move1();
+            test_get_best_move2();
+            test_get_best_move_checkmate_depth_1();
+            test_get_best_move_checkmate_depth_2();
+            test_avoid_stalemate();
         }
    
    private:
@@ -52,8 +52,13 @@ class MovePickTest {
 
         void test_init_move_pick() {
             // Create move_gen and move_pick objects:
-            MoveGenRec* move_gen = new MoveGenRec(init, gen, 3, color::WHITE);
-            MovePick move_pick = MovePick(init, gen, move_gen);
+            MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
+            MovePickRec move_pick = MovePickRec(gen, move_gen);
+            Move best_move = move_pick.get_best_move(3);
+
+            if (best_move.get_to() == 0 || best_move.get_from() == 0) {
+                print_error("FAIL: test_init_move_pick - best move not set");
+            }
 
             print_success("PASS: test_init_move_pick passed successfully");
         }
@@ -71,8 +76,8 @@ class MovePickTest {
                 '0', '0', '0', 'k', '0', '0', '0', '0'
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 1, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.material_eval() != -900) {
@@ -83,8 +88,8 @@ class MovePickTest {
             }
 
             // Test the material evaluation from the starting position
-            MoveGenRec* move_gen2 = new MoveGenRec(init, gen, 1, color::WHITE);
-            MovePick move_pick2 = MovePick(init, gen, move_gen2);
+            MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE);
+            MovePickRec move_pick2 = MovePickRec(gen, move_gen2);
 
             if (move_pick2.material_eval() != 0) {
                 print_error("FAIL: Failed material evaluation test!");
@@ -110,8 +115,8 @@ class MovePickTest {
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 1, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.position_eval() != 40) {
@@ -140,8 +145,8 @@ class MovePickTest {
             // Black has 2 doubled pawn structures, white has 1
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.doubled_pawns_eval() != 50) {
@@ -172,8 +177,8 @@ class MovePickTest {
             // black defends = 2
             // Evaluation: 100 * (6/14) - 100 * (2/14) = 28.5714285714
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 1, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (!almost_equals(move_pick1.pawn_chain_eval(), 28.5714285714,  0.001)) {
@@ -202,8 +207,8 @@ class MovePickTest {
             // Black has 3 isolated pawns, white has 4
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.isolated_pawns_eval() != -25) {
@@ -231,8 +236,8 @@ class MovePickTest {
             // Black has 1 passed pawn, white has none
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.passed_pawns_eval() != -75) {
@@ -260,8 +265,8 @@ class MovePickTest {
             // Black has 1 king defender, white has 3
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.king_safety_eval() != 60) {
@@ -275,7 +280,7 @@ class MovePickTest {
             }
         }
 
-        void test_find_best_move1() {
+        void test_get_best_move1() {
             vector<char> char_board1 = {
                 'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R',
                 '0', 'P', 'P', 'P', '0', 'P', '0', '0',
@@ -288,12 +293,10 @@ class MovePickTest {
             };
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_at_depth(6);
-            // move_gen1->play_move(to_play);
-            // move_gen1->print_piece_board();
+            Move to_play = move_pick1.get_best_move(5);
 
             bool fail = false;
             if (!(to_play.get_from() == 30) || !(to_play.get_to() == 13)) {
@@ -310,7 +313,7 @@ class MovePickTest {
             }
         }
 
-        void test_find_best_move2() {
+        void test_get_best_move2() {
             vector<char> char_board1 = {
                 'R', 'N', 'B', 'Q', 'K', '0', '0', 'R',
                 'P', 'P', 'P', 'P', '0', 'P', 'P', 'P',
@@ -323,13 +326,10 @@ class MovePickTest {
             };
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::BLACK, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::BLACK, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_at_depth(6);
-            move_gen1->print_piece_board();
-            move_gen1->play_move(to_play);
-            move_gen1->print_piece_board();
+            Move to_play = move_pick1.get_best_move(5);
 
             bool fail = false;
             if (!(to_play.get_from() == 38) || !(to_play.get_to() == 53)) {
@@ -346,7 +346,7 @@ class MovePickTest {
             }
         }
 
-        void test_find_best_move_checkmate_depth_1() {
+        void test_get_best_move_checkmate_depth_1() {
             // Test the engine's ability to find mate in 1
             vector<char> char_board1 = {
                 'R', 'N', 'B', 'Q', 'K', 'B', '0', 'R',
@@ -360,13 +360,10 @@ class MovePickTest {
             };
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.find_best_move_at_depth(6);
-            move_gen1->print_piece_board();
-            move_gen1->play_move(to_play);
-            move_gen1->print_piece_board();
+            Move to_play = move_pick1.get_best_move(5);
 
             bool fail = false;
             // We expect the white queen to mate the black king
@@ -384,7 +381,7 @@ class MovePickTest {
             }
         }
 
-        void test_find_best_move_checkmate_depth_2() {
+        void test_get_best_move_checkmate_depth_2() {
             // Test the engine's ability to find mate in 1
             vector<char> char_board1 = {
                 '0', '0', '0', '0', '0', '0', '0', '0',
@@ -398,13 +395,10 @@ class MovePickTest {
             };
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
-            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play1 = move_pick1.find_best_move_at_depth(6);
-            move_gen1->print_piece_board();
-            move_gen1->play_move(to_play1);
-            move_gen1->print_piece_board();
+            Move to_play1 = move_pick1.get_best_move(5);
 
             bool fail = false;
             // We expect the white queen to mate the black king
@@ -429,13 +423,10 @@ class MovePickTest {
             };
 
             vector<int> piece_board2 = char_board_to_piece_board(char_board2);
-            MoveGenRec* move_gen2 = new MoveGenRec(init, gen, 5, color::WHITE, piece_board2, 0ULL, 0xf);
-            MovePick move_pick2 = MovePick(init, gen, move_gen2);
+            MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE, piece_board2, 0ULL, 0xf);
+            MovePickRec move_pick2 = MovePickRec(gen, move_gen2);
 
-            Move to_play2 = move_pick2.find_best_move_at_depth(6);
-            move_gen2->print_piece_board();
-            move_gen2->play_move(to_play2);
-            move_gen2->print_piece_board();
+            Move to_play2 = move_pick2.get_best_move(5);
 
             if (!(to_play2.get_from() == 17) || !(to_play2.get_to() == 1)) {
                 print_error("FAIL: find best move checkmate from a depth of 2!");
@@ -465,10 +456,9 @@ class MovePickTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePick move_pick1 = MovePick(init, gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play1 = move_pick1.find_best_move_at_depth(6);
-            move_gen1->play_move(to_play1);
+            Move to_play1 = move_pick1.get_best_move(5);
 
             bool fail = false;
             // We need to make sure we don't take the black rook leading to stalemate
@@ -491,6 +481,6 @@ int main () {
     init->init_all();
     Generate* gen = new Generate(*init);
 
-    MovePickTest move_pick_test = MovePickTest(init, gen);
+    MovePickRecTest move_pick_test = MovePickRecTest(init, gen);
     move_pick_test.test_all();
 }
