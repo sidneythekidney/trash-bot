@@ -1,8 +1,28 @@
 #include "move_gen_rec.h"
 #include "utils.hpp"
+
 #include <iostream>
+#include <algorithm>
 
 using namespace std;
+
+struct moveOrder {
+    bool operator()( Move a, Move b ) const {
+        // Captures are more important than non-captures:
+        if (a.get_captured() && !b.get_captured()) {
+            return true;
+        }
+        if (!a.get_captured() && b.get_captured()) {
+            return false;
+        }
+        else {
+            // Tiebreak capture comparisons using least valuable attacker:
+            return a.get_moved() < b.get_moved();
+        }
+        // Otherwise make no change to the ordering
+        return true;
+    }
+};
 
 MoveGenRec::MoveGenRec(
     Initialize* init,
@@ -872,6 +892,8 @@ void MoveGenRec::add_move(
 vector<Move> MoveGenRec::get_legal_moves() {
     move_list.clear();
     calculate_moves();
+    // Sort the move list to maximize pruning
+    sort(move_list.begin(), move_list.end(), moveOrder());
     return move_list;
 }
 

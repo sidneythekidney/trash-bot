@@ -14,7 +14,7 @@ class MovePickRec {
         MovePickRec(Generate* gen, MoveGenRec* move_gen);
         // Find the best move at a certain depth
         Move get_best_move(int depth);
-        double get_best_move_helper(int depth, int starting_depth);
+        double get_best_move_helper(int depth, int starting_depth, double alpha, double beta);
 
         // Determine if side is in checkmate and evaluate accordingly
         double checkmate_eval();
@@ -91,6 +91,9 @@ class MovePickRec {
         void init_king_safety_masks();
 
         void set_piece_arr(int piece, int game, vector<int> squares);
+
+        double alphaBetaMax(double alpha, double beta, int depth, int start_depth);
+        double alphaBetaMin(double alpha, double beta, int depth, int start_depth);
 
         U64 leaf_nodes_explored = 0ULL;
         U64 last_leaf_nodes_explored = 0ULL;

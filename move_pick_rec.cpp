@@ -20,46 +20,90 @@ MovePickRec::MovePickRec(Generate* gen, MoveGenRec* move_gen) : gen(gen), move_g
 }
 
 Move MovePickRec::get_best_move(int depth) {
-    get_best_move_helper(depth, depth);
+    if (move_gen->get_active_player() == color::WHITE) {
+        alphaBetaMax(-10000000, 10000000, depth, depth);
+    }
+    else {
+        alphaBetaMin(-10000000, 10000000, depth, depth);
+    }
     return best_move;
 }
 
-double MovePickRec::get_best_move_helper(int depth, int starting_depth) {
-    // If depth == 0, return static evaluation
+double MovePickRec::alphaBetaMax(double alpha, double beta, int depth, int start_depth) {
     if (depth == 0) {
+        return eval_current_pos();
+        ++leaf_nodes_explored;
+    }
+    // Collact all legal moves
+    vector<Move> legal_moves = move_gen->get_legal_moves();
+    // Handle checkmate and stalemate
+    if (legal_moves.size() == 0) {
+        ++leaf_nodes_explored;
+        if (move_gen->checked()) {
+            // Checkmate
+            return ((move_gen->get_active_player() == color::WHITE) ? -1.0 : 1.0) * 1000000 / (1.0 + start_depth - depth);
+        }
+        // Stalemate
+        return 0.0;
+    }
+    for (auto move : legal_moves) {
+        move_gen->make_move(move);
+        double score = alphaBetaMin(alpha, beta, depth-1, start_depth);
+        move_gen->undo_move(move);
+        if (depth == start_depth) {
+            cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
+            cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+            last_leaf_nodes_explored = leaf_nodes_explored;
+        }
+        if(score >= beta) {
+            return beta;
+        }
+        if(score > alpha) {
+            alpha = score;
+            if (depth == start_depth) {
+                best_move = move;
+            }
+        }
+    }
+    return alpha;
+}
+
+double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start_depth) {
+    if (depth == 0 ) {
         ++leaf_nodes_explored;
         return eval_current_pos();
     }
-    // Get legal moves
     vector<Move> legal_moves = move_gen->get_legal_moves();
-    // Calculate multiplier and initial best score
-    double mult = ((starting_player + starting_depth - depth) % 2 == color::WHITE) ? 1.0 : -1.0;
-    // Check for stalemate
+    // Handle checkmate and stalemate
     if (legal_moves.size() == 0) {
-        if (!move_gen->checked()) {
-            return 0.0;
+        ++leaf_nodes_explored;
+        if (move_gen->checked()) {
+            // Checkmate
+            return ((move_gen->get_active_player() == color::WHITE) ? -1.0 : 1.0) * 1000000 / (1.0 + start_depth - depth);
         }
-        // Return checkmate score, ensuring checkmate occurs as fast as possible
-        return -1.0 * mult * 1000000.0 / (1.0 + ((double)starting_depth - (double)depth));
+        // Stalemate
+        return 0.0;
     }
-    double best_score = -1 * mult * 1000000.0;
     for (auto move : legal_moves) {
         move_gen->make_move(move);
-        double old_best_score = best_score;
-        // Use the negamax algorithm to compute the best move
-        best_score = mult * max(mult * best_score, mult * get_best_move_helper(depth-1, starting_depth));
-        // Set best move if we are at original depth and we have improved score
-        if (depth == starting_depth && !cmp_floats_eq(best_score, old_best_score, 0.000001)) {
-            best_move = move;
-        }
+        double score = alphaBetaMax(alpha, beta, depth-1, start_depth);
         move_gen->undo_move(move);
-        if (depth == starting_depth) {
+        if (depth == start_depth) {
             cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
-            cout << "num_moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+            cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
             last_leaf_nodes_explored = leaf_nodes_explored;
         }
+        if(score <= alpha) {
+            return alpha;
+        }
+        if(score < beta) {
+            beta = score;
+            if (depth == start_depth) {
+                best_move = move;
+            }
+        }
     }
-    return best_score;
+    return beta;
 }
 
 double MovePickRec::eval_current_pos() {
