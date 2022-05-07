@@ -1,5 +1,5 @@
 #include "opening.h"
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,12 +11,12 @@ using namespace std;
 
 OpeningTreeNode::OpeningTreeNode() : next_moves({}) {}
 
-OpeningTree::OpeningTree(MoveGen* move_gen) : move_gen(move_gen) {
+OpeningTree::OpeningTree(MoveGenRec* move_gen) : move_gen(move_gen) {
     // Initialize opening tree:
     opening_init();
 }
 
-MoveGen* OpeningTree::get_curr_pos() {
+MoveGenRec* OpeningTree::get_curr_pos() {
     return move_gen;
 }
 

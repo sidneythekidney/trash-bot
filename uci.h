@@ -2,11 +2,11 @@
 #include <sstream>
 #include <map>
 
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include "move.h"
 #include "initialize.h"
 #include "generate.h"
-#include "move_pick.h"
+#include "move_pick_rec.h"
 
 string NULL_MOVE_STRING = "0000";
 
@@ -14,8 +14,8 @@ class UCI {
     private:
         Initialize* init;
         Generate* gen;
-        MoveGen* move_gen;
-        MovePick* move_pick;
+        MoveGenRec* move_gen;
+        MovePickRec* move_pick;
 
         map<string, string> options;
 

@@ -137,3 +137,46 @@ string get_algebraic_from_square(int from, int to) {
     return algebraic;
 }
 
+bool cmp_floats_eq(double a, double b, double eps) {
+    if (abs(a-b) < eps) {
+        return true;
+    }
+    return false;
+}
+
+Move create_move(
+    unsigned int from,
+    unsigned int to,
+    unsigned int moved_piece,
+    unsigned int captured_piece,
+    unsigned int legal_castles,
+    unsigned int flags
+) {
+    return Move(from | (to << 6) | (moved_piece << 12) | (captured_piece << 16) | \
+                            (legal_castles << 20) | (flags << 24));
+}
+
+void print_piece_board(vector<int> piece_board) {
+    for (int i = 0; i < 8; ++i) {
+        cout << (8-i) << "   "; 
+        for (int j = 0; j < 8; ++j) {
+            if (piece_board[i*8+j] == Move::WHITE_PAWN) cout << "p ";
+            else if (piece_board[i*8+j] == Move::WHITE_KNIGHT) cout << "n ";
+            else if (piece_board[i*8+j] == Move::WHITE_BISHOP) cout << "b ";
+            else if (piece_board[i*8+j] == Move::WHITE_ROOK) cout << "r ";
+            else if (piece_board[i*8+j] == Move::WHITE_QUEEN) cout << "q ";
+            else if (piece_board[i*8+j] == Move::WHITE_KING) cout << "k ";
+            else if (piece_board[i*8+j] == Move::BLACK_PAWN) cout << "P ";
+            else if (piece_board[i*8+j] == Move::BLACK_KNIGHT) cout << "N ";
+            else if (piece_board[i*8+j] == Move::BLACK_BISHOP) cout << "B ";
+            else if (piece_board[i*8+j] == Move::BLACK_ROOK) cout << "R ";
+            else if (piece_board[i*8+j] == Move::BLACK_QUEEN) cout << "Q ";
+            else if (piece_board[i*8+j] == Move::BLACK_KING) cout << "K ";
+            else cout << ". ";
+        }
+        cout << "\n";
+    }
+    cout << "\n    a b c d e f g h";
+    cout << "\n\n\n";
+}
+

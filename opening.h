@@ -4,7 +4,7 @@
 #include "initialize.h"
 #include "generate.h"
 #include "move.h"
-#include "move_gen.h"
+#include "move_gen_rec.h"
 #include <string>
 #include <map>
 
@@ -19,11 +19,11 @@ class OpeningTreeNode {
 class OpeningTree {
     private:
         OpeningTreeNode* root;
-        MoveGen* move_gen;
+        MoveGenRec* move_gen;
         void opening_init();
     public:
-        OpeningTree(MoveGen* move_gen);
-        MoveGen* get_curr_pos();
+        OpeningTree(MoveGenRec* move_gen);
+        MoveGenRec* get_curr_pos();
         bool move_to_next_node(Move move);
         int get_random_move();
 };

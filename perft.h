@@ -1,15 +1,18 @@
 #ifndef PERFT_H
 #define PERFT_H
 
-#include "move_gen.h"
+#include "move_gen_rec.h"
 
 class Perft {
     public:
-        Perft (MoveGen* move_gen) : move_gen(move_gen) {};
-        U64 calculate_num_moves(); // Calculate the number of moves up to move_gen.depth()
+        Perft (MoveGenRec* move_gen_rec);
+        U64 calculate_num_moves(int depth);
 
     private:
-        MoveGen* move_gen;
+        void calculate_num_moves_helper(int depth, MoveGenRec* move_gen);
+        MoveGenRec* move_gen_rec;
+        U64 leaf_nodes_explored;
+        U64 last_leaf_nodes_explored;
 };
 
 #endif

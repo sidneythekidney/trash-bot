@@ -29,4 +29,17 @@ int get_square_from_algebraic(string alg);
 
 string get_algebraic_from_square(int from, int to);
 
+bool cmp_floats_eq(double a, double b, double eps);
+
+Move create_move(
+    unsigned int from,
+    unsigned int to,
+    unsigned int moved_piece,
+    unsigned int captured_piece,
+    unsigned int legal_castles,
+    unsigned int flags
+);
+
+void print_piece_board(vector<int> piece_board);
+
 #endif
