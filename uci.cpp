@@ -12,8 +12,8 @@ UCI::UCI() {
 }
 
 void UCI::init_starting_pos() {
-    move_gen = new MoveGen(init, gen, 1, color::WHITE);
-    move_pick = new MovePick(init, gen, move_gen);
+    move_gen = new MoveGenRec(init, gen, color::WHITE);
+    move_pick = new MovePickRec(gen, move_gen);
 }
 
 void UCI::print_info() {
@@ -35,16 +35,45 @@ void UCI::set_position(stringstream &ss) {
         if (moves == "moves") {
             // Make recent moves:
             string move;
+            Move to_play(0);
             while (ss >> move) {
                 // Convert move to engine-readable move and play that move:
                 int from, to;
                 from = get_square_from_algebraic(move.substr(0, 2));
                 to = get_square_from_algebraic(move.substr(2, 4));
-                // Calculate moves:
-                move_gen->calculate_moves();
-                Move to_play = move_gen->get_move_from_pos(from, to);
-                // Play move that has the same from and to squares
-                move_gen->play_move(to_play);
+                int promoted_piece = 0;
+                if (move.length() == 5) {
+                    if (move[5] == 'n') promoted_piece = 2;
+                    else if (move[5] == 'b') promoted_piece = 3;
+                    else if (move[5] == 'r') promoted_piece = 4;
+                    else if (move[5] == 'q') promoted_piece = 5;
+                    else {
+                        cout << "invalid promoted piece\n";
+                        exit(1);
+                    }
+                }
+                // Get legal moves
+                vector<Move> legal_moves = move_gen->get_legal_moves();
+                for (auto legal_move : legal_moves) {
+                    if (move.length() == 5) {
+                        if ((int)legal_move.get_from() == from && (int)legal_move.get_to() == to && (int)legal_move.get_moved() % 6 == promoted_piece) {
+                            to_play = legal_move;
+                            break;
+                        }
+                    }
+                    else {
+                        if ((int)legal_move.get_from() == from && (int)legal_move.get_to() == to) {
+                            to_play = legal_move;
+                            break;
+                        }
+                    }
+                }
+                // Play move that has the same from and to squares and moved piece
+                if ((int)to_play.get_move() == 0) {
+                    cout << "Invalid move found in the sequence!\n";
+                    exit(1);
+                }
+                move_gen->make_move(to_play);
             }
         }
         move_gen->print_piece_board();
@@ -70,11 +99,8 @@ void UCI::get_best_move(stringstream &ss) {
     string depth_str;
     ss >> depth_str;
     int depth_val = stoi(depth_str);
-    // Set the depth on the move_gen object
-    move_gen->set_max_depth(depth_val);
-    move_pick->set_iter_move_gen(depth_val);
     // Find best move
-    Move best_move = move_pick->find_best_move_at_depth(6);
+    Move best_move = move_pick->get_best_move(depth_val, false);
     cout << "bestmove " << get_algebraic_from_square(best_move.get_from(), best_move.get_to()) << "\n";
 }
 

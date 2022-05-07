@@ -31,8 +31,8 @@ class PerftTest {
             test_perft_checkmate();
             // Run test for Perft with stalemate
             test_perft_stalemate();
-            // debug test
-            test_perft_debug();
+            // En passant test
+            test_en_passant_moves();
         };
     
     private:
@@ -314,37 +314,37 @@ class PerftTest {
             }
         }
 
-        void test_perft_debug() {
+        void test_en_passant_moves() {
             /*
-            Set position on StockFish:
-            position fen 8/Kp3P2/2p5/8/7r/8/1q6/1k6 w - - 2 2
-            go perft 1
+            Set position on StockFish
+            position fen r1bqkbnr/pppp1pp1/2n1p2p/3PP3/8/8/PPP2PPP/RNBQKBNR b - - 2 2
+            go perft 5
             */
             vector<char> char_board = {
+                'R', '0', 'B', 'Q', 'K', 'B', 'N', 'R',
+                'P', 'P', 'P', 'P', '0', 'P', 'P', '0',
+                '0', '0', 'N', '0', 'P', '0', '0', 'P',
+                '0', '0', '0', 'p', 'p', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
-                'k', 'P', '0', '0', '0', 'p', '0', '0',
-                '0', '0', 'P', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0',
-                '0', '0', '0', '0', '0', '0', '0', 'R',
-                '0', '0', '0', '0', '0', '0', '0', '0',
-                '0', 'Q', '0', '0', '0', '0', '0', '0',
-                '0', 'K', '0', '0', '0', '0', '0', '0'
+                'p', 'p', 'p', '0', '0', 'p', 'p', 'p',
+                'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
-            MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
-            Perft perft = Perft(move_gen);
-            U64 num_moves = perft.calculate_num_moves(1);
 
+            vector<int> piece_board = char_board_to_piece_board(char_board);
+            MoveGenRec* move_gen = new MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0);
+            Perft perft = Perft(move_gen);
+            U64 num_moves = perft.calculate_num_moves(5);
             bool fail = false;
-            if (num_moves != 6) {
+            if (num_moves != 43491673) {
                 fail = true;
-                print_error("FAIL test_perft_promotion: generated the incorrect number of moves from depth=1!");
-                cout << "Expected: 6\n";
+                print_error("FAIL test_perft_stalemate: generated the incorrect number of moves from depth=5!");
+                cout << "Expected: 43491673\n";
                 cout << "Received: " << num_moves << "\n";
-                
+                move_gen->print_piece_board();
             }
             if (!fail) {
-                print_success("PASS: test_perft_debug");
+                print_success("PASS: test_perft_en_passant");
             }
         }
 };

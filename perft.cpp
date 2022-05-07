@@ -24,5 +24,12 @@ void Perft::calculate_num_moves_helper(int depth, MoveGenRec* move_gen) {
         move_gen->make_move(move);
         calculate_num_moves_helper(depth-1, move_gen);
         move_gen->undo_move(move);
+        // if (depth == 5) {
+        //     cout << "move: " << get_algebraic_from_square(move.get_from(), move.get_to()) << " " << move.get_move() << "\n";
+        //     cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+        //     last_leaf_nodes_explored = leaf_nodes_explored;
+        //     cout << "piece board\n";
+        //     move_gen->print_piece_board();
+        // }
     }
 }

@@ -10,7 +10,6 @@ class MoveTest {
     public:
         MoveTest(Initialize* init, Generate* gen) : init(init), gen(gen) {}
         void test_all() {
-            test_make_move_basic();
             test_white_castle_ks();
             test_black_castle_ks();
             test_white_castle_qs();
@@ -28,38 +27,6 @@ class MoveTest {
 
         void print_error(string error_msg) {
             cout << "\033[31;40m" + error_msg + "\033[0m\n";
-        }
-
-        void test_make_move_basic() {
-            // Start from the opening and make the first pawn move
-            MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE);
-            vector<Move> legal_moves = move_gen.get_legal_moves();
-            // Make the first available pawn move:
-            move_gen.make_move(legal_moves[0]);
-            vector<vector<int>> correct_white_pawns = {
-                {0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0},
-                {0,0,0,0,0,0,0,0},
-                {1,0,0,0,0,0,0,0},
-                {0,1,1,1,1,1,1,1},
-                {0,0,0,0,0,0,0,0},
-            };
-            U64 white_pawns_u64 = board_to_U64(correct_white_pawns);
-            bool fail = false;
-            if (!(white_pawns_u64 == move_gen.get_white_pawns())) {
-                print_error("FAIL: test_make_move_basic() - Did not make the first correct pawn move!\n");
-                cout << "correct white pawns: \n";
-                print_binary(white_pawns_u64);
-                cout << "current white pawns: \n";
-                print_binary(move_gen.get_white_pawns());
-                fail = true;
-            }            
-
-            if (!fail) {
-                print_success("PASS: test_make_move_basic");
-            }
         }
 
         void test_white_castle_ks() {

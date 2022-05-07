@@ -31,6 +31,8 @@ class MoveGenRec {
         void undo_move(Move move);
         vector<Move> get_legal_moves();
         void print_piece_board();
+        void print_color_piece_board(int friendly_side);
+        void print_all_boards();
         bool checked();
 
         // getters
@@ -49,6 +51,9 @@ class MoveGenRec {
         U64 get_white_pieces();
         U64 get_black_pieces();
         color get_active_player();
+
+        // setters
+        void set_active_player(color new_active_player);
 
         vector<int> get_piece_board();
 

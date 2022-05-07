@@ -14,12 +14,12 @@ class Game {
     private:
         Initialize* init;
         Generate* gen;
-        MoveGen* cpu_move_gen;
-        MovePick* move_pick;
-        MoveGen* game_move_gen;
+        MovePickRec* move_pick;
+        MoveGenRec* game_move_gen;
         OpeningTree* opening;
+        int user_side;
 
-        int get_user_side_and_time();
+        int get_user_side();
 
         int get_user_promotion();
 
@@ -32,7 +32,7 @@ class Game {
         bool in_opening;
 
     public:
-        Game(Initialize* init, Generate* gen, MoveGen* move_gen, MovePick* move_pick, OpeningTree* opening);
+        Game(Initialize* init, Generate* gen, MoveGenRec* move_gen, MovePickRec* move_pick, OpeningTree* opening);
 
         void play_game();
 };

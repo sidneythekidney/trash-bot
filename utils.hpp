@@ -40,4 +40,6 @@ Move create_move(
     unsigned int flags
 );
 
+void print_piece_board(vector<int> piece_board);
+
 #endif

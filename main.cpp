@@ -17,8 +17,8 @@ int main() {
     Initialize* init = new Initialize();
     init->init_all();
     Generate* gen = new Generate(*init);
-    MoveGen* move_gen = new MoveGen(init, gen, 1, color::WHITE);
-    MovePick* move_pick = new MovePick(init, gen, move_gen);
+    MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
+    MovePickRec* move_pick = new MovePickRec(gen, move_gen);
 
     OpeningTree* opening = new OpeningTree(move_gen);
 

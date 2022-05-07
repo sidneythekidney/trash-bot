@@ -54,7 +54,7 @@ class MovePickRecTest {
             // Create move_gen and move_pick objects:
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
             MovePickRec move_pick = MovePickRec(gen, move_gen);
-            Move best_move = move_pick.get_best_move(3);
+            Move best_move = move_pick.get_best_move(3, true);
 
             if (best_move.get_to() == 0 || best_move.get_from() == 0) {
                 print_error("FAIL: test_init_move_pick - best move not set");
@@ -296,7 +296,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.get_best_move(5);
+            Move to_play = move_pick1.get_best_move(5, true);
 
             bool fail = false;
             if (!(to_play.get_from() == 30) || !(to_play.get_to() == 13)) {
@@ -329,7 +329,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::BLACK, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.get_best_move(5);
+            Move to_play = move_pick1.get_best_move(5, true);
 
             bool fail = false;
             if (!(to_play.get_from() == 38) || !(to_play.get_to() == 53)) {
@@ -363,7 +363,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play = move_pick1.get_best_move(5);
+            Move to_play = move_pick1.get_best_move(5, true);
 
             bool fail = false;
             // We expect the white queen to mate the black king
@@ -398,7 +398,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play1 = move_pick1.get_best_move(5);
+            Move to_play1 = move_pick1.get_best_move(5, true);
 
             bool fail = false;
             // We expect the white queen to mate the black king
@@ -426,7 +426,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE, piece_board2, 0ULL, 0xf);
             MovePickRec move_pick2 = MovePickRec(gen, move_gen2);
 
-            Move to_play2 = move_pick2.get_best_move(5);
+            Move to_play2 = move_pick2.get_best_move(5, true);
 
             if (!(to_play2.get_from() == 17) || !(to_play2.get_to() == 1)) {
                 print_error("FAIL: find best move checkmate from a depth of 2!");
@@ -458,7 +458,7 @@ class MovePickRecTest {
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
 
-            Move to_play1 = move_pick1.get_best_move(5);
+            Move to_play1 = move_pick1.get_best_move(5, true);
 
             bool fail = false;
             // We need to make sure we don't take the black rook leading to stalemate

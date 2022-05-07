@@ -19,7 +19,20 @@ MovePickRec::MovePickRec(Generate* gen, MoveGenRec* move_gen) : gen(gen), move_g
     init_king_safety_masks();
 }
 
-Move MovePickRec::get_best_move(int depth) {
+Move MovePickRec::get_best_move(int depth, bool forced) {
+    // Determine if we are in endgame
+    if (get_white_material() < 13 && get_black_material() < 13) {
+        if (!forced) {
+            // Increase the depth in the endgame if this depth is not forced
+            depth = 8;
+        }
+        endgame = true;
+    }
+    else {
+        // Needed in case promote a bunch of pieces
+        endgame = false;
+    }
+    // Find best move
     if (move_gen->get_active_player() == color::WHITE) {
         alphaBetaMax(-10000000, 10000000, depth, depth);
     }
@@ -47,9 +60,11 @@ double MovePickRec::alphaBetaMax(double alpha, double beta, int depth, int start
         return 0.0;
     }
     for (auto move : legal_moves) {
+        vector<int> old_piece_board = move_gen->get_piece_board();
         move_gen->make_move(move);
         double score = alphaBetaMin(alpha, beta, depth-1, start_depth);
         move_gen->undo_move(move);
+        vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
             cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
             cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
@@ -85,9 +100,11 @@ double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start
         return 0.0;
     }
     for (auto move : legal_moves) {
+        vector<int> old_piece_board = move_gen->get_piece_board();
         move_gen->make_move(move);
         double score = alphaBetaMax(alpha, beta, depth-1, start_depth);
         move_gen->undo_move(move);
+        vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
             cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
             cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
@@ -104,6 +121,26 @@ double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start
         }
     }
     return beta;
+}
+
+int MovePickRec::get_white_material() {
+    int num_white_pawns = count_bits(move_gen->get_white_pawns());
+    int num_white_knights = count_bits(move_gen->get_white_knights());
+    int num_white_bishops = count_bits(move_gen->get_white_bishops());
+    int num_white_rooks = count_bits(move_gen->get_white_rooks());
+    int num_white_queens = count_bits(move_gen->get_white_queens());
+
+    return num_white_pawns + 3*(num_white_knights + num_white_bishops) + 5*num_white_rooks + 9*num_white_queens;
+}
+
+int MovePickRec::get_black_material() {
+    int num_black_pawns = count_bits(move_gen->get_black_pawns());
+    int num_black_knights = count_bits(move_gen->get_black_knights());
+    int num_black_bishops = count_bits(move_gen->get_black_bishops());
+    int num_black_rooks = count_bits(move_gen->get_black_rooks());
+    int num_black_queens = count_bits(move_gen->get_black_queens());
+
+    return num_black_pawns + 3*(num_black_knights + num_black_bishops) + 5*num_black_rooks + 9*num_black_queens;
 }
 
 double MovePickRec::eval_current_pos() {
@@ -156,9 +193,6 @@ double MovePickRec::material_eval() {
     int num_black_bishops = count_bits(move_gen->get_black_bishops());
     int num_black_rooks = count_bits(move_gen->get_black_rooks());
     int num_black_queens = count_bits(move_gen->get_black_queens());
-
-    // TODO: Determine the endgame based on this material (both sides have < 13 points of material)
-    
 
     /*
     For material, we use the value found here:

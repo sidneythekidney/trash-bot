@@ -11,12 +11,12 @@ using namespace std;
 
 OpeningTreeNode::OpeningTreeNode() : next_moves({}) {}
 
-OpeningTree::OpeningTree(MoveGen* move_gen) : move_gen(move_gen) {
+OpeningTree::OpeningTree(MoveGenRec* move_gen) : move_gen(move_gen) {
     // Initialize opening tree:
     opening_init();
 }
 
-MoveGen* OpeningTree::get_curr_pos() {
+MoveGenRec* OpeningTree::get_curr_pos() {
     return move_gen;
 }
 

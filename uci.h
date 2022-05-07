@@ -14,8 +14,8 @@ class UCI {
     private:
         Initialize* init;
         Generate* gen;
-        MoveGen* move_gen;
-        MovePick* move_pick;
+        MoveGenRec* move_gen;
+        MovePickRec* move_pick;
 
         map<string, string> options;
 

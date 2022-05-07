@@ -13,7 +13,7 @@ class MovePickRec {
     public:
         MovePickRec(Generate* gen, MoveGenRec* move_gen);
         // Find the best move at a certain depth
-        Move get_best_move(int depth);
+        Move get_best_move(int depth, bool forced);
         double get_best_move_helper(int depth, int starting_depth, double alpha, double beta);
 
         // Determine if side is in checkmate and evaluate accordingly
@@ -73,6 +73,9 @@ class MovePickRec {
         // Masks for helping to determine king safety
         vector<U64> w_king_safety_masks;
         vector<U64> b_king_safety_masks;
+
+        int get_white_material();
+        int get_black_material();
 
         // Evaluate the current position
         double eval_current_pos();
