@@ -131,7 +131,7 @@ void Game::play_cpu_move() {
     }
     cout << "Thinking of cpu move...\n";
     // Select and play the best move for the given position using iterative deepening:
-    Move move = move_pick->get_best_move(6, false);
+    Move move = move_pick->get_best_move(7, false);
     game_move_gen->make_move(move);
 }
 

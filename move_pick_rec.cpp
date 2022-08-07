@@ -24,7 +24,7 @@ Move MovePickRec::get_best_move(int depth, bool forced) {
     if (get_white_material() < 13 && get_black_material() < 13) {
         if (!forced) {
             // Increase the depth in the endgame if this depth is not forced
-            depth = 8;
+            depth = 9;
         }
         endgame = true;
     }
@@ -32,6 +32,7 @@ Move MovePickRec::get_best_move(int depth, bool forced) {
         // Needed in case promote a bunch of pieces
         endgame = false;
     }
+    cout << "finding best move at depth: " << depth << "\n";
     // Find best move
     if (move_gen->get_active_player() == color::WHITE) {
         alphaBetaMax(-10000000, 10000000, depth, depth);
