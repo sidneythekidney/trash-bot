@@ -81,7 +81,7 @@ vector<int> char_board_to_piece_board(vector<char> char_board) {
     return piece_board;
 }
 
-string algebraic_move(int from, int to) {
+string get_algebraic_move(int from, int to) {
     string ret = "";
     vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
     ret += (rows[from % 8] + to_string((int)(from / 8)));
@@ -129,12 +129,15 @@ int get_square_from_algebraic(string alg) {
     return row * 8 + col;
 }
 
-string get_algebraic_from_square(int from, int to) {
-    string algebraic = "";
-    vector<char> rows = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
-    algebraic += (rows[from % 8] + to_string(8-(int)(from / 8)));
-    algebraic += (rows[to % 8] + to_string(8-(int)(to / 8)));
-    return algebraic;
+string get_algebraic_from_square(unsigned int square) {
+    char col = (char)((int)'a' + square % 8);
+    char row = (char)((int)'1' + square / 8);
+
+    string ret_string = "";
+    ret_string += col;
+    ret_string += row;
+
+    return ret_string;
 }
 
 bool cmp_floats_eq(double a, double b, double eps) {

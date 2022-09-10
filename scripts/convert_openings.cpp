@@ -172,7 +172,7 @@ int main() {
                 exit(1);
             }
             // Add the from and to the output file:
-            outfile << get_algebraic_from_square(move.get_from(), get_square_from_algebraic(square)) << " ";
+            outfile << get_algebraic_move(move.get_from(), get_square_from_algebraic(square)) << " ";
             move_outfile << move.get_move() << " ";
             // Play move:
             move_gen.make_move(move);

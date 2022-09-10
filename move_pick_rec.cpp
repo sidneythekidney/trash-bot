@@ -45,10 +45,9 @@ Move MovePickRec::get_best_move(int depth, bool forced) {
 
 double MovePickRec::alphaBetaMax(double alpha, double beta, int depth, int start_depth) {
     if (depth == 0) {
-        return eval_current_pos();
         ++leaf_nodes_explored;
+        return eval_current_pos();
     }
-    // Collact all legal moves
     vector<Move> legal_moves = move_gen->get_legal_moves();
     // Handle checkmate and stalemate
     if (legal_moves.size() == 0) {
@@ -67,8 +66,8 @@ double MovePickRec::alphaBetaMax(double alpha, double beta, int depth, int start
         move_gen->undo_move(move);
         vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
-            cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
-            cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+            cout << "Considering move from: " << get_algebraic_from_square(move.get_from()) << " to: " << get_algebraic_from_square(move.get_to()) << "\n";
+            cout << "Number of moves evaluated: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
             last_leaf_nodes_explored = leaf_nodes_explored;
         }
         if(score >= beta) {
@@ -107,8 +106,8 @@ double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start
         move_gen->undo_move(move);
         vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
-            cout << "from: " << move.get_from() << " to: " << move.get_to() << "\n";
-            cout << "num moves: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
+            cout << "Considering move from: " << get_algebraic_from_square(move.get_from()) << " to: " << get_algebraic_from_square(move.get_to()) << "\n";
+            cout << "Number of moves evaluated: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
             last_leaf_nodes_explored = leaf_nodes_explored;
         }
         if(score <= alpha) {

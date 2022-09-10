@@ -101,7 +101,7 @@ void UCI::get_best_move(stringstream &ss) {
     int depth_val = stoi(depth_str);
     // Find best move
     Move best_move = move_pick->get_best_move(depth_val, false);
-    cout << "bestmove " << get_algebraic_from_square(best_move.get_from(), best_move.get_to()) << "\n";
+    cout << "bestmove " << get_algebraic_move(best_move.get_from(), best_move.get_to()) << "\n";
 }
 
 int main() {

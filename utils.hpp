@@ -27,7 +27,9 @@ U64 flip_bitboard(U64 bitboard);
 
 int get_square_from_algebraic(string alg);
 
-string get_algebraic_from_square(int from, int to);
+string get_algebraic_from_square(unsigned int square);
+
+string get_algebraic_move(int from, int to);
 
 bool cmp_floats_eq(double a, double b, double eps);
 
