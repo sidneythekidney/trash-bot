@@ -37,3 +37,8 @@
 ehthumbs.db
 Thumbs.db
 *.txt
+
+# Project specific files #
+##########################
+data/*
+.vscode/*
