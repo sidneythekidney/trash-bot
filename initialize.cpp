@@ -258,16 +258,8 @@ void Initialize::init_all() {
     bishop_attacks.resize(64, vector<U64>(512, 0ULL));
     rook_attacks.resize(64, vector<U64>(4096, 0ULL));
 
-    cout << "init slider attack tables\n";
     init_slider_attack_tables();
-    cout << "init knight attack tables\n";
     init_knight_attack_table();
-    cout << "init king attack tables\n";
     init_king_attack_table();
-    cout << "init pawn attack tables\n";
     init_pawn_attacks();
 }
-
-// Initialize::Initialize() {
-//     init_all();
-// }

@@ -25,10 +25,6 @@ move_pick_test: move_pick_test.cpp
 debug_test : test.cpp
 	$(CXX) $(CXXFLAGS) -pthread test.cpp -o test
 
-negamax_test : negamax_test.cpp
-	$(CXX) $(CXXFLAGS) negamax_test.cpp -o negamax_test.exe
-
-
 # Remove automatically generated files
 clean :
 	rm -rvf *.exe *~ *.out *.dSYM *.stackdump

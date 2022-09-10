@@ -34,11 +34,7 @@ if __name__ == "__main__":
         max_str = lines[0]
         for line in lines:
             curr_str = ""
-            # print("max_str: " + max_str)
-            # print("line: " + line)
             for i in range(min(len(max_str), len(line))):
-                # print("len(max_str): " + str(len(max_str)))
-                # print("len(line): " + str(len(line)))
                 if line[i] != max_str[i]:
                     max_str = curr_str
                     break
@@ -68,8 +64,3 @@ if __name__ == "__main__":
         if len(line.split(' ')[-1]) == 1:
             line = ' '.join(line.split(' ')[:-1])
         print(name + ': ' + line)
-
-    # print("Example opening strings: Scotch opening")
-    # print("Scotch opening final: " + final_openings["Scotch Game #3"])
-    # for opening in (openings["Scotch Game #3"]):
-    #     print(opening[:20])

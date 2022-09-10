@@ -8,7 +8,46 @@
 
 using namespace std;
 
+class MoveFinder {
+    public:
+        MoveFinder(){};
+
+        Move get_move_from_starting_and_end_squares(vector<Move> moves, unsigned int start, unsigned int end) {
+            for (auto move : moves) {
+                if (move.get_from() == start && move.get_to() == end) {
+                    return move;
+                }
+            }
+            cout << "No move found from given and end squares!\n";
+            exit(1);
+        }
+
+        Move get_from_square_from_move(vector<Move> moves, int piece_type, int to, int col) {
+            // Iterate through the calculated moves to find correct from square
+            for (auto move : moves) {
+                if (col != -1) {
+                    if (move.get_to() == (unsigned int)to && \
+                        move.get_moved() == (unsigned int)piece_type && \
+                        (move.get_from() % 8) == (unsigned int)col) 
+                    {
+                        return move;
+                    }
+                }
+                else {
+                    if (move.get_to() == (unsigned int)to && \
+                        move.get_moved() == (unsigned int)piece_type) 
+                    {
+                        return move;
+                    }
+                }
+            }
+            return Move(0);
+        }
+};
+
 int main() {
+    MoveFinder move_finder = MoveFinder();
+
     ifstream infile("../data/openings.txt");
     ofstream outfile("../data/openings_coordinates.txt");
     ofstream move_outfile("../data/opening_moves.txt");
@@ -43,9 +82,9 @@ int main() {
         Initialize* init = new Initialize();
         init->init_all();
         Generate* gen = new Generate(*init);
-        MoveGen move_gen = MoveGen(init, gen, 1, color::WHITE);
+        MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE);
 
-        move_gen.calculate_moves();
+        vector<Move> legal_moves = move_gen.get_legal_moves();
 
         for (int i = 0; i < (int)alg_vec.size(); ++i) {
             // Handle castles:
@@ -55,20 +94,19 @@ int main() {
                 Move move = Move(0);
                 if (i % 2) {
                     // Obtain black kingside castle
-                    move = move_gen.get_move_from_pos(4, 6);
+                    move = move_finder.get_move_from_starting_and_end_squares(legal_moves, 4, 6);
                 }
                 else {
                     // Obtain white kingside castle
-                    move = move_gen.get_move_from_pos(60, 62);
+                    move = move_finder.get_move_from_starting_and_end_squares(legal_moves, 60, 62);
                 }
                 // Handle error
                 if (move.get_move() == 0) {
-                    move_gen.print_cur_moves();
                     cout << "An error occured (kingside castle)!\n";
                     exit(1);
                 }
-                move_gen.play_move(move);
-                move_gen.calculate_moves();
+                move_gen.make_move(move);
+                legal_moves = move_gen.get_legal_moves();
                 continue;
             }
             if (alg_vec[i] == "O-O-O") {
@@ -76,19 +114,18 @@ int main() {
                 Move move = Move(0);
                 if (i % 2) {
                     // Obtain black queenside castle
-                    move = move_gen.get_move_from_pos(4, 2);
+                    move = move_finder.get_move_from_starting_and_end_squares(legal_moves, 4, 2);
                 }
                 else {
                     // Obtain white queenside castle
-                    move = move_gen.get_move_from_pos(60, 58);
+                    move = move_finder.get_move_from_starting_and_end_squares(legal_moves, 60, 58);
                 }
                 if (move.get_move() == 0) {
-                    move_gen.print_cur_moves();
                     cout << "An error occured (queenside castle)!\n";
                     exit(1);
                 }
-                move_gen.play_move(move);
-                move_gen.calculate_moves();
+                move_gen.make_move(move);
+                legal_moves = move_gen.get_legal_moves();
                 continue;
             }
             // Get moved piece
@@ -129,18 +166,17 @@ int main() {
                 col = alg_vec[i][col_pos] - 'a';
             }
 
-            Move move = move_gen.get_from_square_from_move(piece_type, get_square_from_algebraic(square), col);
+            Move move = move_finder.get_from_square_from_move(legal_moves, piece_type, get_square_from_algebraic(square), col);
             if (move.get_move() == 0) {
-                move_gen.print_cur_moves();
-                cout << "An error occured\n";
+                cout << "An error occured with move "<< alg_vec[i] << "\n";
                 exit(1);
             }
             // Add the from and to the output file:
             outfile << get_algebraic_from_square(move.get_from(), get_square_from_algebraic(square)) << " ";
             move_outfile << move.get_move() << " ";
             // Play move:
-            move_gen.play_move(move);
-            move_gen.calculate_moves();
+            move_gen.make_move(move);
+            legal_moves = move_gen.get_legal_moves();
         }
         outfile << "\n";
         move_outfile << "\n";

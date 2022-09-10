@@ -19,8 +19,6 @@ int main() {
     Generate* gen = new Generate(*init);
 
     MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
-    // vector<int> piece_board = char_board_to_piece_board(char_board);
-    // MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
     
     MovePickRec* move_pick = new MovePickRec(gen, move_gen);
 

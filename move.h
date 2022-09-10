@@ -5,13 +5,11 @@
 
 class Move {
     public:
-        Move(unsigned int move) : move(move) {
-            move_eval = 0.0;
-        };
+        Move(unsigned int move) : move(move) {};
 
         unsigned int get_move();
-        double get_move_eval();
-        // Used to deter,ime the color and piece moving in the move member
+
+        // Enum used to determine the color and piece moving in the move member
         enum piece_color {
             EMPTY = 0,
             WHITE_PAWN = 1,
@@ -85,7 +83,6 @@ class Move {
         */
 
         unsigned int move;
-        double move_eval;
 };
 
 #endif
