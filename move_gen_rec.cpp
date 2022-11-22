@@ -926,24 +926,26 @@ void MoveGenRec::print_color_piece_board(int friendly_side) {
     string black_start = (friendly_side == color::BLACK) ? "\033[32;40m" : "\033[31;40m";
     string end = "\033[0m";
     for (int i = 0; i < 8; ++i) {
-        cout << (8-i) << "   "; 
+        cout << "   +-+-+-+-+-+-+-+-+\n";
+        cout << (8-i) << "  |"; 
         for (int j = 0; j < 8; ++j) {
-            if (piece_board[i*8+j] == Move::WHITE_PAWN) cout << white_start << "\u2659 " << end;
-            else if (piece_board[i*8+j] == Move::WHITE_KNIGHT) cout << white_start << "\u2658 " << end;
-            else if (piece_board[i*8+j] == Move::WHITE_BISHOP) cout << white_start << "\u2657 " << end;
-            else if (piece_board[i*8+j] == Move::WHITE_ROOK) cout << white_start << "\u2656 " << end;
-            else if (piece_board[i*8+j] == Move::WHITE_QUEEN) cout << white_start << "\u2655 " << end;
-            else if (piece_board[i*8+j] == Move::WHITE_KING) cout << white_start << "\u2654 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_PAWN) cout << black_start << "\u2659 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_KNIGHT) cout << black_start << "\u2658 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_BISHOP) cout << black_start << "\u2657 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_ROOK) cout << black_start << "\u2656 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_QUEEN) cout << black_start << "\u2655 " << end;
-            else if (piece_board[i*8+j] == Move::BLACK_KING) cout << black_start << "\u2654 " << end;
-            else cout << ". ";
+            if (piece_board[i*8+j] == Move::WHITE_PAWN) cout << white_start << "\u2659" << end << "|";
+            else if (piece_board[i*8+j] == Move::WHITE_KNIGHT) cout << white_start << "\u2658" << end << "|";
+            else if (piece_board[i*8+j] == Move::WHITE_BISHOP) cout << white_start << "\u2657" << end << "|";
+            else if (piece_board[i*8+j] == Move::WHITE_ROOK) cout << white_start << "\u2656" << end << "|";
+            else if (piece_board[i*8+j] == Move::WHITE_QUEEN) cout << white_start << "\u2655" << end << "|";
+            else if (piece_board[i*8+j] == Move::WHITE_KING) cout << white_start << "\u2654" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_PAWN) cout << black_start << "\u2659" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_KNIGHT) cout << black_start << "\u2658" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_BISHOP) cout << black_start << "\u2657" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_ROOK) cout << black_start << "\u2656" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_QUEEN) cout << black_start << "\u2655" << end << "|";
+            else if (piece_board[i*8+j] == Move::BLACK_KING) cout << black_start << "\u2654" << end << "|";
+            else cout << " |";
         }
         cout << "\n";
     }
+    cout << "   +-+-+-+-+-+-+-+-+\n";
     cout << "\n    a b c d e f g h";
     cout << "\n\n\n";
 }
