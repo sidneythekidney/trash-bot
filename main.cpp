@@ -20,7 +20,7 @@ int main() {
 
     MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
     
-    MovePickRec* move_pick = new MovePickRec(gen, move_gen);
+    MovePickRec* move_pick = new MovePickRec(init, gen, move_gen);
 
     OpeningTree* opening = new OpeningTree(move_gen);
 
