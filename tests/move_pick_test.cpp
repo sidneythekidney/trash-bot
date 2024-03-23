@@ -53,7 +53,7 @@ class MovePickRecTest {
         void test_init_move_pick() {
             // Create move_gen and move_pick objects:
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE);
-            MovePickRec move_pick = MovePickRec(gen, move_gen);
+            MovePickRec move_pick = MovePickRec(init, gen, move_gen);
             Move best_move = move_pick.get_best_move(3, true);
 
             if (best_move.get_to() == 0 || best_move.get_from() == 0) {
@@ -77,7 +77,7 @@ class MovePickRecTest {
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.material_eval() != -900) {
@@ -89,7 +89,7 @@ class MovePickRecTest {
 
             // Test the material evaluation from the starting position
             MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE);
-            MovePickRec move_pick2 = MovePickRec(gen, move_gen2);
+            MovePickRec move_pick2 = MovePickRec(init, gen, move_gen2);
 
             if (move_pick2.material_eval() != 0) {
                 print_error("FAIL: Failed material evaluation test!");
@@ -116,7 +116,7 @@ class MovePickRecTest {
             };
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.position_eval() != 40) {
@@ -146,7 +146,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.doubled_pawns_eval() != 50) {
@@ -178,7 +178,7 @@ class MovePickRecTest {
             // Evaluation: 100 * (6/14) - 100 * (2/14) = 28.5714285714
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (!almost_equals(move_pick1.pawn_chain_eval(), 28.5714285714,  0.001)) {
@@ -208,7 +208,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.isolated_pawns_eval() != -25) {
@@ -237,7 +237,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.passed_pawns_eval() != -75) {
@@ -266,7 +266,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             bool fail = false;
             if (move_pick1.king_safety_eval() != 60) {
@@ -294,7 +294,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             Move to_play = move_pick1.get_best_move(5, true);
 
@@ -327,7 +327,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::BLACK, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             Move to_play = move_pick1.get_best_move(5, true);
 
@@ -361,7 +361,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             Move to_play = move_pick1.get_best_move(5, true);
 
@@ -396,7 +396,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             Move to_play1 = move_pick1.get_best_move(5, true);
 
@@ -424,7 +424,7 @@ class MovePickRecTest {
 
             vector<int> piece_board2 = char_board_to_piece_board(char_board2);
             MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE, piece_board2, 0ULL, 0xf);
-            MovePickRec move_pick2 = MovePickRec(gen, move_gen2);
+            MovePickRec move_pick2 = MovePickRec(init, gen, move_gen2);
 
             Move to_play2 = move_pick2.get_best_move(5, true);
 
@@ -456,7 +456,7 @@ class MovePickRecTest {
 
             vector<int> piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
-            MovePickRec move_pick1 = MovePickRec(gen, move_gen1);
+            MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
             Move to_play1 = move_pick1.get_best_move(5, true);
 

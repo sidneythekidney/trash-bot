@@ -11,7 +11,7 @@
 
 class MovePickRec {
     public:
-        MovePickRec(Generate* gen, MoveGenRec* move_gen);
+        MovePickRec(Initialize* init, Generate* gen, MoveGenRec* move_gen);
         // Find the best move at a certain depth
         Move get_best_move(int depth, bool forced);
         double get_best_move_helper(int depth, int starting_depth, double alpha, double beta);
@@ -44,6 +44,7 @@ class MovePickRec {
         double king_safety_eval();
 
     private:
+        Initialize* init;
         Generate* gen;
         MoveGenRec* move_gen;
         color starting_player;

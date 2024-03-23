@@ -5,7 +5,7 @@ using namespace std;
 U64 Initialize::set_occupancy(int index, int bits_in_mask, U64 attack_mask) {
     U64 occ = 0ULL;
     for (int i = 0; i < bits_in_mask; ++i) {
-        int sq = get_ls1b(attack_mask);
+        int sq = get_ls1b(attack_mask, bit_counts);
         attack_mask = pop_bit(attack_mask, sq);
         if (index & (1 << i)) {
             occ |= (1ULL << sq);
@@ -253,10 +253,20 @@ void Initialize::init_pawn_attacks() {
     }
 }
 
+void Initialize::init_bit_count_table()
+{
+    for (int i = 0; i < 65536; ++i)
+    {
+        bit_counts[i] = (i & 1) + bit_counts[i/2];
+    }
+}
+
 void Initialize::init_all() {
     // Initialize the size of the bishop and rook vectors
     bishop_attacks.resize(64, vector<U64>(512, 0ULL));
     rook_attacks.resize(64, vector<U64>(4096, 0ULL));
+
+    init_bit_count_table();
 
     init_slider_attack_tables();
     init_knight_attack_table();

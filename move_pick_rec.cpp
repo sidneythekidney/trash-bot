@@ -1,6 +1,6 @@
 #include "move_pick_rec.h"
 
-MovePickRec::MovePickRec(Generate* gen, MoveGenRec* move_gen) : gen(gen), move_gen(move_gen) {
+MovePickRec::MovePickRec(Initialize* init, Generate* gen, MoveGenRec* move_gen) : init(init), gen(gen), move_gen(move_gen) {
     starting_player = move_gen->get_active_player();
     
     // Initialize random numbers for zobrist hashing
@@ -124,21 +124,21 @@ double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start
 }
 
 int MovePickRec::get_white_material() {
-    int num_white_pawns = count_bits(move_gen->get_white_pawns());
-    int num_white_knights = count_bits(move_gen->get_white_knights());
-    int num_white_bishops = count_bits(move_gen->get_white_bishops());
-    int num_white_rooks = count_bits(move_gen->get_white_rooks());
-    int num_white_queens = count_bits(move_gen->get_white_queens());
+    int num_white_pawns = count_bits_using_mask(move_gen->get_white_pawns(), init->bit_counts);
+    int num_white_knights = count_bits_using_mask(move_gen->get_white_knights(), init->bit_counts);
+    int num_white_bishops = count_bits_using_mask(move_gen->get_white_bishops(), init-> bit_counts);
+    int num_white_rooks = count_bits_using_mask(move_gen->get_white_rooks(), init->bit_counts);
+    int num_white_queens = count_bits_using_mask(move_gen->get_white_queens(), init->bit_counts);
 
     return num_white_pawns + 3*(num_white_knights + num_white_bishops) + 5*num_white_rooks + 9*num_white_queens;
 }
 
 int MovePickRec::get_black_material() {
-    int num_black_pawns = count_bits(move_gen->get_black_pawns());
-    int num_black_knights = count_bits(move_gen->get_black_knights());
-    int num_black_bishops = count_bits(move_gen->get_black_bishops());
-    int num_black_rooks = count_bits(move_gen->get_black_rooks());
-    int num_black_queens = count_bits(move_gen->get_black_queens());
+    int num_black_pawns = count_bits_using_mask(move_gen->get_black_pawns(), init->bit_counts);
+    int num_black_knights = count_bits_using_mask(move_gen->get_black_knights(), init->bit_counts);
+    int num_black_bishops = count_bits_using_mask(move_gen->get_black_bishops(), init->bit_counts);
+    int num_black_rooks = count_bits_using_mask(move_gen->get_black_rooks(), init->bit_counts);
+    int num_black_queens = count_bits_using_mask(move_gen->get_black_queens(), init->bit_counts);
 
     return num_black_pawns + 3*(num_black_knights + num_black_bishops) + 5*num_black_rooks + 9*num_black_queens;
 }
@@ -181,18 +181,18 @@ int MovePickRec::zob_hash(const vector<int> &board) {
 double MovePickRec::material_eval() {
     // TODO: Place this all in a hash table, add data structure to quickly determine if a game is a draw by insufficient material
     // Get the counts for white pieces
-    int num_white_pawns = count_bits(move_gen->get_white_pawns());
-    int num_white_knights = count_bits(move_gen->get_white_knights());
-    int num_white_bishops = count_bits(move_gen->get_white_bishops());
-    int num_white_rooks = count_bits(move_gen->get_white_rooks());
-    int num_white_queens = count_bits(move_gen->get_white_queens());
+    int num_white_pawns = count_bits_using_mask(move_gen->get_white_pawns(), init->bit_counts);
+    int num_white_knights = count_bits_using_mask(move_gen->get_white_knights(), init->bit_counts);
+    int num_white_bishops = count_bits_using_mask(move_gen->get_white_bishops(), init->bit_counts);
+    int num_white_rooks = count_bits_using_mask(move_gen->get_white_rooks(), init->bit_counts);
+    int num_white_queens = count_bits_using_mask(move_gen->get_white_queens(), init->bit_counts);
 
     // Get the counts for black pieces
-    int num_black_pawns = count_bits(move_gen->get_black_pawns());
-    int num_black_knights = count_bits(move_gen->get_black_knights());
-    int num_black_bishops = count_bits(move_gen->get_black_bishops());
-    int num_black_rooks = count_bits(move_gen->get_black_rooks());
-    int num_black_queens = count_bits(move_gen->get_black_queens());
+    int num_black_pawns = count_bits_using_mask(move_gen->get_black_pawns(), init->bit_counts);
+    int num_black_knights = count_bits_using_mask(move_gen->get_black_knights(), init->bit_counts);
+    int num_black_bishops = count_bits_using_mask(move_gen->get_black_bishops(), init->bit_counts);
+    int num_black_rooks = count_bits_using_mask(move_gen->get_black_rooks(), init->bit_counts);
+    int num_black_queens = count_bits_using_mask(move_gen->get_black_queens(), init->bit_counts);
 
     /*
     For material, we use the value found here:
@@ -267,8 +267,8 @@ double MovePickRec::doubled_pawns_eval() {
     U64 black_pawns = move_gen->get_black_pawns();
 
     for (int i = 0; i < 8; ++i) {
-        eval -= (endgame ? 75 : 50) * (count_bits(white_pawns & col_masks[i]) > 1);
-        eval += (endgame ? 75 : 50) * (count_bits(black_pawns & col_masks[i]) > 1);
+        eval -= (endgame ? 75 : 50) * (count_bits_using_mask(white_pawns & col_masks[i], init->bit_counts) > 1);
+        eval += (endgame ? 75 : 50) * (count_bits_using_mask(black_pawns & col_masks[i], init->bit_counts) > 1);
     }
 
     return eval;
@@ -290,15 +290,15 @@ double MovePickRec::pawn_chain_eval() {
     U64 white_pawns_cp = white_pawns;
     U64 black_pawns_cp = black_pawns;
     while (white_pawns_cp) {
-        sq = get_ls1b(white_pawns_cp);
-        w_attacks += count_bits(gen->get_pawn_mask(color::WHITE, sq));
-        w_protects += count_bits(white_pawns & gen->get_pawn_mask(color::WHITE, sq)); 
+        sq = get_ls1b(white_pawns_cp, init->bit_counts);
+        w_attacks += count_bits_using_mask(gen->get_pawn_mask(color::WHITE, sq), init->bit_counts);
+        w_protects += count_bits_using_mask(white_pawns & gen->get_pawn_mask(color::WHITE, sq), init->bit_counts);
         white_pawns_cp = pop_bit(white_pawns_cp, sq);
     }
     while (black_pawns_cp) {
-        sq = get_ls1b(black_pawns_cp);
-        b_attacks += count_bits(gen->get_pawn_mask(color::BLACK, sq));
-        b_protects += count_bits(black_pawns & gen->get_pawn_mask(color::BLACK, sq)); 
+        sq = get_ls1b(black_pawns_cp, init->bit_counts);
+        b_attacks += count_bits_using_mask(gen->get_pawn_mask(color::BLACK, sq), init->bit_counts);
+        b_protects += count_bits_using_mask(black_pawns & gen->get_pawn_mask(color::BLACK, sq), init->bit_counts);
         black_pawns_cp = pop_bit(black_pawns_cp, sq);
     }
     // Avoid divide by zero error:
@@ -326,8 +326,8 @@ double MovePickRec::isolated_pawns_eval() {
     vector<int> w_pawns_per_col;
     vector<int> b_pawns_per_col;
     for (int i = 0; i < 8; ++i) {
-        w_pawns_per_col.push_back(count_bits(white_pawns & col_masks[i]));
-        b_pawns_per_col.push_back(count_bits(black_pawns & col_masks[i]));
+        w_pawns_per_col.push_back(count_bits_using_mask(white_pawns & col_masks[i], init->bit_counts));
+        b_pawns_per_col.push_back(count_bits_using_mask(black_pawns & col_masks[i], init->bit_counts));
     }
     int num_w_isolated = 0;
     int num_b_isolated = 0;
@@ -378,29 +378,28 @@ double MovePickRec::passed_pawns_eval() {
     U64 white_pawns_cp = white_pawns;
     U64 black_pawns_cp = black_pawns;
     while (white_pawns_cp) {
-        int pos = get_ls1b(white_pawns_cp);
+        int pos = get_ls1b(white_pawns_cp, init->bit_counts);
         eval += (black_pawns & w_passed_pawn_mask[pos]) ? 0 : 75;
         white_pawns_cp = pop_bit(white_pawns_cp, pos);
     }
     while (black_pawns_cp) {
-        int pos = get_ls1b(black_pawns_cp);
+        int pos = get_ls1b(black_pawns_cp, init->bit_counts);
         eval -= (white_pawns & b_passed_pawn_mask[pos]) ? 0 : 75;
         black_pawns_cp = pop_bit(black_pawns_cp, pos);
     }
-
     return eval;
 }
 
 double MovePickRec::king_safety_eval() {
     // Get king position and piece masks
-    int w_king_pos = get_ls1b(move_gen->get_white_king());
-    int b_king_pos = get_ls1b(move_gen->get_black_king());
+    int w_king_pos = get_ls1b(move_gen->get_white_king(), init->bit_counts);
+    int b_king_pos = get_ls1b(move_gen->get_black_king(), init->bit_counts);
     U64 white_pieces = move_gen->get_white_pieces();
     U64 black_pieces = move_gen->get_black_pieces();
 
     // Perform evaluation
-    int num_w_protectors = count_bits(white_pieces & w_king_safety_masks[w_king_pos]);
-    int num_b_protectors = count_bits(black_pieces & b_king_safety_masks[b_king_pos]);
+    int num_w_protectors = count_bits_using_mask(white_pieces & w_king_safety_masks[w_king_pos], init->bit_counts);
+    int num_b_protectors = count_bits_using_mask(black_pieces & b_king_safety_masks[b_king_pos], init->bit_counts);
 
     return (double)(num_w_protectors - num_b_protectors) * 30.0;
 }

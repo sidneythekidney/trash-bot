@@ -19,6 +19,7 @@ class Initialize {
     U64 rook_masks[64]; 
     vector<vector< U64 >> bishop_attacks;
     vector<vector< U64 >> rook_attacks;
+    int bit_counts[65536];
 
     const U64 RookMagic[64] = {
         0xa8002c000108020ULL,
@@ -200,5 +201,7 @@ class Initialize {
     void init_king_attack_table();
 
     void init_pawn_attacks();
+
+    void init_bit_count_table();
 };
 #endif

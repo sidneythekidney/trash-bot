@@ -13,9 +13,7 @@ void print_binary(U64 bitboard);
 
 U64 pop_bit(U64 bitboard, int sq);
 
-int get_ls1b(U64 mask);
-
-int count_bits(U64 mask);
+int get_ls1b(U64 mask, int* bit_counts);
 
 U64 board_to_U64(vector<vector<int>> vis);
 
@@ -43,5 +41,7 @@ Move create_move(
 );
 
 void print_piece_board(vector<int> piece_board);
+
+int count_bits_using_mask(U64 target, int* bit_counts);
 
 #endif

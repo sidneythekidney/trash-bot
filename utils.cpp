@@ -29,20 +29,11 @@ U64 pop_bit(U64 bitboard, int sq) {
     return bb;
 }
 
-int get_ls1b(U64 mask) {
+int get_ls1b(U64 mask, int* bit_counts) {
     if (mask) {
-        return count_bits((mask & -(long long)mask) - 1);
+        return count_bits_using_mask((mask & -(long long)mask) - 1, bit_counts);
     }
     return -1;
-}
-
-int count_bits(U64 mask) {
-    int count = 0;
-    while (mask) {
-        count += mask & 1;
-        mask >>= 1;
-    }
-    return count;
 }
 
 U64 board_to_U64(vector<vector<int>> vis) {
@@ -183,3 +174,10 @@ void print_piece_board(vector<int> piece_board) {
     cout << "\n\n\n";
 }
 
+int count_bits_using_mask(U64 target, int* bit_counts)
+{
+    return bit_counts[target & 0xffff] +
+        bit_counts[target >> 16 & 0xffff] +
+        bit_counts[target >> 32 & 0xffff] +
+        bit_counts[target >> 48 & 0xffff];
+}

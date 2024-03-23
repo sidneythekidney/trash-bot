@@ -42,3 +42,8 @@ Thumbs.db
 ##########################
 data/*
 .vscode/*
+
+# Profiling #
+#############
+*.out
+*analysis.output

@@ -498,7 +498,7 @@ void MoveGenRec::move_piece(Move move, int undo){
 
 bool MoveGenRec::checked() {
     // Determine if a piece is in check given the current position
-    int pos = get_ls1b((active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING]);
+    int pos = get_ls1b((active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING], init->bit_counts);
     // Get attacking pieces
     U64 pawns = (active_player == color::WHITE) ? p[Move::BLACK_PAWN] : p[Move::WHITE_PAWN];
     U64 knights = (active_player == color::WHITE) ? p[Move::BLACK_KNIGHT] : p[Move::WHITE_KNIGHT];
@@ -524,7 +524,7 @@ bool MoveGenRec::checked() {
 
 bool MoveGenRec::in_check(Move move){
     // Get the position of the active king
-    int pos = get_ls1b((active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING]);
+    int pos = get_ls1b((active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING], init->bit_counts);
     vector<int> king_sqs = {pos};
     // Add castle squares if necessary:
     if (move.get_castle() && move.get_from() < move.get_to()) {
@@ -589,7 +589,7 @@ void MoveGenRec::get_gen_pawn_moves(color active_player, U64 friend_bl, U64 enem
         U64 wp_copy = p[Move::WHITE_PAWN];
         while (wp_copy) {
             // Get the position of the pawn we want to calculate moves for:
-            int pos = get_ls1b(wp_copy);
+            int pos = get_ls1b(wp_copy, init->bit_counts);
             unsigned int new_flags = 0;
             // Check whether we promote or not (pawns on squares 8-15 promote when moved)
             if (pos-8 < 8) {
@@ -637,7 +637,7 @@ void MoveGenRec::get_gen_pawn_moves(color active_player, U64 friend_bl, U64 enem
         U64 bp_copy = p[Move::BLACK_PAWN];
         while (bp_copy) {
             // Get the position of the pawn we want to calculate moves for:
-            int pos = get_ls1b(bp_copy);
+            int pos = get_ls1b(bp_copy, init->bit_counts);
             unsigned int new_flags = 0;
             // Check whether we promote or not (pawns on squares 8-15 promote when moved)
             if (pos+8 >= 56) {
@@ -690,13 +690,13 @@ void MoveGenRec::get_gen_knight_moves(color active_player, U64 friend_bl) {
     U64 knights = (active_player == color::WHITE) ? p[Move::WHITE_KNIGHT] : p[Move::BLACK_KNIGHT];
     int piece_type = (active_player == color::WHITE) ? Move::WHITE_KNIGHT : Move::BLACK_KNIGHT;
     while (knights) {
-        int pos = get_ls1b(knights);
+        int pos = get_ls1b(knights, init->bit_counts);
 
         // Determine possible knight moves:
         U64 kn_moves = gen->get_knight_mask(friend_bl, pos);
         // add moves for each knight
         while (kn_moves) {
-            int to_sq = get_ls1b(kn_moves);                
+            int to_sq = get_ls1b(kn_moves, init->bit_counts);    
 
             // Add individual move:
             add_move(pos, to_sq, piece_type, piece_board[to_sq], move_history.top().get_castles(), 0b0000);
@@ -712,7 +712,7 @@ void MoveGenRec::get_gen_bishop_moves(color active_player, U64 friend_bl, U64 en
     U64 bishops = (active_player == color::WHITE) ? p[Move::WHITE_BISHOP] : p[Move::BLACK_BISHOP];
     int piece_type = (active_player == color::WHITE) ? Move::WHITE_BISHOP : Move::BLACK_BISHOP;
     while (bishops) {
-        int pos = get_ls1b(bishops);    
+        int pos = get_ls1b(bishops, init->bit_counts);    
 
         // Determine possible bishop moves:
         U64 bishop_moves = gen->get_bishop_mask(friend_bl | enemy_bl, pos);
@@ -721,7 +721,7 @@ void MoveGenRec::get_gen_bishop_moves(color active_player, U64 friend_bl, U64 en
         bishop_moves ^= rel_friendly_blockers;
         // add moves for each bishop
         while (bishop_moves) {
-            int to_sq = get_ls1b(bishop_moves);
+            int to_sq = get_ls1b(bishop_moves, init->bit_counts);
 
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], move_history.top().get_castles(), 0b0000);
@@ -740,7 +740,7 @@ void MoveGenRec::get_gen_rook_moves(color active_player, U64 friend_bl, U64 enem
     
     int castles_cp = castles;
     while (rooks) {
-        int pos = get_ls1b(rooks);    
+        int pos = get_ls1b(rooks, init->bit_counts);    
 
         // Determine possible rook moves:
         U64 rook_moves = gen->get_rook_mask(friend_bl | enemy_bl, pos);
@@ -749,7 +749,7 @@ void MoveGenRec::get_gen_rook_moves(color active_player, U64 friend_bl, U64 enem
         rook_moves ^= rel_friendly_blockers;
         // add moves for each rook
         while (rook_moves) {
-            int to_sq = get_ls1b(rook_moves);
+            int to_sq = get_ls1b(rook_moves, init->bit_counts);
 
             // Handle castling logic bits 0-1, white castles, 2-3 black castles
             unsigned int castles = move_history.top().get_castles();
@@ -785,14 +785,14 @@ void MoveGenRec::get_gen_queen_moves(color active_player, U64 friend_bl, U64 ene
     U64 queens = (active_player == color::WHITE) ? p[Move::WHITE_QUEEN] : p[Move::BLACK_QUEEN];
     int piece_type = (active_player == color::WHITE) ? Move::WHITE_QUEEN : Move::BLACK_QUEEN;
     while (queens) {
-        int pos = get_ls1b(queens);
+        int pos = get_ls1b(queens, init->bit_counts);
         // Determine possible bishop moves from this square:
         U64 bishop_moves = gen->get_bishop_mask(friend_bl | enemy_bl, pos);
         U64 rel_friendly_blockers_bishop = bishop_moves & friend_bl;
         bishop_moves ^= rel_friendly_blockers_bishop;
         // add moves for each bishop
         while (bishop_moves) {
-            int to_sq = get_ls1b(bishop_moves);
+            int to_sq = get_ls1b(bishop_moves, init->bit_counts);
 
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], move_history.top().get_castles(), 0b0000);
@@ -805,7 +805,7 @@ void MoveGenRec::get_gen_queen_moves(color active_player, U64 friend_bl, U64 ene
         U64 rel_friendly_blockers_rook = rook_moves & friend_bl;
         rook_moves ^= rel_friendly_blockers_rook;
         while (rook_moves) {
-            int to_sq = get_ls1b(rook_moves);
+            int to_sq = get_ls1b(rook_moves, init->bit_counts);
 
             // Add individual move
             add_move(pos, to_sq, piece_type, piece_board[to_sq], move_history.top().get_castles(), 0b0000);
@@ -822,7 +822,7 @@ void MoveGenRec::get_gen_king_moves(color active_player, U64 friend_bl, U64 enem
     U64 king = (active_player == color::WHITE) ? p[Move::WHITE_KING] : p[Move::BLACK_KING];
     int piece_type = (active_player == color::WHITE) ? Move::WHITE_KING : Move::BLACK_KING;
     int castle_mask = (active_player == color::WHITE) ? black_castles : white_castles;
-    int pos = get_ls1b(king);
+    int pos = get_ls1b(king, init->bit_counts);
 
     // Determine possible king moves:
     U64 k_moves = gen->get_king_mask(friend_bl, pos);
@@ -852,7 +852,7 @@ void MoveGenRec::get_gen_king_moves(color active_player, U64 friend_bl, U64 enem
         }
     }
     while (k_moves) {
-        int to_sq = get_ls1b(k_moves);            
+        int to_sq = get_ls1b(k_moves, init->bit_counts);            
         // Add individual moves (non-castle moves):
         add_move(pos, to_sq, piece_type, piece_board[to_sq], move_history.top().get_castles() & castle_mask, 0b0000);
 
