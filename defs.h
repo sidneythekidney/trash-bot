@@ -32,4 +32,6 @@ enum checkmate {
     BLACK_CHECKMATE = 3,
 };
 
+const int CHESS_BOARD_SQUARES = 64;
+
 #endif

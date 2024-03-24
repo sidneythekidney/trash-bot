@@ -40,7 +40,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // Add only the castle move:
             Move move = create_move(60, 62, Move::WHITE_KING, 0, 0b0011, 0b1000);
@@ -50,7 +50,7 @@ class MoveTest {
 
             // Make sure piece board is correct:
             bool fail = false;
-            vector<int> move_gen_pb = move_gen.get_piece_board();
+            int* move_gen_pb = move_gen.get_piece_board();
             if (move_gen_pb[61] == Move::WHITE_ROOK || move_gen_pb[63] != Move::WHITE_ROOK) {
                 print_error("FAIL: test_white_castle_ks - white rook not moved correctly!\n");
                 cout <<  "current piece board:\n";
@@ -110,7 +110,7 @@ class MoveTest {
                 'p', 'p', 'p', '0', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // Add only the castle move:
             Move move = create_move(4, 6, Move::BLACK_KING, 0, 0b1100, 0b1000);
@@ -120,7 +120,7 @@ class MoveTest {
 
             // Make sure piece board is correct:
             bool fail = false;
-            vector<int> move_gen_pb = move_gen.get_piece_board();
+            int* move_gen_pb = move_gen.get_piece_board();
             if (move_gen_pb[4] == Move::BLACK_ROOK || move_gen_pb[7] != Move::BLACK_ROOK) {
                 print_error("FAIL: test_black_castle_ks - black rook not moved correctly!\n");
                 cout <<  "current piece board:\n";
@@ -180,7 +180,7 @@ class MoveTest {
                 'p', 'p', 'p', 'b', '0', 'p', 'p', 'p',
                 'r', '0', '0', '0', 'k', 'b', 'n', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // Add only the castle move:
             Move move = create_move(60, 58, Move::WHITE_KING, 0, 0b0011, 0b1000);
@@ -190,7 +190,7 @@ class MoveTest {
 
             // Make sure piece board is correct:
             bool fail = false;
-            vector<int> move_gen_pb = move_gen.get_piece_board();
+            int* move_gen_pb = move_gen.get_piece_board();
             if (move_gen_pb[59] == Move::WHITE_ROOK || move_gen_pb[56] != Move::WHITE_ROOK) {
                 print_error("FAIL: test_white_castle_qs - white rook not moved correctly!\n");
                 cout <<  "current piece board:\n";
@@ -250,7 +250,7 @@ class MoveTest {
                 'p', 'p', 'p', '0', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // Add only the castle move:
             Move move = create_move(4, 2, Move::BLACK_KING, 0, 0b1100, 0b1000);
@@ -260,7 +260,7 @@ class MoveTest {
 
             // Make sure piece board is correct:
             bool fail = false;
-            vector<int> move_gen_pb = move_gen.get_piece_board();
+            int* move_gen_pb = move_gen.get_piece_board();
             if (move_gen_pb[3] == Move::BLACK_ROOK || move_gen_pb[0] != Move::BLACK_ROOK) {
                 print_error("FAIL: test_black_castle_qs - black rook not moved correctly!\n");
                 cout <<  "current piece board:\n";

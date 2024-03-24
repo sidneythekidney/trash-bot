@@ -22,7 +22,7 @@ class MoveGenRec {
             Initialize* init,
             Generate* gen,
             color active_player,
-            vector<int> piece_board,
+            int* initial_board,
             U64 en_passant,
             unsigned int castles
         );
@@ -55,17 +55,17 @@ class MoveGenRec {
         // setters
         void set_active_player(color new_active_player);
 
-        vector<int> get_piece_board();
+        int* get_piece_board();
 
     private:
         // Private member variables
         Initialize* init;
         Generate* gen;
         color active_player;
-        vector<int> piece_board;
+        int* piece_board;
         U64 en_passant;
         int castles;
-        vector<U64> p;
+        vector<U64> piece_masks;
         stack<Move> move_history;
         vector<Move> move_list;
 

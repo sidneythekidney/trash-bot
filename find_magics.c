@@ -1,7 +1,9 @@
-// Code used for generating magic numbers for fast sliding piece move generation
+// Code used for generating magic numbers for fast sliding piece move generation, which can be hardcoded into the application
 // Aggressively stolen from: https://www.chessprogramming.org/index.php?title=Looking_for_Magics
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "defs.h"
 
 #define USE_32_BIT_MULTIPLICATIONS
 
@@ -24,7 +26,7 @@ int count_1s(uint64 b) {
   return r;
 }
 
-const int BitTable[64] = {
+const int BitTable[CHESS_BOARD_SQUARES] = {
   63, 30, 3, 32, 25, 41, 22, 33, 15, 50, 42, 13, 11, 53, 19, 34, 61, 29, 2,
   51, 21, 43, 45, 10, 18, 47, 1, 54, 9, 57, 0, 35, 62, 31, 40, 4, 49, 5, 52,
   26, 60, 6, 23, 44, 46, 27, 56, 16, 7, 39, 48, 24, 59, 14, 12, 55, 38, 28,
@@ -148,7 +150,7 @@ uint64 find_magic(int sq, int m, int bishop) {
   return 0ULL;
 }
 
-int RBits[64] = {
+int RBits[CHESS_BOARD_SQUARES] = {
   12, 11, 11, 11, 11, 11, 11, 12,
   11, 10, 10, 10, 10, 10, 10, 11,
   11, 10, 10, 10, 10, 10, 10, 11,
@@ -159,7 +161,7 @@ int RBits[64] = {
   12, 11, 11, 11, 11, 11, 11, 12
 };
 
-int BBits[64] = {
+int BBits[CHESS_BOARD_SQUARES] = {
   6, 5, 5, 5, 5, 5, 5, 6,
   5, 5, 5, 5, 5, 5, 5, 5,
   5, 5, 7, 7, 7, 7, 5, 5,
@@ -174,7 +176,7 @@ int main() {
   int square;
 
   printf("const uint64 RMagic[64] = {\n");
-  for(int square = 0; square < 64; square++)
+  for(int square = 0; square < CHESS_BOARD_SQUARES; square++)
     printf("  0x%llxULL,\n", find_magic(square, RBits[square], 0));
     if ((square % 4) == 0) {
       printf("\n");
@@ -182,7 +184,7 @@ int main() {
   printf("};\n\n");
 
   printf("const uint64 BMagic[64] = {\n");
-  for(int square = 0; square < 64; square++)
+  for(int square = 0; square < CHESS_BOARD_SQUARES; square++)
     printf("  0x%llxULL,\n", find_magic(square, BBits[square], 1));
     if ((square % 4 == 0)) {
       printf("\n");

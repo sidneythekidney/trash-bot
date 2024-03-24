@@ -75,7 +75,7 @@ class MovePickRecTest {
                 'p', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', 'k', '0', '0', '0', '0'
             };
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -114,7 +114,7 @@ class MovePickRecTest {
                 'p', 'p', 'p', '0', 'p', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -144,7 +144,7 @@ class MovePickRecTest {
             };
             // Black has 2 doubled pawn structures, white has 1
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -176,7 +176,7 @@ class MovePickRecTest {
             // black attacks = 14
             // black defends = 2
             // Evaluation: 100 * (6/14) - 100 * (2/14) = 28.5714285714
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -206,7 +206,7 @@ class MovePickRecTest {
             };
             // Black has 3 isolated pawns, white has 4
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -235,7 +235,7 @@ class MovePickRecTest {
             };
             // Black has 1 passed pawn, white has none
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -264,7 +264,7 @@ class MovePickRecTest {
             };
             // Black has 1 king defender, white has 3
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -292,7 +292,7 @@ class MovePickRecTest {
                 'r', 'n', 'b', 'q', 'k', 'b', '0', 'r'
             };
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -325,7 +325,7 @@ class MovePickRecTest {
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::BLACK, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -359,7 +359,7 @@ class MovePickRecTest {
                 'r', 'n', 'b', '0', 'k', 'b', '0', 'r'
             };
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -394,7 +394,7 @@ class MovePickRecTest {
                 '0', '0', '0', '0', 'k', '0', '0', '0'
             };
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 
@@ -422,7 +422,7 @@ class MovePickRecTest {
                 '0', '0', '0', '0', 'k', '0', '0', '0'
             };
 
-            vector<int> piece_board2 = char_board_to_piece_board(char_board2);
+            int* piece_board2 = char_board_to_piece_board(char_board2);
             MoveGenRec* move_gen2 = new MoveGenRec(init, gen, color::WHITE, piece_board2, 0ULL, 0xf);
             MovePickRec move_pick2 = MovePickRec(init, gen, move_gen2);
 
@@ -454,7 +454,7 @@ class MovePickRecTest {
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
 
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             MoveGenRec* move_gen1 = new MoveGenRec(init, gen, color::WHITE, piece_board1, 0ULL, 0xf);
             MovePickRec move_pick1 = MovePickRec(init, gen, move_gen1);
 

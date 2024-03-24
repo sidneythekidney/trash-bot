@@ -4,7 +4,7 @@ MovePickRec::MovePickRec(Initialize* init, Generate* gen, MoveGenRec* move_gen) 
     starting_player = move_gen->get_active_player();
     
     // Initialize random numbers for zobrist hashing
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         for (int j = 0; j < 12; ++j) {
             // Initialize random value:
             zob_rand_nums[i][j] = rand();
@@ -60,11 +60,9 @@ double MovePickRec::alphaBetaMax(double alpha, double beta, int depth, int start
         return 0.0;
     }
     for (auto move : legal_moves) {
-        vector<int> old_piece_board = move_gen->get_piece_board();
         move_gen->make_move(move);
         double score = alphaBetaMin(alpha, beta, depth-1, start_depth);
         move_gen->undo_move(move);
-        vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
             cout << "Considering move from: " << get_algebraic_from_square(move.get_from()) << " to: " << get_algebraic_from_square(move.get_to()) << "\n";
             cout << "Number of moves evaluated: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
@@ -100,11 +98,9 @@ double MovePickRec::alphaBetaMin(double alpha, double beta, int depth, int start
         return 0.0;
     }
     for (auto move : legal_moves) {
-        vector<int> old_piece_board = move_gen->get_piece_board();
         move_gen->make_move(move);
         double score = alphaBetaMax(alpha, beta, depth-1, start_depth);
         move_gen->undo_move(move);
-        vector<int> new_piece_board = move_gen->get_piece_board();
         if (depth == start_depth) {
             cout << "Considering move from: " << get_algebraic_from_square(move.get_from()) << " to: " << get_algebraic_from_square(move.get_to()) << "\n";
             cout << "Number of moves evaluated: " << leaf_nodes_explored - last_leaf_nodes_explored << "\n";
@@ -165,12 +161,12 @@ double MovePickRec::eval_current_pos() {
     return eval;
 }
 
-int MovePickRec::zob_hash(const vector<int> &board) {
+int MovePickRec::zob_hash(const int* board) {
     // Compute the zobrist hash for the given board:
     // Algorithm described here: https://en.wikipedia.org/wiki/Zobrist_hashing
     // TODO: Consider adding some collision avoidance, since this is not a perfect hash
     int z_hash = 0;
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         if (board[i]) {
             z_hash ^= zob_rand_nums[i][board[i]-1];
         }
@@ -232,8 +228,8 @@ double MovePickRec::material_eval() {
 
 double MovePickRec::position_eval() {
     double position_score = 0;
-    vector<int> piece_board = move_gen->get_piece_board();
-    for (int i = 0; i < 64; ++i) {
+    int* piece_board = move_gen->get_piece_board();
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         int piece = piece_board[i];
         if (piece != Move::EMPTY) {
             // Calculate the multiplier: -1 for black, 1 for white
@@ -405,7 +401,7 @@ double MovePickRec::king_safety_eval() {
 }
 
 void MovePickRec::set_piece_arr(int piece, int game, vector<int> squares) {
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         piece_square[piece][game][i] = squares[i];
     }
 }
@@ -588,7 +584,7 @@ void MovePickRec::init_passed_pawn_masks() {
 
 void MovePickRec::init_king_safety_masks() {
     // Initialize white king safety masks:
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 mask = 0ULL;
         if (i % 8) {
             // Add left square:
@@ -613,7 +609,7 @@ void MovePickRec::init_king_safety_masks() {
         w_king_safety_masks.push_back(mask);
     }   
     // Initialize black king safety masks:
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 mask = 0ULL;
         if (i % 8) {
             // Add left square:

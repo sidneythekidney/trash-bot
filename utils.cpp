@@ -7,7 +7,7 @@ using namespace std;
 
 void print_binary(U64 bitboard) {
     // Print the binary version of num (used for debugging)
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         if (i % 8 == 0) {
             cout << "\n";
         }
@@ -50,26 +50,24 @@ U64 board_to_U64(vector<vector<int>> vis) {
     return ret;
 }
 
-vector<int> char_board_to_piece_board(vector<char> char_board) {    
-    vector<int> piece_board = {};
-    for (int i = 0; i < (int)char_board.size(); ++i) {
-
-        if (char_board[i] == 'p') piece_board.push_back(Move::WHITE_PAWN);
-        else if (char_board[i] == 'n') piece_board.push_back(Move::WHITE_KNIGHT);
-        else if (char_board[i] == 'b') piece_board.push_back(Move::WHITE_BISHOP);
-        else if (char_board[i] == 'r') piece_board.push_back(Move::WHITE_ROOK);
-        else if (char_board[i] == 'q') piece_board.push_back(Move::WHITE_QUEEN);
-        else if (char_board[i] == 'k') piece_board.push_back(Move::WHITE_KING);
-        else if (char_board[i] == 'P') piece_board.push_back(Move::BLACK_PAWN);
-        else if (char_board[i] == 'N') piece_board.push_back(Move::BLACK_KNIGHT);
-        else if (char_board[i] == 'B') piece_board.push_back(Move::BLACK_BISHOP);
-        else if (char_board[i] == 'R') piece_board.push_back(Move::BLACK_ROOK);
-        else if (char_board[i] == 'Q') piece_board.push_back(Move::BLACK_QUEEN);
-        else if (char_board[i] == 'K') piece_board.push_back(Move::BLACK_KING);
-        else piece_board.push_back(0);
+int* char_board_to_piece_board(vector<char> char_board) {    
+    int* new_board = new int[CHESS_BOARD_SQUARES];
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
+        if (char_board[i] == 'p') new_board[i] = Move::WHITE_PAWN;
+        else if (char_board[i] == 'n') new_board[i] = Move::WHITE_KNIGHT;
+        else if (char_board[i] == 'b') new_board[i] = Move::WHITE_BISHOP;
+        else if (char_board[i] == 'r') new_board[i] = Move::WHITE_ROOK;
+        else if (char_board[i] == 'q') new_board[i] = Move::WHITE_QUEEN;
+        else if (char_board[i] == 'k') new_board[i] = Move::WHITE_KING;
+        else if (char_board[i] == 'P') new_board[i] = Move::BLACK_PAWN;
+        else if (char_board[i] == 'N') new_board[i] = Move::BLACK_KNIGHT;
+        else if (char_board[i] == 'B') new_board[i] = Move::BLACK_BISHOP;
+        else if (char_board[i] == 'R') new_board[i] = Move::BLACK_ROOK;
+        else if (char_board[i] == 'Q') new_board[i] = Move::BLACK_QUEEN;
+        else if (char_board[i] == 'K') new_board[i] = Move::BLACK_KING;
+        else new_board[i] = 0;
     }
-
-    return piece_board;
+    return new_board;
 }
 
 string get_algebraic_move(int from, int to) {

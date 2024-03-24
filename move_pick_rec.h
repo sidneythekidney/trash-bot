@@ -54,7 +54,7 @@ class MovePickRec {
         unordered_map<U64, int> eval_pawn_structs;
 
         // Will contain random numbers used for zobrist hashing
-        int zob_rand_nums[64][12];
+        int zob_rand_nums[CHESS_BOARD_SQUARES][12];
         // piece_square table used for position evalation:
         /*
             12 pieces, starting with white pawn = 1, not 0
@@ -62,7 +62,7 @@ class MovePickRec {
             2 games (middlegame, endgame)
             64 squares
         */
-        int piece_square[13][2][64];
+        int piece_square[13][2][CHESS_BOARD_SQUARES];
 
         // Masks for determining passed pawns
         vector<U64> w_passed_pawn_mask;
@@ -81,7 +81,7 @@ class MovePickRec {
         // Evaluate the current position
         double eval_current_pos();
 
-        int zob_hash(const vector<int> &board);
+        int zob_hash(const int* board);
 
         // Initialize piece square tables
         void init_piece_squares();

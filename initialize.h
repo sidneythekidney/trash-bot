@@ -12,16 +12,16 @@ using namespace std;
 class Initialize {
     public:
 
-    U64 pawn_attacks[2][64];
-    U64 knight_attacks[64];
-    U64 king_attacks[64];
-    U64 bishop_masks[64];
-    U64 rook_masks[64]; 
+    U64 pawn_attacks[2][CHESS_BOARD_SQUARES];
+    U64 knight_attacks[CHESS_BOARD_SQUARES];
+    U64 king_attacks[CHESS_BOARD_SQUARES];
+    U64 bishop_masks[CHESS_BOARD_SQUARES];
+    U64 rook_masks[CHESS_BOARD_SQUARES]; 
     vector<vector< U64 >> bishop_attacks;
     vector<vector< U64 >> rook_attacks;
     int bit_counts[65536];
 
-    const U64 RookMagic[64] = {
+    const U64 RookMagic[CHESS_BOARD_SQUARES] = {
         0xa8002c000108020ULL,
         0x6c00049b0002001ULL,
         0x100200010090040ULL,
@@ -89,7 +89,7 @@ class Initialize {
     };
 
     // bishop magic number
-    const U64 BishopMagic[64] = {
+    const U64 BishopMagic[CHESS_BOARD_SQUARES] = {
         0x89a1121896040240ULL,
         0x2004844802002010ULL,
         0x2068080051921000ULL,
@@ -157,7 +157,7 @@ class Initialize {
     };
 
     // bishop relevant occupancy bit count for every square on board
-    const int bishop_relevant_bits[64] = {
+    const int bishop_relevant_bits[CHESS_BOARD_SQUARES] = {
         6, 5, 5, 5, 5, 5, 5, 6, 
         5, 5, 5, 5, 5, 5, 5, 5, 
         5, 5, 7, 7, 7, 7, 5, 5, 
@@ -169,7 +169,7 @@ class Initialize {
     };
 
     // rook relevant occupancy bit count for every square on board
-    const int rook_relevant_bits[64] = {
+    const int rook_relevant_bits[CHESS_BOARD_SQUARES] = {
         12, 11, 11, 11, 11, 11, 11, 12, 
         11, 10, 10, 10, 10, 10, 10, 11, 
         11, 10, 10, 10, 10, 10, 10, 11, 

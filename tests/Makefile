@@ -22,14 +22,9 @@ move_pick_test: move_pick_test.cpp
 	make clean
 	$(CXX) $(CXXFLAGS) move_pick_test.cpp ../move.h ../move.cpp ../move_gen_rec.h ../move_gen_rec.cpp ../generate.h ../generate.cpp ../initialize.h ../initialize.cpp ../utils.hpp ../utils.cpp ../move_pick_rec.h ../move_pick_rec.cpp -o move_pick_test.exe
 
-debug_test : test.cpp
-	$(CXX) $(CXXFLAGS) -pthread test.cpp -o test
-
 # Remove automatically generated files
 clean :
 	rm -rvf *.exe *~ *.out *.dSYM *.stackdump
 
 # Disable built-in rules
 .SUFFIXES:
-
-# Run style check tools

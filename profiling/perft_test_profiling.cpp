@@ -156,7 +156,7 @@ class PerftTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', '0', 'k', '0', 'n', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             
             Perft perft = Perft(move_gen);
@@ -191,7 +191,7 @@ class PerftTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             Perft perft = Perft(move_gen);
             U64 num_moves = perft.calculate_num_moves(4);
@@ -228,7 +228,7 @@ class PerftTest {
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', 'K', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             U64 num_moves = perft.calculate_num_moves(5);
@@ -262,7 +262,7 @@ class PerftTest {
                 'p', 'p', '0', '0', '0', '0', '0', '0',
                 '0', 'k', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             U64 num_moves = perft.calculate_num_moves(4);
@@ -297,7 +297,7 @@ class PerftTest {
                 '0', 'k', '0', '0', '0', '0', '0', '0'
             };
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             U64 num_moves = perft.calculate_num_moves(5);
@@ -331,7 +331,7 @@ class PerftTest {
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec* move_gen = new MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0);
             Perft perft = Perft(move_gen);
             U64 num_moves = perft.calculate_num_moves(5);

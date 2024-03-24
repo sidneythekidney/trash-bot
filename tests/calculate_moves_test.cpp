@@ -137,7 +137,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
@@ -165,7 +165,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', 'n', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
@@ -193,7 +193,7 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
@@ -229,7 +229,7 @@ class MoveTest {
                 'r', '0', '0', '0', 'k', '0', '0', 'r'
             };
             // NOTE: White bishop shouldn't prevent white king from castling qs
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
@@ -259,7 +259,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
@@ -289,7 +289,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             // Create MoveGenRec object:
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
@@ -319,7 +319,7 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             // NOTE: The knight prevents the castle of the king
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
@@ -347,7 +347,7 @@ class MoveTest {
             };
             // NOTE: The black queen prevents the white king from castling qs
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
@@ -375,7 +375,7 @@ class MoveTest {
                 '0', 'k', 'r', '0', '0', '0', '0', 'r'
             };
             // NOTE: The white rook prevents the black king from castling qs
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             // NOTE: 0xf is used since we assume all 4 castles are legal for this position
             bool fail = false;
@@ -401,7 +401,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, en_passant, 0xf);
             bool fail = false;
@@ -428,7 +428,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 36; // the square with the pawn that can be en passanted
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
@@ -455,7 +455,7 @@ class MoveTest {
                 'p', 'p', '0', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted (captured)
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, en_passant, 0xf);
             bool fail = false;
@@ -484,7 +484,7 @@ class MoveTest {
                 'p', 'p', '0', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted (captured)
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
@@ -515,7 +515,7 @@ class MoveTest {
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
             // NOTE: taking en passant exposes the white king to the black rook
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
             MoveGenRec move_gen1 = MoveGenRec(init, gen, color::WHITE, piece_board1, en_passant, 0xf);
             bool fail = false;
@@ -537,7 +537,7 @@ class MoveTest {
                 'r', 'n', 'b', 'q', '0', 'r', '0', 'k'
             };
             // NOTE: taking en passant exposes the white king to the black queen
-            vector<int> piece_board2 = char_board_to_piece_board(char_board2);
+            int* piece_board2 = char_board_to_piece_board(char_board2);
             MoveGenRec move_gen2 = MoveGenRec(init, gen, color::WHITE, piece_board2, en_passant, 0xf);
             vector<Move> legal_moves2 = move_gen2.get_legal_moves();
             // Check if the en passant is not generated
@@ -562,7 +562,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', '0', '0', 'r'
             };
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant1 = 1ULL << 36; // the square with the pawn that can be en passanted
             MoveGenRec move_gen1 = MoveGenRec(init, gen, color::BLACK, piece_board1, en_passant1, 0xf);
             bool fail = false;
@@ -585,7 +585,7 @@ class MoveTest {
                 '0', '0', 'k', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board2 = char_board_to_piece_board(char_board2);
+            int* piece_board2 = char_board_to_piece_board(char_board2);
             U64 en_passant2 = 1ULL << 35; // the square with the pawn that can be en passanted
             MoveGenRec move_gen2 = MoveGenRec(init, gen, color::BLACK, piece_board2, en_passant2, 0xf);
             vector<Move> legal_moves2 = move_gen2.get_legal_moves();
@@ -613,7 +613,7 @@ class MoveTest {
                 '0', '0', 'k', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
@@ -642,7 +642,7 @@ class MoveTest {
                 '0', '0', 'k', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
@@ -666,7 +666,7 @@ class MoveTest {
                 '0', '0', 'k', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
@@ -695,7 +695,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', '0', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', '0', '0', '0', 'r'
             };
-            vector<int> piece_board1 = char_board_to_piece_board(char_board1);
+            int* piece_board1 = char_board_to_piece_board(char_board1);
             U64 en_passant = 1ULL << 27; // the square with the pawn that can be en passanted
             MoveGenRec move_gen1 = MoveGenRec(init, gen, color::WHITE, piece_board1, en_passant, 0xf);
             bool fail = false;
@@ -721,7 +721,7 @@ class MoveTest {
                 '0', '0', 'k', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             vector<Move> legal_moves = move_gen.get_legal_moves();
             bool fail = false;
@@ -750,7 +750,7 @@ class MoveTest {
                 'p', 'p', 'p', '0', 'b', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', '0', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             U64 en_passant = 1ULL << 35; // the square with the pawn that can be en passanted
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, en_passant, 0xf);
             bool fail = false;
@@ -783,7 +783,7 @@ class MoveTest {
                 'r', 'n', 'b', '0', 'k', '0', 'n', 'r'
             };
             // NOTE: The above is a scholar's move for white
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -807,7 +807,7 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', 'k', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -831,7 +831,7 @@ class MoveTest {
                 'p', 'p', 'p', '0', '0', '0', '0', '0',
                 '0', 'k', '0', '0', 'R', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -854,7 +854,7 @@ class MoveTest {
                 'p', 'p', 'p', '0', '0', 'N', 'p', 'p',
                 '0', 'r', '0', '0', '0', '0', 'r', 'k'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -878,7 +878,7 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', 'R',
                 'k', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -901,7 +901,7 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', 'r', '0', '0', '0', '0', 'k'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -926,7 +926,7 @@ class MoveTest {
                 '0', '0', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', 'k', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -953,7 +953,7 @@ class MoveTest {
                 '0', 'k', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -981,7 +981,7 @@ class MoveTest {
                 '0', 'K', '0', '0', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -1005,7 +1005,7 @@ class MoveTest {
                 '0', 'K', '0', 'P', '0', '0', '0', '0',
                 '0', '0', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -1029,7 +1029,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', 'b', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -1054,7 +1054,7 @@ class MoveTest {
                 '0', 'p', 'p', 'p', 'p', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0xf);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -1106,7 +1106,7 @@ class MoveTest {
                 'p', 'p', 'p', 'p', 'k', 'p', 'p', 'p',
                 'r', 'n', 'b', 'q', '0', '0', '0', 'r'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0b1100);
             bool fail = false;
             vector<Move> legal_moves = move_gen.get_legal_moves();
@@ -1130,7 +1130,7 @@ class MoveTest {
                 '0', 'Q', '0', '0', '0', '0', '0', '0',
                 '0', 'K', '0', '0', '0', '0', '0', '0'
             };
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
             vector<Move> legal_moves = move_gen.get_legal_moves();
 
@@ -1158,7 +1158,7 @@ class MoveTest {
                 '0', 'k', '0', '0', '0', '0', '0', '0'
             };
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::BLACK, piece_board, 0ULL, 0);
             vector<Move> legal_moves = move_gen.get_legal_moves();
 
@@ -1184,7 +1184,7 @@ class MoveTest {
                 '0', 'K', '0', '0', '0', '0', '0', '0'
             };
 
-            vector<int> piece_board = char_board_to_piece_board(char_board);
+            int* piece_board = char_board_to_piece_board(char_board);
             MoveGenRec move_gen = MoveGenRec(init, gen, color::WHITE, piece_board, 0ULL, 0);
             vector<Move> legal_moves = move_gen.get_legal_moves();
 

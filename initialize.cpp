@@ -82,7 +82,7 @@ U64 Initialize::slow_rook_attacks(int sq, U64 blockers) {
 // Initialize sliding piece masks
 void Initialize::init_slider_masks() {
     // Initialize bishop mask
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 mask = 0ULL;
         int nr, nc, r, c;
         r = i / 8;
@@ -102,7 +102,7 @@ void Initialize::init_slider_masks() {
         bishop_masks[i] = mask;
     }
     // Initialize rook masks:
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 mask = 0ULL;
         int r, c, nr, nc;
         r = i / 8;
@@ -118,7 +118,7 @@ void Initialize::init_slider_masks() {
 void Initialize::init_slider_attack_tables() {
     init_slider_masks();
     // Initialize bishop attacks
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         // Initialize bishop mask:
         U64 attack_mask = bishop_masks[i];
         // Initialize occupancy indices
@@ -133,7 +133,7 @@ void Initialize::init_slider_attack_tables() {
         }
     }
     // Initialize rook attacks
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         // Initialize rook mask:
         U64 attack_mask = rook_masks[i];
         // Initialize occupancy indices
@@ -151,7 +151,7 @@ void Initialize::init_slider_attack_tables() {
 
 void Initialize::init_knight_attack_table() {
     int r, c;
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 board = 0ULL;
         r = i / 8;
         c = i % 8;
@@ -187,7 +187,7 @@ void Initialize::init_knight_attack_table() {
 
 void Initialize::init_king_attack_table() {
     int r, c;
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         U64 board = 0ULL;
         r = i / 8;
         c = i % 8;
@@ -225,7 +225,7 @@ void Initialize::init_pawn_attacks() {
     // 1- black pawn attacks
 
     // Calculate white sliding attacks
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         // Check left:
         U64 initial = 0ULL;
         if (i % 8 != 0 && i / 8 != 0) {
@@ -239,7 +239,7 @@ void Initialize::init_pawn_attacks() {
     }
 
     // Calculate black sliding attacks
-    for (int i = 0; i < 64; ++i) {
+    for (int i = 0; i < CHESS_BOARD_SQUARES; ++i) {
         // Check left:
         U64 initial = 0ULL;
         if (i % 8 != 0 && i / 8 != 7) {

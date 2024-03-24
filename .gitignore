@@ -47,3 +47,5 @@ data/*
 #############
 *.out
 *analysis.output
+*.png
+*gprof2dot.py
