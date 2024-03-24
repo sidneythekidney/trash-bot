@@ -65,7 +65,7 @@ class MoveGenRec {
         int* piece_board;
         U64 en_passant;
         int castles;
-        vector<U64> piece_masks;
+        U64* piece_masks;
         stack<Move> move_history;
         vector<Move> move_list;
 
